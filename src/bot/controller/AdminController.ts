@@ -46,9 +46,11 @@ export default class AdminController {
 		const usernameRegex = /^@[a-zA-Z0-9_]{5,32}$/;
 		const tagNameRegex = /^[a-zA-Z0-9_]{5,32}$/;
 
-		if(!tagNameRegex.test(tagName) || usernames.length == 0) 
+		if(!tagNameRegex.test(tagName))
+			return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
+
+		if(usernames.length == 0) 
 			return await ctx.reply("⚠️ Syntax: /addusers tagname @username1 @username2 ...");
-			
 
 		const tag = await getTag(ctx.update.message.chat.id, tagName);
 		if(tag.state !== "ok") 
@@ -59,7 +61,6 @@ export default class AdminController {
 		const validUsernames = [];
 		const alreadyInUsernames = [];
 		const invalidUsernames = [];
-		
 
 		for(const username of usernames) {
 

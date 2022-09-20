@@ -22,7 +22,7 @@ export default class AdminController {
 		
 		const groupId = ctx.update.message.chat.id;
 		const response = await createTag(groupId, tagName);
-		const message = response.state === "ok" ? `Created tag ${tagName}` : "⚠️ " + response.message;
+		const message = response.state === "ok" ? `✅ Created tag ${tagName}` : "⚠️ " + response.message;
 		await ctx.reply(message);
 	}
 
@@ -33,7 +33,7 @@ export default class AdminController {
 
         const groupId = ctx.update.message.chat.id;
         const response = await deleteTag(groupId, tagName);
-        const message = response.state === 'ok' ? `Deleted tag ${tagName}` : "⚠️ " + response.message;
+        const message = response.state === 'ok' ? `✅ Deleted tag ${tagName}` : "⚠️ " + response.message;
         await ctx.reply(message, { reply_markup: { remove_keyboard: true } });
     }
 

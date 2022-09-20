@@ -1,8 +1,8 @@
+import * as dotenv from 'dotenv'
+dotenv.config();
+
 import { AppDataSource } from "./data-source";
 import TagBot from "./bot/TagBot";
-import * as dotenv from 'dotenv'
-
-dotenv.config()
 
 AppDataSource.initialize().then(async () => {
 

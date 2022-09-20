@@ -56,14 +56,15 @@ export default class TagBot {
 
 		this.bot.command("join", checkIfGroup, UserController.join); 
 		this.bot.command("leave", checkIfGroup, UserController.leave);
-		//regex that recognizes a tag name (5-32 characters, only letters, numbers and underscores) surrounded by normal text
-		this.bot.hears(/(?<=\s|^)#([a-zA-Z0-9_]{5,32})(?=\s|$)/, checkIfGroup, UserController.tag);
+		this.bot.on("msg::hashtag", checkIfGroup, UserController.tag);
 		this.bot.command("list", checkIfGroup, UserController.list);
 		this.bot.command("mytags", checkIfGroup, UserController.myTags);
 
 		this.bot.command("start", GeneralController.start);
-		this.bot.on("my_chat_member", GeneralController.onGroupJoinOrPromotion);
 		this.bot.command("help", GeneralController.help);
+		this.bot.on(["message:new_chat_members:me", "message:group_chat_created", "message:supergroup_chat_created"], GeneralController.onGroupJoin);
+		this.bot.on("my_chat_member", GeneralController.onGroupPromotion);
+		this.bot.on(":migrate_to_chat_id", GeneralController.onGroupMigrate);
 	}
 
 	public async start() {

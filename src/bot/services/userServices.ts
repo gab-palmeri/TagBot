@@ -102,7 +102,7 @@ export async function getSubscriberTags(username: string, groupId: number) {
 		const tags = await Tag.find({relations: ["group", "subscribers"], where: {group: {groupId: groupId}, subscribers: {username: username}}});
 
 		if (!tags || tags.length == 0) {
-            return { state: 'error', message: 'No tags found' };
+            return { state: 'error', message: "You are not subscribed to any tag" };
         } else return { state: 'ok', payload: tags };
 	}
 	catch(e) {

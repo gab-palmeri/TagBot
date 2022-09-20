@@ -88,10 +88,8 @@ export default class UserController {
 		if(response.state == "error")
 			return await ctx.reply("⚠️ " + response.message);
 
-		const tags = response.payload.map((tag) => {
-			return tag.name;
-		});
+		const message = "📄 *Here's a list of the tags you're in:*\n\n" + response.payload.map((tag) => "- " + tag.name).join("\n");
 
-		await ctx.reply(tags.join(" "));
+		await ctx.reply(message, { parse_mode: "Markdown" });
 	}
 }

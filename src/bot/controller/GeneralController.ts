@@ -6,7 +6,7 @@ export default class GeneralController {
 		await ctx.reply(
 			"Hi! I'm a bot that allows you to *create* and *manage* grouptags. Type */help* to see the *list of commands.*",
 			{ parse_mode: "Markdown" }
-		);
+		); 
 	}
 
 	public static async help(ctx: Context) {
@@ -30,9 +30,9 @@ export default class GeneralController {
 	public static async onGroupJoinOrPromotion(ctx: Context) {
 		if(ctx.myChatMember.new_chat_member.status === "member") {
 			await ctx.reply(
-				"Hi! I'm a bot that allows you to *create* and *manage* grouptags. Type */help* to see the *list of commands.* \n\n" +
-				"_Remember to give me *administrator* permissions so that I can answer to #tags._",
-				{ parse_mode: "Markdown" }
+				"Hi\! I'm a bot that allows you to <b>create</b> and <b>manage</b> grouptags. Type <b>/help</b> to see the <b>list of commands.</b> \n\n" +
+				"<i>Remember to give me <b>administrator</b> permissions so that I can answer to #tags.</i>",
+				{ parse_mode: "HTML" }
 			);
 		}
 		else if(ctx.myChatMember.new_chat_member.status === "administrator") {

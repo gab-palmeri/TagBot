@@ -37,7 +37,7 @@ export default class UserController {
 	static async tag(ctx: Context) {
 
 		//extrat the FIRST tag from ctx.match, which can be in between normal text
-		const tagName = ctx.msg.text.match(/#\w+/g)[0];
+		const tagName = ctx.msg.text.match(/#\w+/g)[0].substring(1);
 
 		const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
 

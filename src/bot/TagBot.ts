@@ -56,7 +56,7 @@ export default class TagBot {
 
 		this.bot.command("join", checkIfGroup, UserController.join); 
 		this.bot.command("leave", checkIfGroup, UserController.leave);
-		this.bot.on("msg::hashtag", checkIfGroup, UserController.tag);
+		this.bot.on("::hashtag", checkIfGroup, UserController.tag);
 		this.bot.command("list", checkIfGroup, UserController.list);
 		this.bot.command("mytags", checkIfGroup, UserController.myTags);
 

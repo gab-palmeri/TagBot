@@ -69,12 +69,12 @@ export default class UserController {
 		emptyTags.length == 1 ?
 		message += "⚠️ The tag " + emptyTags[0] + " is empty\n" :
 		emptyTags.length > 1 ?
-		message += "⚠️ The following tags are empty: " + emptyTags.join(", ") + "\n" : null;
+		message += "⚠️ These tags are empty: " + emptyTags.join(", ") + "\n" : null;
 
 		nonExistentTags.length == 1 ? 
 		message += "❌ The tag " + nonExistentTags[0] + " does not exist\n" : 
 		nonExistentTags.length > 1 ?
-		message += "❌ The following tags do not exist: " + nonExistentTags.join(", ") : null;
+		message += "❌ These tags do not exist: " + nonExistentTags.join(", ") : null;
 		
 		await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
 	}

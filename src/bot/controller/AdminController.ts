@@ -10,8 +10,8 @@ export default class AdminController {
 	
 		const tagName = ctx.match.toString();
 
-		//tagName must be at least 5 characters long and can contain only letters, numbers and underscores
-		const regex = /^[a-zA-Z0-9_]{5,32}$/;
+		//tagName must be at least 3 characters long and can contain only letters, numbers and underscores
+		const regex = /^[a-zA-Z0-9_]{3,32}$/;
 
 		if(tagName.length == 0)
 			return await ctx.reply("⚠️ Syntax: /create tagname");

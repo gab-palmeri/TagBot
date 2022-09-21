@@ -66,10 +66,10 @@ export async function getSubscribers(tagName: string, groupId: number) {
 		const tag = await Tag.findOne({relations: ["group", "subscribers"], where: { name: tagName, group: {groupId: groupId}}});
 
 		if(!tag) 
-			return {state: "error", message: "This tag doesn't exist"};
+			return {state: "NOT_EXISTS", message: "This tag doesn't exist"};
 
 		if(tag.subscribers.length == 0)
-			return {state: "error", message: "No one is subscribed to this tag"};
+			return {state: "TAG_EMPTY", message: "No one is subscribed to this tag"};
 
 		return {state: "ok", payload: tag.subscribers.map(s => s.username)};
 	}

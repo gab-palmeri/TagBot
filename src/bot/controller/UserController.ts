@@ -36,24 +36,47 @@ export default class UserController {
 
 	static async tag(ctx: Context) {
 
-		//extrat the FIRST tag from ctx.match, which can be in between normal text
-		const tagName = ctx.msg.text.match(/#\w+/g)[0].substring(1);
-
+		//get ALL tag names mentioned in the message
+		const tagNames = ctx.msg.text.match(/#\w+/g);
 		const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
-
 		const groupId = ctx.update.message.chat.id;
-		const response = await getSubscribers(tagName, groupId);
 
-		if(response.state == "error") {
-			await ctx.reply("⚠️ " + response.message, {reply_markup: { remove_keyboard: true } });
-			return;
+		let emptyTags = [];
+		let nonExistentTags = [];
+
+		//for every tag name, get the subcribers and create a set of unique user preceded by "@"
+		//if the tag does not exist or is empty, add it to the corresponding array
+		const users = new Set<string>();
+		for(const tagName of tagNames) {
+			const response = await getSubscribers(tagName.substring(1), groupId);
+
+			switch(response.state) {
+				case "ok":
+					response.payload.forEach(subscriber => users.add(`@${subscriber}`));
+					break;
+				case "NOT_EXISTS":
+					nonExistentTags.push(tagName);
+					break;
+				case "TAG_EMPTY":
+					emptyTags.push(tagName);
+					break;
+			}
 		}
 
-		const users: string[] = response.payload.map(user => "@" + user);
-		await ctx.reply(users.join(" "), {
-			reply_to_message_id: messageToReplyTo,
-			reply_markup: { remove_keyboard: true }
-		});	
+		//create a string with all the users plus the non existent and empty tags, if there are any
+		let message = Array.from(users).join(" ") + "\n";
+
+		emptyTags.length == 1 ?
+		message += "⚠️ The tag " + emptyTags[0] + " is empty\n" :
+		emptyTags.length > 1 ?
+		message += "⚠️ The following tags are empty: " + emptyTags.join(", ") + "\n" : null;
+
+		nonExistentTags.length == 1 ? 
+		message += "❌ The tag " + nonExistentTags[0] + " does not exist\n" : 
+		nonExistentTags.length > 1 ?
+		message += "❌ The following tags do not exist: " + nonExistentTags.join(", ") : null;
+		
+		await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
 	}
 
 	static async list(ctx: Context) {

@@ -31,7 +31,7 @@ export default class UserController {
 
 		const groupId = ctx.update.message.chat.id;
 		const username = ctx.update.message.from.username;
-		
+
 		const response = await leaveTag(groupId, tagName, username);
 		const message = response.state === "ok" ? 
 		'@' + username + ' left tag ' + tagName : 
@@ -118,9 +118,9 @@ export default class UserController {
 		const response = await getSubscriberTags(username, groupId);
 
 		if(response.state == "error")
-			return await ctx.reply("⚠️ " + response.message);
+			return await ctx.reply("⚠️ " + response.message + ", @" + username);
 
-		const message = "📄 <b>Here's a list of the tags you're in:</b>\n\n" + 
+		const message = "📄 <b>Here's a list of the tags you're in, @" + username + ":</b>\n\n" + 
 		response.payload.map((tag) => "- " + tag.name).join("\n");
 
 		await ctx.reply(message, { parse_mode: "HTML" });

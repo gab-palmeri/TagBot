@@ -15,11 +15,13 @@ export default class UserController {
 		const username = ctx.update.message.from.username;
 
 		const response = await joinTag(groupId, tagName, username);
-		const message = response.state === "ok" ? `Joined tag ${tagName}` : "⚠️ " + response.message;
+		const message = response.state === "ok" ? 
+		'@' + username + ' joined tag ' + tagName : 
+		"⚠️ " + response.message;
+
 		await ctx.reply(message, { reply_markup: { remove_keyboard: true }});
 	}
 
-	//CONTROLLARE SE L'UTENTE è EFFETTIVAMENTE ISCRITTO ALLA NOTIF
 	static async leave(ctx: Context) {
 
 		const tagName = ctx.match.toString();
@@ -29,8 +31,12 @@ export default class UserController {
 
 		const groupId = ctx.update.message.chat.id;
 		const username = ctx.update.message.from.username;
+		
 		const response = await leaveTag(groupId, tagName, username);
-		const message = response.state === "ok" ? `Left tag ${tagName}` : "⚠️ " + response.message;
+		const message = response.state === "ok" ? 
+		'@' + username + ' left tag ' + tagName : 
+		"⚠️ " + response.message;
+
 		await ctx.reply(message, {reply_markup: { remove_keyboard: true } });
 	}
 

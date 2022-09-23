@@ -36,6 +36,9 @@ export default class UserController {
 
 	static async tag(ctx: Context) {
 
+		if(ctx.msg.forward_date !== undefined)
+			return;
+
 		//get ALL tag names mentioned in the message
 		const tagNames = ctx.msg.text.match(/#\w+/g);
 		const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;

@@ -90,14 +90,14 @@ export default class UserController {
 		}
 
 		//create a fancy message with the tags list
-		const message = "📄 *Here's a list of all the tags in this group:*\n\n" + response.payload.map((tag) => {
+		const message = "📄 <b>Here's a list of all the tags in this group:</b>\n\n" + response.payload.map((tag) => {
 			if(tag.subscribers.length == 1)
-				return "- " + tag.name + " _(1 sub)_";
+				return "- " + tag.name + " <i>(1 sub)</i>";
 			else
-				return "- " + tag.name + " _(" + tag.subscribers.length + " subs)_";
+				return "- " + tag.name + " <i>(" + tag.subscribers.length + " subs)</i>";
 		}).join("\n");
 
-		await ctx.reply(message, { parse_mode: "Markdown" });
+		await ctx.reply(message, {parse_mode: "HTML"});
 	}
 
 	//function that returns the tags the user is subcribed in
@@ -111,8 +111,9 @@ export default class UserController {
 		if(response.state == "error")
 			return await ctx.reply("⚠️ " + response.message);
 
-		const message = "📄 *Here's a list of the tags you're in:*\n\n" + response.payload.map((tag) => "- " + tag.name).join("\n");
+		const message = "📄 <b>Here's a list of the tags you're in:</b>\n\n" + 
+		response.payload.map((tag) => "- " + tag.name).join("\n");
 
-		await ctx.reply(message, { parse_mode: "Markdown" });
+		await ctx.reply(message, { parse_mode: "HTML" });
 	}
 }

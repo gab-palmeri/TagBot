@@ -19,6 +19,7 @@ export default class TagBot {
             .setMyCommands([
                 { command: 'create', description: 'Create a new grouptag' },
                 { command: 'delete', description: 'Delete a grouptag' },
+				{ command: 'rename', description: 'Rename a grouptag' },
                 { command: 'addusers', description: 'Add multiple users to a grouptag' },
 				{ command: 'remusers', description: 'Remove multiple users from a grouptag'},
                 { command: 'join', description: 'Join a grouptag' },
@@ -51,6 +52,7 @@ export default class TagBot {
 
 		this.bot.command("create", checkIfGroup, checkIfAdmin, AdminController.create);
 		this.bot.command('delete', checkIfGroup, checkIfAdmin, AdminController.delete);
+		this.bot.command('rename', checkIfGroup, checkIfAdmin, AdminController.rename);
 		this.bot.command('addusers', checkIfGroup, checkIfAdmin, AdminController.addUsers);
 		this.bot.command('remusers', checkIfGroup, checkIfAdmin, AdminController.remUsers);
 

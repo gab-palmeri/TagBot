@@ -16,7 +16,7 @@ export default class UserController {
 
 		const response = await joinTag(groupId, tagName, username);
 		const message = response.state === "ok" ? 
-		'@' + username + ' joined tag ' + tagName : 
+		'@' + username + ' joined tag ' + tagName + '. He will be notified when someone tags it.' : 
 		"⚠️ " + response.message;
 
 		await ctx.reply(message, { reply_markup: { remove_keyboard: true }});
@@ -34,7 +34,7 @@ export default class UserController {
 
 		const response = await leaveTag(groupId, tagName, username);
 		const message = response.state === "ok" ? 
-		'@' + username + ' left tag ' + tagName : 
+		'@' + username + ' left tag ' + tagName + '. He will no longer be notified when someone tags it.' : 
 		"⚠️ " + response.message;
 
 		await ctx.reply(message, {reply_markup: { remove_keyboard: true } });

@@ -50,8 +50,8 @@ export default class UserController {
 		const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
 		const groupId = ctx.update.message.chat.id;
 
-		let emptyTags = [];
-		let nonExistentTags = [];
+		const emptyTags = [];
+		const nonExistentTags = [];
 
 		//for every tag name, get the subcribers and create a set of unique user preceded by "@"
 		//if the tag does not exist or is empty, add it to the corresponding array

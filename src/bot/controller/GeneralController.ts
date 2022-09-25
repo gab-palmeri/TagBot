@@ -45,7 +45,10 @@ export default class GeneralController {
 	}
 
 	public static async onGroupMigrate(ctx: Context) {
-		await migrateGroup(ctx.chat.id, ctx.msg.migrate_to_chat_id);
-		await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, "✅ Your group tags have been migrated to the supergroup chat!");
+		const response = await migrateGroup(ctx.chat.id, ctx.msg.migrate_to_chat_id);
+		if(response.state === "ok")
+			await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, "✅ Your group tags have been migrated to the supergroup chat!");
+		else 
+			await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, "❌ An error occurred while migrating your group tags to the supergroup chat!");
 	}
 }

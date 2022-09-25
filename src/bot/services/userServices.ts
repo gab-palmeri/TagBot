@@ -20,25 +20,31 @@ export async function joinTag(groupId: number, tagName: string, username: string
 		return { state: "TAG_FULL", message: "This tag is full" };
 	}
 		
+	try {
+		//add the tag to the subscriber
+		let subscriber = await Subscriber.findOne({where: {username: username}, relations: ["tags"]});
 
-	//add the tag to the subscriber
-	let subscriber = await Subscriber.findOne({where: {username: username}, relations: ["tags"]});
+		if(!subscriber) {
+			subscriber = new Subscriber();
+			subscriber.username = username;
+			subscriber.tags = [tag];
+			subscriber = await subscriber.save();
+		}
+		else {
+			if(subscriber.tags.find(n => n.id == tag.id))
+				return {state: "ALREADY_SUBSCRIBED", message: "You are already subscribed to this tag"};
 
-	if(!subscriber) {
-		subscriber = new Subscriber();
-		subscriber.username = username;
-		subscriber.tags = [tag];
-		subscriber = await subscriber.save();
+			subscriber.tags.push(tag);
+			await subscriber.save();
+		}
+
+		return {state: "ok", message: null};
 	}
-	else {
-		if(subscriber.tags.find(n => n.id == tag.id))
-			return {state: "ALREADY_SUBSCRIBED", message: "You are already subscribed to this tag"};
-
-		subscriber.tags.push(tag);
-		await subscriber.save();
+	catch(err) {
+		console.log(err);
+		return {state: "error", message: "Internal server error"};
 	}
-
-	return {state: "ok", message: null};
+	
 }
 
 export async function leaveTag(groupId: number, tagName: string, username: string) {
@@ -52,18 +58,25 @@ export async function leaveTag(groupId: number, tagName: string, username: strin
 
 	console.log(tag.subscribers.length);
 
-	//remove the tag from the subscriber
-	const subscriber = await Subscriber.findOne({relations: ["tags"], where: {username: username}, });
+	try {
+		//remove the tag from the subscriber
+		const subscriber = await Subscriber.findOne({relations: ["tags"], where: {username: username}, });
 
-	if(!subscriber || !subscriber.tags.find(n => n.id == tag.id)) {
-		return {state: "NOT_SUBSCRIBED", message: "You're not subscribed to this tag"};
-	}
-	else {
-		subscriber.tags = subscriber.tags.filter(n => n.id != tag.id);
-		await subscriber.save();
-	}
+		if(!subscriber || !subscriber.tags.find(n => n.id == tag.id)) {
+			return {state: "NOT_SUBSCRIBED", message: "You're not subscribed to this tag"};
+		}
+		else {
+			subscriber.tags = subscriber.tags.filter(n => n.id != tag.id);
+			await subscriber.save();
+		}
 
-	return {state: "ok", message: null};
+		return {state: "ok", message: null};
+	}
+	catch(err) {
+		console.log(err);
+		return {state: "error", message: "Internal server error"};
+	}
+	
 }
 
 export async function getSubscribers(tagName: string, groupId: number) {

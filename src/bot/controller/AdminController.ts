@@ -8,7 +8,10 @@ export default class AdminController {
 
 	static async create(ctx: Context) {
 	
-		const tagName = ctx.match.toString();
+		const args = ctx.match.toString();
+		const [tagName, ...usernames] = args.trim().split(/\s+/);
+
+		//const tagName = ctx.match.toString();
 		const username = ctx.msg.from.username;
 
 		//tagName must be at least 3 characters long and can contain only letters, numbers and underscores
@@ -23,10 +26,16 @@ export default class AdminController {
 		
 		const groupId = ctx.update.message.chat.id;
 		const response = await createTag(groupId, tagName);
-		const message = response.state === "ok" ? 
-		'✅ Created tag ' + tagName + ' (@' + username + ')' : 
-		"⚠️ " + response.message;
-		await ctx.reply(message);
+
+		if(response.state === "ok") {
+			await ctx.reply('✅ Created tag ' + tagName + ' (@' + username + ')');
+			if(usernames.length > 0) {
+				await AdminController.addUsers(ctx);
+			}
+		}
+		else {
+			await ctx.reply('⚠️ ' + response.message);
+		}
 	}
 
 	static async delete(ctx: Context) {

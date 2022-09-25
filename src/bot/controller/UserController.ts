@@ -80,9 +80,9 @@ export default class UserController {
 		let errorMessages = "";
 
 		onCooldown.length == 1 ? 
-		errorMessages += "⚠️ Tag " + onCooldown[0] + " is on cooldown. Please wait a few seconds before tagging it again.\n" :
+		errorMessages += "🕑 Tag " + onCooldown[0] + " is on cooldown. Please wait a few seconds before tagging it again.\n" :
 		onCooldown.length > 1 ?
-		errorMessages += "⚠️ Tags " + onCooldown.join(", ") + " are on cooldown. Please wait a few seconds before tagging them again.\n" : null;
+		errorMessages += "🕑 Tags " + onCooldown.join(", ") + " are on cooldown. Please wait a few seconds before tagging them again.\n" : null;
 
 		emptyTags.length == 1 ?
 		errorMessages += "⚠️ The tag " + emptyTags[0] + " is empty\n" :

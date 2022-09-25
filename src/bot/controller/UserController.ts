@@ -101,9 +101,9 @@ export default class UserController {
 		//create a fancy message with the tags list
 		const message = "📄 <b>Here's a list of all the tags in this group:</b>\n\n" + response.payload.map((tag) => {
 			if(tag.subscribers.length == 1)
-				return "- " + tag.name + " <i>(1 sub)</i>";
+				return "- " + tag.name + " <i>(1/50 sub)</i>";
 			else
-				return "- " + tag.name + " <i>(" + tag.subscribers.length + " subs)</i>";
+				return "- " + tag.name + " <i>(" + tag.subscribers.length + "/50 subs)</i>";
 		}).join("\n");
 
 		await ctx.reply(message, {parse_mode: "HTML"});

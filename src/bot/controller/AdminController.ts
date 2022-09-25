@@ -71,6 +71,8 @@ export default class AdminController {
 		const alreadyInUsernames = [];
 		const invalidUsernames = [];
 
+		const notAddedCosFull = [];
+
 		for(const username of usernames) {
 
 			if(!usernameRegex.test(username)) {
@@ -83,6 +85,11 @@ export default class AdminController {
 				validUsernames.push(username);
 			else if(response.state === "ALREADY_SUBSCRIBED")
 				alreadyInUsernames.push(username);
+			else if(response.state === "TAG_FULL") {
+				//add all the remaining users in "usernames" to notAddedCosFull
+				notAddedCosFull.push(...usernames.slice(usernames.indexOf(username)));
+				break;
+			}
 		}
 
 		//build reply message based on the results
@@ -96,7 +103,11 @@ export default class AdminController {
 		"🚫 Invalid usernames: " + invalidUsernames.join(", ") + "\n" : 
 		"";
 
-		await ctx.reply(addedMessage + alreadyInMessage + invalidMessage + "\n" + "(@" + issuerUsername + ")");
+		const notAddedMessage = notAddedCosFull.length > 0 ?
+		"⚠️ Tag is full, not added: " + notAddedCosFull.join(", ") + "\n" :
+		"";
+
+		await ctx.reply(addedMessage + alreadyInMessage + invalidMessage + notAddedMessage + "\n" + "(@" + issuerUsername + ")");
 	}
 
 	static async remUsers(ctx: Context) {

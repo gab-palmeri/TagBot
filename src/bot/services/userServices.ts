@@ -16,6 +16,11 @@ export async function joinTag(groupId: number, tagName: string, username: string
 
 	const tag = tagResponse.payload;
 
+	if(tag.subscribers.length >= 50) {
+		return { state: "TAG_FULL", message: "This tag is full" };
+	}
+		
+
 	//add the tag to the subscriber
 	let subscriber = await Subscriber.findOne({where: {username: username}, relations: ["tags"]});
 
@@ -44,6 +49,8 @@ export async function leaveTag(groupId: number, tagName: string, username: strin
     }
 
     const tag = tagResponse.payload;
+
+	console.log(tag.subscribers.length);
 
 	//remove the tag from the subscriber
 	const subscriber = await Subscriber.findOne({relations: ["tags"], where: {username: username}, });
@@ -114,7 +121,7 @@ export async function getSubscriberTags(username: string, groupId: number) {
 export async function getTag(groupId: number, tagName: string) {
 
 	try {
-		const tag = await Tag.findOne({where: {name: tagName, group: {groupId: groupId}}, relations: ["group"]});
+		const tag = await Tag.findOne({where: {name: tagName, group: {groupId: groupId}}, relations: ["group", "subscribers"]});
 
 		if(!tag)
 			return {state: "NOT_EXISTS", message: "This tag doesn't exist"};

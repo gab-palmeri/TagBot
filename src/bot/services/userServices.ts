@@ -146,3 +146,22 @@ export async function getTag(groupId: number, tagName: string) {
 		return {state: "error", message: "Service not available"};
 	}
 }
+
+export async function updateTagDate(groupId: number, tagName: string) {
+
+	try {
+		const tag = await Tag.findOne({where: {name: tagName, group: {groupId: groupId}}});
+
+		if(!tag)
+			return {state: "NOT_EXISTS", message: "This tag doesn't exist"};
+
+		tag.lastTagged = new Date();
+		await tag.save();
+
+		return {state: "ok", message: null};
+	}
+	catch(e) {
+		console.log(e);
+		return {state: "error", message: "Service not available"};
+	}
+}

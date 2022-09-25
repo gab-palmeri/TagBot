@@ -1,6 +1,6 @@
 import { Context } from 'grammy';
 
-import { joinTag, getGroupTags, getSubscribers, leaveTag, getSubscriberTags } from '../services/userServices';
+import { joinTag, getGroupTags, getSubscribers, leaveTag, getSubscriberTags, getTag, updateTagDate } from '../services/userServices';
 
 export default class UserController {
 
@@ -52,28 +52,37 @@ export default class UserController {
 
 		const emptyTags = [];
 		const nonExistentTags = [];
+		const onCooldown = [];
 
 		//for every tag name, get the subcribers and create a set of unique user preceded by "@"
 		//if the tag does not exist or is empty, add it to the corresponding array
 		for(const tagName of tagNames) {
 			const response = await getSubscribers(tagName.substring(1), groupId);
 
-			switch(response.state) {
-				case "ok": {
+			if(response.state === "ok") {
+				const tagResponse = await getTag(groupId, tagName.substring(1));
+				
+				//if the lastTagged date is not null AND it's less than 10 seconds ago, add it to the onCooldown array
+				if(tagResponse.payload.lastTagged !== null && (Date.now() - tagResponse.payload.lastTagged.getTime()) < 10000)
+					onCooldown.push(tagName);
+				else {
+					await updateTagDate(groupId, tagName.substring(1));
 					const message = Array.from(response.payload.map(subscriber => "@" + subscriber)).join(" ") + "\n";
 					await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
-					break;
-				}	
-				case "NOT_EXISTS":
-					nonExistentTags.push(tagName);
-					break;
-				case "TAG_EMPTY":
-					emptyTags.push(tagName);
-					break;
+				}
 			}
+			else if(response.state === "NOT_EXISTS")
+				nonExistentTags.push(tagName);
+			else if(response.state === "TAG_EMPTY")
+				emptyTags.push(tagName);
 		}
 
 		let errorMessages = "";
+
+		onCooldown.length == 1 ? 
+		errorMessages += "⚠️ Tag " + onCooldown[0] + " is on cooldown. Please wait a few seconds before tagging it again.\n" :
+		onCooldown.length > 1 ?
+		errorMessages += "⚠️ Tags " + onCooldown.join(", ") + " are on cooldown. Please wait a few seconds before tagging them again.\n" : null;
 
 		emptyTags.length == 1 ?
 		errorMessages += "⚠️ The tag " + emptyTags[0] + " is empty\n" :

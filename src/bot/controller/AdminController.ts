@@ -53,6 +53,30 @@ export default class AdminController {
         await ctx.reply(message, { reply_markup: { remove_keyboard: true } });
     }
 
+	static async rename(ctx: Context) {
+		const args = ctx.match.toString();
+		const [oldTagName, newTagName] = args.trim().split(/\s+/);
+
+		const issuerUsername = ctx.msg.from.username;
+
+		const regex = /^[a-zA-Z0-9_]{5,32}$/;
+
+		if(oldTagName.length == 0 || newTagName.length == 0)
+			return await ctx.reply("⚠️ Syntax: /rename oldtagname newtagname");
+
+		if(!regex.test(oldTagName) || !regex.test(newTagName)) 
+			return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
+
+		const groupId = ctx.update.message.chat.id;
+		const response = await renameTag(groupId, oldTagName, newTagName);
+
+		const message = response.state === "ok" ? 
+		"✅ Renamed tag <b>" + oldTagName + "</b> to <b>" + newTagName + "</b> (@" + issuerUsername + ")" : 
+		"⚠️ " + response.message;
+
+		await ctx.reply(message, {parse_mode: "HTML"});
+	}
+
 	static async addUsers(ctx: Context) {
 
 		const args = ctx.match.toString();
@@ -117,30 +141,6 @@ export default class AdminController {
 		"";
 
 		await ctx.reply(addedMessage + alreadyInMessage + invalidMessage + notAddedMessage + "\n" + "(@" + issuerUsername + ")");
-	}
-
-	static async rename(ctx: Context) {
-		const args = ctx.match.toString();
-		const [oldTagName, newTagName] = args.trim().split(/\s+/);
-
-		const issuerUsername = ctx.msg.from.username;
-
-		const regex = /^[a-zA-Z0-9_]{5,32}$/;
-
-		if(oldTagName.length == 0 || newTagName.length == 0)
-			return await ctx.reply("⚠️ Syntax: /rename oldtagname newtagname");
-
-		if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-			return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
-
-		const groupId = ctx.update.message.chat.id;
-		const response = await renameTag(groupId, oldTagName, newTagName);
-
-		const message = response.state === "ok" ? 
-		"✅ Renamed tag " + oldTagName + " to " + newTagName + " (@" + issuerUsername + ")" : 
-		"⚠️ " + response.message;
-
-		await ctx.reply(message);
 	}
 
 	static async remUsers(ctx: Context) {

@@ -9,6 +9,15 @@ export async function checkIfGroup(ctx: Context, next) {
 	await next();
 }
 
+export async function checkIfPrivate(ctx: Context, next) {
+
+	if(ctx.update.message.chat.type != 'private') {
+		await ctx.reply("This command can only be used in a private chat");
+		return;
+	}
+	await next();
+}
+
 export async function checkIfAdmin(ctx: Context, next) {
 
 	const user = await ctx.getChatMember(ctx.update.message.from.id);

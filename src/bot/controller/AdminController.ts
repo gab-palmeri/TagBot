@@ -1,12 +1,16 @@
-import { Context } from 'grammy';
+import { CommandContext, Context, SessionFlavor } from 'grammy';
 
-import { createTag, deleteTag, renameTag } from '../services/adminServices';
+import { createTag, deleteTag, renameTag, getAdminGroups } from '../services/adminServices';
 import { getTag, joinTag, leaveTag } from '../services/userServices';
+
+import menu from "../ControlPanel";
+
+type MyContext = Context & SessionFlavor<{groups: {groupName:string, groupId:number}[]}>;
 
 
 export default class AdminController {
 
-	static async create(ctx: Context) {
+	static async create(ctx: CommandContext<MyContext>) {
 	
 		const args = ctx.match.toString();
 		const [tagName, ...usernames] = args.trim().split(/\s+/);
@@ -38,7 +42,7 @@ export default class AdminController {
 		}
 	}
 
-	static async delete(ctx: Context) {
+	static async delete(ctx: CommandContext<MyContext>) {
         const tagName = ctx.match.toString();
 		const username = ctx.msg.from.username;
 
@@ -53,7 +57,7 @@ export default class AdminController {
         await ctx.reply(message, { reply_markup: { remove_keyboard: true } });
     }
 
-	static async rename(ctx: Context) {
+	static async rename(ctx: CommandContext<MyContext>) {
 		const args = ctx.match.toString();
 		const [oldTagName, newTagName] = args.trim().split(/\s+/);
 
@@ -77,7 +81,7 @@ export default class AdminController {
 		await ctx.reply(message, {parse_mode: "HTML"});
 	}
 
-	static async addUsers(ctx: Context) {
+	static async addUsers(ctx: CommandContext<MyContext>) {
 
 		const args = ctx.match.toString();
 		const [tagName, ...usernames] = args.trim().split(/\s+/);
@@ -143,7 +147,7 @@ export default class AdminController {
 		await ctx.reply(addedMessage + alreadyInMessage + invalidMessage + notAddedMessage + "\n" + "(@" + issuerUsername + ")");
 	}
 
-	static async remUsers(ctx: Context) {
+	static async remUsers(ctx: CommandContext<MyContext>) {
         
         const args = ctx.match.toString();
         const [tagName, ...usernames] = args.trim().split(/\s+/);
@@ -193,4 +197,41 @@ export default class AdminController {
         await ctx.reply(removedMessage + notInMessage + invalidMessage + '\n' + '(@' + issuerUsername + ')');
     }
 
+	static async controlPanel(ctx: CommandContext<MyContext>) {
+
+		const response = await getAdminGroups(ctx.msg.from.id);
+		if(response.state !== "ok")
+			return await ctx.reply("⚠️ " + response.message);
+
+		const groups = response.payload;
+
+		//get name of the groups
+		const groupsNamesAndIds = [];
+		for(const group of groups) {
+			const groupDetails = await ctx.api.getChat(group.groupId);
+			if(groupDetails.type !== "private") {
+				groupsNamesAndIds.push({
+					groupName: groupDetails.title,
+					groupId: group.groupId
+				});
+			}
+		}
+
+		ctx.session.groups = groupsNamesAndIds;
+
+
+		await ctx.reply("Check out this menu:", { reply_markup: menu });
+		
+		//METTI NELLA SESSIONE I GRUPPI DELL'UTENTE
+
+		//upon pressing a button, move the group ID to the next menu
+
+		//each button of the next menu will send queries to edit the groupId's settings
+
+		//MUST ADD THE FIELDS TO GROUP TABLE, LISTING THE SETTINGS
+
+
+
+		return;
+	}
 }

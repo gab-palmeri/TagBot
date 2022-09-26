@@ -66,3 +66,16 @@ export async function renameTag(groupId: number, tagName: string, newTagName: st
 		return {state: "error", message: "An error occured"};
 	}
 }
+
+export async function getAdminGroups(userId: number) {
+	try {
+		const groups = await Group.find({ relations: ["admins"], where: { admins: {userId: userId} } });
+
+		return {state: "ok", payload: groups};
+	}
+	catch(error) {
+		console.log(error);
+		return {state: "error", message: "An error occured"};
+	}
+	
+}

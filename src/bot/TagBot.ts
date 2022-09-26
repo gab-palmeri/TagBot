@@ -1,18 +1,22 @@
-import { Bot, GrammyError, HttpError, session } from "grammy";
+import { Bot, Context, GrammyError, HttpError, session, SessionFlavor } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { checkIfGroup, checkIfAdmin, getSessionKey } from "./middlewares";
+import { checkIfGroup, checkIfAdmin, getSessionKey, checkIfPrivate } from "./middlewares";
 
 import AdminController from "./controller/AdminController";
 import UserController from "./controller/UserController";
 import GeneralController from "./controller/GeneralController";
 
+import menu from "./ControlPanel";
+
+type MyContext = Context & SessionFlavor<{groups: {groupName:string, groupId:number}[]}>;
+
 export default class TagBot {
 
-	private bot: Bot;
+	private bot: Bot<MyContext>;
 
 	constructor(token: string) {
-		this.bot = new Bot(token);
+		this.bot = new Bot<MyContext>(token);
 
 		this.bot.api
             .setMyCommands([
@@ -41,9 +45,12 @@ export default class TagBot {
         });
 
 		this.bot.use(sequentialize(getSessionKey));
-		this.bot.use(session({getSessionKey}));
+		this.bot.use(session({getSessionKey, initial: () => ({groups: []})}));
+
 		const throttler = apiThrottler();
 		this.bot.api.config.use(throttler);
+
+		this.bot.use(menu);
 
 		this.setCommands();
 	}
@@ -56,6 +63,7 @@ export default class TagBot {
 		this.bot.command('rename', checkIfGroup, checkIfAdmin, AdminController.rename);
 		this.bot.command('addusers', checkIfGroup, checkIfAdmin, AdminController.addUsers);
 		this.bot.command('remusers', checkIfGroup, checkIfAdmin, AdminController.remUsers);
+		this.bot.command("settings", checkIfPrivate, AdminController.controlPanel);
 
 		//USER COMMANDS
 		this.bot.command("join", checkIfGroup, UserController.join); 

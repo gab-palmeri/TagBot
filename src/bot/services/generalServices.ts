@@ -54,8 +54,6 @@ export async function loadAdminList(groupId: number, adminList: number[]) {
 			return !group.admins.find((admin) => admin.userId == userId);
 		});
 
-		console.log(newAdmins);
-
 		group.admins = group.admins.concat(
 			newAdmins.map((userId) => {
 				const admin = new Admin();
@@ -63,8 +61,6 @@ export async function loadAdminList(groupId: number, adminList: number[]) {
 				return admin;
 			})
 		);
-
-		console.log(group.admins);
 
 		await group.save();
 		return { state: "ok", message: null };
@@ -80,8 +76,6 @@ export async function addAdmin(groupId: number, userId: number) {
 		if (!group) {
 			return { state: "NOT_FOUND", message: "Group not found" };
 		}
-
-		console.log(group);
 
 		const admin = new Admin();
 		admin.userId = userId;

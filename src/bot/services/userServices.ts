@@ -56,8 +56,6 @@ export async function leaveTag(groupId: number, tagName: string, username: strin
 
     const tag = tagResponse.payload;
 
-	console.log(tag.subscribers.length);
-
 	try {
 		//remove the tag from the subscriber
 		const subscriber = await Subscriber.findOne({relations: ["tags"], where: {username: username}, });

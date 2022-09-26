@@ -34,8 +34,6 @@ export default class GeneralController {
 		const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
 		const response = await createGroup(ctx.chat.id, adminList.map(admin => admin.user.id));
 
-		console.log(response);
-
 		if(response.state === "ok") {
 			await ctx.reply(
 				"Hi! I'm a bot that allows you to <b>create</b> and <b>manage</b> grouptags. Type <b>/help</b> to see the <b>list of commands.</b> \n\n" +

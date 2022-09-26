@@ -1,12 +1,10 @@
-import { CommandContext, Context, SessionFlavor } from 'grammy';
+import { CommandContext } from 'grammy';
 
 import { createTag, deleteTag, renameTag, getAdminGroups } from '../services/adminServices';
 import { getTag, joinTag, leaveTag } from '../services/userServices';
 
+import MyContext from '../MyContext';
 import menu from "../ControlPanel";
-
-type MyContext = Context & SessionFlavor<{groups: {groupName:string, groupId:number}[]}>;
-
 
 export default class AdminController {
 

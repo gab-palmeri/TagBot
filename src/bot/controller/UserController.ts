@@ -1,10 +1,13 @@
-import { Context } from 'grammy';
+import { CommandContext } from 'grammy';
+import MyContext from '../MyContext';
 
 import { joinTag, getGroupTags, getSubscribers, leaveTag, getSubscriberTags, getTag, updateTagDate } from '../services/userServices';
 
+
+
 export default class UserController {
 
-	static async join(ctx: Context) {
+	static async join(ctx: CommandContext<MyContext>) {
 
 		const tagName = ctx.match.toString();
 
@@ -22,7 +25,7 @@ export default class UserController {
 		await ctx.reply(message, { reply_markup: { remove_keyboard: true }});
 	}
 
-	static async leave(ctx: Context) {
+	static async leave(ctx: CommandContext<MyContext>) {
 
 		const tagName = ctx.match.toString();
 
@@ -40,7 +43,7 @@ export default class UserController {
 		await ctx.reply(message, {reply_markup: { remove_keyboard: true } });
 	}
 
-	static async tag(ctx: Context) {
+	static async tag(ctx: CommandContext<MyContext>) {
 
 		if(ctx.msg.forward_date !== undefined)
 			return;
@@ -98,7 +101,7 @@ export default class UserController {
 			await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
 	}
 
-	static async list(ctx: Context) {
+	static async list(ctx: CommandContext<MyContext>) {
 
 		const groupId = ctx.update.message.chat.id;
 		const response = await getGroupTags(groupId);
@@ -120,7 +123,7 @@ export default class UserController {
 	}
 
 	//function that returns the tags the user is subcribed in
-	static async myTags(ctx: Context) {
+	static async myTags(ctx: CommandContext<MyContext>) {
 		
 		const groupId = ctx.update.message.chat.id;
 		const username = ctx.update.message.from.username;

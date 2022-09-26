@@ -1,7 +1,7 @@
 import { Menu } from "@grammyjs/menu";
 import { Context, SessionFlavor } from "grammy";
 
-type MyContext = Context & SessionFlavor<{groups: {groupName:string, groupId:number}[]}>;
+import MyContext from './MyContext';
 
 const menu = new Menu<MyContext>("groups-list");
 

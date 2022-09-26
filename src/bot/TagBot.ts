@@ -1,4 +1,4 @@
-import { Bot, Context, GrammyError, HttpError, session, SessionFlavor } from "grammy";
+import { Bot, GrammyError, HttpError, session } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { checkIfGroup, checkIfAdmin, getSessionKey, checkIfPrivate } from "./middlewares";
@@ -7,9 +7,8 @@ import AdminController from "./controller/AdminController";
 import UserController from "./controller/UserController";
 import GeneralController from "./controller/GeneralController";
 
+import MyContext from './MyContext';
 import menu from "./ControlPanel";
-
-type MyContext = Context & SessionFlavor<{groups: {groupName:string, groupId:number}[]}>;
 
 export default class TagBot {
 

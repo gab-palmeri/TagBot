@@ -7,7 +7,7 @@ import TagBot from "./bot/TagBot";
 AppDataSource.initialize().then(async () => {
 
 	const bot = new TagBot(process.env.BOT_TOKEN);
-	await bot.start();
+	bot.start();
 
 	console.log("started");
 

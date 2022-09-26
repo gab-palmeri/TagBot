@@ -1,6 +1,7 @@
 import { Group } from '../../entity/Group';
 import { Tag } from '../../entity/Tag';
 
+
 export async function createTag(groupId: number, tagName: string) {
 
 	try {
@@ -77,5 +78,36 @@ export async function getAdminGroups(userId: number) {
 		console.log(error);
 		return {state: "error", message: "An error occured"};
 	}
-	
+}
+
+export async function editGroupPermissions(groupId: number, userId: number, permissions: object) {
+	try {
+
+		//select the group from the database
+		const group = await Group.findOne({relations: ["admins"], where: {groupId: groupId}});
+
+		if(!group) {
+			return {state: "NOT_EXIST", message: "This group doesn't exist"};
+		}
+
+		//check if the user is an admin of the group
+		const isAdmin = group.admins.find(admin => admin.userId == userId);
+		if(!isAdmin) {
+			return {state: "NOT_ADMIN", message: "You are not an admin of this group"};
+		}
+
+		//iterate through permissions, get key name and value
+		for (const [key, value] of Object.entries(permissions)) {
+			//set the permission
+			key in group && (group[key] = value);
+		}
+
+		await group.save();
+
+		return {state: "ok", message: null};
+	}
+	catch(error) {
+		console.log(error);
+		return {state: "error", message: "An error occured"};
+	}
 }

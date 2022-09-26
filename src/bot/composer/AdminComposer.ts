@@ -193,7 +193,7 @@ AdminComposer.command("remusers", checkIfGroup, checkIfAdmin, async ctx => {
     await ctx.reply(removedMessage + notInMessage + invalidMessage + '\n' + '(@' + issuerUsername + ')');
 });
 
-AdminComposer.command("settings", checkIfPrivate, checkIfAdmin, async ctx => {
+AdminComposer.command("settings", checkIfPrivate, async ctx => {
     const response = await getAdminGroups(ctx.msg.from.id);
     if(response.state !== "ok")
         return await ctx.reply("⚠️ " + response.message);
@@ -201,18 +201,23 @@ AdminComposer.command("settings", checkIfPrivate, checkIfAdmin, async ctx => {
     const groups = response.payload;
 
     //get name of the groups
-    const groupsNamesAndIds = [];
+    const groupsNamesAndIdsAndPermissions = [];
     for(const group of groups) {
         const groupDetails = await ctx.api.getChat(group.groupId);
         if(groupDetails.type !== "private") {
-            groupsNamesAndIds.push({
+            groupsNamesAndIdsAndPermissions.push({
                 groupName: groupDetails.title,
-                groupId: group.groupId
+                groupId: group.groupId,
+                canCreate: group.canCreate,
+                canDelete: group.canDelete,
+                canRename: group.canRename,
+                canAddUsers: group.canAddUsers,
+                canRemUsers: group.canRemUsers,
             });
         }
     }
 
-    ctx.session.groups = groupsNamesAndIds;
+    ctx.session.groups = groupsNamesAndIdsAndPermissions;
 
 
     await ctx.reply("Check out this menu:", { reply_markup: menu });

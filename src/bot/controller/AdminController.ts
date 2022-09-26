@@ -21,7 +21,7 @@ export default class AdminController {
 			return await ctx.reply("⚠️ Syntax: /create tagname");
 
 		if(!regex.test(tagName)) 
-			return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
+			return await ctx.reply("⚠️ Tag must be at least 3 characters long and can contain only letters, numbers and underscores");
 		
 		
 		const groupId = ctx.update.message.chat.id;
@@ -59,13 +59,13 @@ export default class AdminController {
 
 		const issuerUsername = ctx.msg.from.username;
 
-		const regex = /^[a-zA-Z0-9_]{5,32}$/;
+		const regex = /^[a-zA-Z0-9_]{3,32}$/;
 
 		if(oldTagName.length == 0 || newTagName.length == 0)
 			return await ctx.reply("⚠️ Syntax: /rename oldtagname newtagname");
 
 		if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-			return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
+			return await ctx.reply("⚠️ Tag must be at least 3 characters long and can contain only letters, numbers and underscores");
 
 		const groupId = ctx.update.message.chat.id;
 		const response = await renameTag(groupId, oldTagName, newTagName);

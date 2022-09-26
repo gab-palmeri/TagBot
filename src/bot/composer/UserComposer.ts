@@ -41,7 +41,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     await ctx.reply(message, {reply_markup: { remove_keyboard: true } });
 });
 
-UserComposer.command("tag", checkIfGroup, async ctx => {
+UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
     if(ctx.msg.forward_date !== undefined)
         return;

@@ -20,7 +20,7 @@ export default class AdminController {
 		if(tagName.length == 0)
 			return await ctx.reply("⚠️ Syntax: /create tagname");
 
-		if(tagName.length < 5 || !regex.test(tagName)) 
+		if(!regex.test(tagName)) 
 			return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
 		
 		

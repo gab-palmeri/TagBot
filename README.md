@@ -1,4 +1,5 @@
 # Tag Bot
+[![Mentioned in Awesome grammY](https://awesome.re/mentioned-badge.svg)](https://github.com/grammyjs/awesome-grammY)
 
 _Create #tags to mention multiple users at once in your group_
 

@@ -8,7 +8,7 @@ export class Admin extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type: "varchar", length: 25, nullable: false, unique: true})
+    @Column({type: "varchar", length: 25, nullable: false})
     userId: number;
 
     //Many to many relationship with the Group entity

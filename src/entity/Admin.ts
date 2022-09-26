@@ -13,6 +13,6 @@ export class Admin extends BaseEntity {
 
     //Many to many relationship with the Group entity
     @ManyToOne(() => Group, group => group.admins, {onDelete: "CASCADE"})
-    groups: Group;
+    group: Group;
 
 }

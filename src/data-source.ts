@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { Group } from './entity/Group';
 import { Tag } from './entity/Tag';
 import { Subscriber } from './entity/Subscriber';
+import { Admin } from './entity/Admin';
 
 
 export const AppDataSource = new DataSource({
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME || "tagbot",
     synchronize: true,
     logging: false,
-    entities: [Group,Tag,Subscriber],
+    entities: [Group,Tag,Subscriber,Admin],
     migrations: [],
     subscribers: [],
 });

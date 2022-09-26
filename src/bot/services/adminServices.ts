@@ -5,14 +5,7 @@ export async function createTag(groupId: number, tagName: string) {
 
 	try {
 		//get the group from the database using ctx.update.message.chat.id
-		let group = await Group.findOne({where: {groupId: groupId}}); 
-
-		//if the group doesn't exist, create it
-		if(!group) {
-			group = new Group();
-			group.groupId = groupId;
-			group = await group.save();
-		}
+		const group = await Group.findOne({where: {groupId: groupId}}); 
 
 		let tag = new Tag();
         tag.name = tagName;

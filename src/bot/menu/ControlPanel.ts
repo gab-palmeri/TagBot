@@ -25,8 +25,8 @@ menu.dynamic((ctx, range) => {
 const ControlPanel = new Menu<MyContext>("control-panel")
     .submenu("✏️ Create", "create-menu", ctx => ctx.editMessageText("Who can create tags?"))
     .submenu("💣 Delete", "delete-menu", ctx => ctx.editMessageText("Who can delete tags?")).row()
-    .submenu("📝 Addusers", "addusers-menu", ctx => ctx.editMessageText("Who can add users to tags?"))
-    .submenu("🗑 Remusers", "remusers-menu", ctx => ctx.editMessageText("Who can remove users from tags?")).row()
+    .submenu("📝 Add Users", "addusers-menu", ctx => ctx.editMessageText("Who can add users to tags?"))
+    .submenu("🗑 Remove Users", "remusers-menu", ctx => ctx.editMessageText("Who can remove users from tags?")).row()
     .submenu("✍️ Rename", "rename-menu", ctx => ctx.editMessageText("Who can rename tags?"))
     .back("Back", ctx => ctx.editMessageText("<b>TagBot Control Panel</b>\n\n👉🏻  <i><u>Select the group</u> you want to edit.</i>", {parse_mode:"HTML"})).row();
 

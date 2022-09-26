@@ -5,7 +5,7 @@ import MyContext from '../MyContext';
 import Create from './Create';
 import Delete from './Delete';
 import Rename from './Rename';
-import AddUsers from "./Addusers";
+import AddUsers from "./AddUsers";
 import RemUsers from "./RemUsers";
 
 const menu = new Menu<MyContext>("groups-list");

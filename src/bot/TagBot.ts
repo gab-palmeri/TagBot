@@ -75,7 +75,7 @@ export default class TagBot {
 		//GENERAL COMMANDS
 		this.bot.command("start", GeneralController.start);
 		this.bot.command("help", GeneralController.help);
-		this.bot.command("restart", GeneralController.restart);
+		this.bot.command("restart", checkIfGroup, checkIfAdmin, GeneralController.restart);
 
 		this.bot.on(["message:new_chat_members:me", "message:group_chat_created", "message:supergroup_chat_created"], GeneralController.onGroupJoin);
 		this.bot.on("my_chat_member", GeneralController.onGroupPromotion);

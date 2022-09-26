@@ -8,7 +8,7 @@ export class Subscriber extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type: "varchar", length: 25, nullable: false})
+    @Column({type: "varchar", length: 25, nullable: false, unique: true})
     username: string;
 
 	//many to many with notif

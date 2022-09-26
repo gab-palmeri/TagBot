@@ -1,14 +1,15 @@
 import { Bot, GrammyError, HttpError, session } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import { checkIfGroup, checkIfAdmin, getSessionKey, checkIfPrivate } from "./middlewares";
+import { getSessionKey } from "./middlewares";
 
-import AdminController from "./controller/AdminController";
-import UserController from "./controller/UserController";
-import GeneralController from "./controller/GeneralController";
+import GeneralComposer from "./composer/GeneralComposer";
+import AdminComposer from "./composer/AdminComposer";
+import UserComposer from "./composer/UserComposer";
+
 
 import MyContext from './MyContext';
-import menu from "./ControlPanel";
+import menu from "./menu/ControlPanel";
 
 export default class TagBot {
 
@@ -57,30 +58,13 @@ export default class TagBot {
 	public setCommands() {
 
 		//ADMIN COMMANDS
-		this.bot.command("create", checkIfGroup, checkIfAdmin, AdminController.create);
-		this.bot.command('delete', checkIfGroup, checkIfAdmin, AdminController.delete);
-		this.bot.command('rename', checkIfGroup, checkIfAdmin, AdminController.rename);
-		this.bot.command('addusers', checkIfGroup, checkIfAdmin, AdminController.addUsers);
-		this.bot.command('remusers', checkIfGroup, checkIfAdmin, AdminController.remUsers);
-		this.bot.command("settings", checkIfPrivate, AdminController.controlPanel);
+		this.bot.use(AdminComposer);
 
 		//USER COMMANDS
-		this.bot.command("join", checkIfGroup, UserController.join); 
-		this.bot.command("leave", checkIfGroup, UserController.leave);
-		this.bot.on("::hashtag", checkIfGroup, UserController.tag);
-		this.bot.command("list", checkIfGroup, UserController.list);
-		this.bot.command("mytags", checkIfGroup, UserController.myTags);
+		this.bot.use(UserComposer);
 
 		//GENERAL COMMANDS
-		this.bot.command("start", GeneralController.start);
-		this.bot.command("help", GeneralController.help);
-		this.bot.command("restart", checkIfGroup, checkIfAdmin, GeneralController.restart);
-
-		this.bot.on(["message:new_chat_members:me", "message:group_chat_created", "message:supergroup_chat_created"], GeneralController.onGroupJoin);
-		this.bot.on("my_chat_member", GeneralController.onGroupPromotion);
-		this.bot.on(":migrate_to_chat_id", GeneralController.onGroupMigrate);
-		this.bot.on("chat_member", GeneralController.onMemberChange);
-
+		this.bot.use(GeneralComposer);
 	}
 
 	public start() {

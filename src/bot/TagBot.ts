@@ -25,7 +25,8 @@ export default class TagBot {
                 { command: 'leave', description: 'Leave a grouptag' },
                 { command: 'list', description: 'List all the grouptags' },
                 { command: 'mytags', description: 'List all the grouptags you are subscribed to' },
-				{ command: 'help', description: 'Show the list of commands' }
+				{ command: 'help', description: 'Show the list of commands' },
+				{ command: 'restart', description: 'Restart the bot' }
             ])
             .catch(console.error);
 

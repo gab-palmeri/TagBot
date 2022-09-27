@@ -4,12 +4,12 @@ import { createTag, deleteTag, getAdminGroups, renameTag } from "../services/adm
 import { getTag, joinTag, leaveTag } from "../services/userServices";
 
 import menu from "../menu/ControlPanel";
-import { checkIfAdmin, checkIfGroup, checkIfPrivate } from "../middlewares";
+import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
 const AdminComposer = new Composer<MyContext>();
 
 
-AdminComposer.command("create", checkIfGroup, checkIfAdmin, async ctx => {
+AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const args = ctx.match.toString();
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 
@@ -26,8 +26,8 @@ AdminComposer.command("create", checkIfGroup, checkIfAdmin, async ctx => {
         return await ctx.reply("⚠️ Tag must be at least 3 characters long and can contain only letters, numbers and underscores");
     
     
-    const groupId = ctx.update.message.chat.id;
-    const response = await createTag(groupId, tagName);
+    const groupId = ctx.msg.chat.id;
+    const response = await createTag(groupId, tagName, ctx.msg.from.id);
 
     if(response.state === "ok") {
         await ctx.reply('✅ Created tag ' + tagName + ' (@' + username + ')');
@@ -40,7 +40,7 @@ AdminComposer.command("create", checkIfGroup, checkIfAdmin, async ctx => {
     }
 });
 
-AdminComposer.command("delete", checkIfGroup, checkIfAdmin, async ctx => {
+AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     const tagName = ctx.match.toString();
     const username = ctx.msg.from.username;
 
@@ -48,6 +48,7 @@ AdminComposer.command("delete", checkIfGroup, checkIfAdmin, async ctx => {
         return await ctx.reply('⚠️ Syntax: /delete tagname');
 
     const groupId = ctx.update.message.chat.id;
+
     const response = await deleteTag(groupId, tagName);
     const message = response.state === 'ok' ? 
     '✅ Deleted tag ' + tagName + ' (@' + username + ')' : 
@@ -55,7 +56,7 @@ AdminComposer.command("delete", checkIfGroup, checkIfAdmin, async ctx => {
     await ctx.reply(message, { reply_markup: { remove_keyboard: true } });
 });
 
-AdminComposer.command("rename", checkIfGroup, checkIfAdmin, async ctx => {
+AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     const [oldTagName, newTagName] = args.trim().split(/\s+/);
 
@@ -79,7 +80,7 @@ AdminComposer.command("rename", checkIfGroup, checkIfAdmin, async ctx => {
     await ctx.reply(message, {parse_mode: "HTML"});
 });
 
-AdminComposer.command("addusers", checkIfGroup, checkIfAdmin, async ctx => {
+AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 
@@ -144,7 +145,7 @@ AdminComposer.command("addusers", checkIfGroup, checkIfAdmin, async ctx => {
     await ctx.reply(addedMessage + alreadyInMessage + invalidMessage + notAddedMessage + "\n" + "(@" + issuerUsername + ")");
 });
 
-AdminComposer.command("remusers", checkIfGroup, checkIfAdmin, async ctx => {
+AdminComposer.command("remusers", checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 
@@ -220,11 +221,8 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
     ctx.session.groups = groupsNamesAndIdsAndPermissions;
 
 
-    await ctx.reply("Check out this menu:", { reply_markup: menu });
+    await ctx.reply("Select a group:", { reply_markup: menu });
 
-    //each button of the next menu will send queries to edit the groupId's settings
-
-    //MUST ADD THE FIELDS TO GROUP TABLE, LISTING THE SETTING
 });
 
 export default AdminComposer;

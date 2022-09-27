@@ -121,7 +121,7 @@ UserComposer.command("list", checkIfGroup, async ctx => {
 });
 
 //function that returns the tags the user is subcribed in
-UserComposer.command("myTags", checkIfGroup, async ctx => {
+UserComposer.command("mytags", checkIfGroup, async ctx => {
     
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;

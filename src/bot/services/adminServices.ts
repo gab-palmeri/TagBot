@@ -2,15 +2,16 @@ import { Group } from '../../entity/Group';
 import { Tag } from '../../entity/Tag';
 
 
-export async function createTag(groupId: number, tagName: string) {
+export async function createTag(groupId: number, tagName: string, userId: number) {
 
 	try {
 		//get the group from the database using ctx.update.message.chat.id
-		const group = await Group.findOne({where: {groupId: groupId}}); 
+		const group = await Group.findOne({where: {groupId: groupId}});
 
 		let tag = new Tag();
         tag.name = tagName;
         tag.group = group;
+		tag.creatorId = userId;
         tag = await tag.save();
         return { state: 'ok', message: null };
 

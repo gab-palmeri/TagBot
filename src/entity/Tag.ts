@@ -15,6 +15,9 @@ export class Tag extends BaseEntity {
     @Column({type: 'datetime', nullable: true})
     lastTagged: Date;
 
+    @Column({type: 'varchar', length: 25, nullable: false, default: '0'})
+    creatorId: number;
+
     @ManyToOne(() => Group, (group) => group.tags)
     group: Group;
 

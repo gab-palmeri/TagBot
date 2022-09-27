@@ -79,22 +79,26 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 			case "delete":
 				group.canDelete == 1 || (group.canDelete == 2 && tag.creatorId == userId) ? await next() :
 				group.canDelete == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can delete it") :
-				await ctx.reply("You don't have permission to delete this tag");
+				group.canDelete == 2 ? await ctx.reply("Only admins or the creator of this tag can delete it") :
+				await ctx.reply("Only admins can delete tags");
 				break;
 			case "rename":
 				group.canRename == 1 || (group.canRename == 2 && tag.creatorId == userId) ? await next() :
 				group.canRename == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can rename it") :
-				await ctx.reply("You don't have permission to rename this tag");
+				group.canRename == 2 ? await ctx.reply("Only admins or the creator of this tag can rename it") :
+				await ctx.reply("Only admins can rename tags");
 				break;
 			case "addusers":
 				group.canAddUsers == 1 || (group.canAddUsers == 2 && tag.creatorId == userId) ? await next() :
 				group.canAddUsers == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can add users to it") :
-				await ctx.reply("You don't have permission to add users to this tag");
+				group.canAddUsers == 2 ? await ctx.reply("Only admins or the creator of this tag can add users to it") :
+				await ctx.reply("Only admins can add users to tags");
 				break;
 			case "remusers":
 				group.canRemUsers == 1 || (group.canRemUsers == 2 && tag.creatorId == userId) ? await next() :
 				group.canRemUsers == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can remove users from it") :
-				await ctx.reply("You don't have permission to remove users from this tag");
+				group.canRemUsers == 2 ? await ctx.reply("Only admins or the creator of this tag can remove users from it") :
+				await ctx.reply("Only admins can remove users from tags");
 				break;
 		}
 	}

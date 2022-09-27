@@ -72,27 +72,29 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 		const group = await Group.findOne({where: {groupId: ctx.msg.chat.id}});
 		const tag = await Tag.findOne({relations: ["group"], where: {name: tagName, group: {groupId: groupId}}});
 
-		if(tag.creatorId == 0) 
-			return await ctx.reply("This tag was created before permissions were implemented, so only admins can delete it");
-
 		//print the name of the command
 		const commandName = ctx.msg.text.split(/\s+/)[0].substring(1);
 
 		switch(commandName) {
 			case "delete":
-				(group.canDelete == 1 || (group.canDelete == 2 && tag.creatorId == userId)) && await next();
+				group.canDelete == 1 || (group.canDelete == 2 && tag.creatorId == userId) ? await next() :
+				group.canDelete == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can delete it") :
+				await ctx.reply("You don't have permission to delete this tag");
 				break;
 			case "rename":
-				(group.canRename == 1 || (group.canRename == 2 && tag.creatorId == userId)) && await next();
+				group.canRename == 1 || (group.canRename == 2 && tag.creatorId == userId) ? await next() :
+				group.canRename == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can rename it") :
+				await ctx.reply("You don't have permission to rename this tag");
 				break;
-			case "edit":
-				(group.canAddUsers == 1 || (group.canAddUsers == 2 && tag.creatorId == userId)) && await next();
+			case "addusers":
+				group.canAddUsers == 1 || (group.canAddUsers == 2 && tag.creatorId == userId) ? await next() :
+				group.canAddUsers == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can add users to it") :
+				await ctx.reply("You don't have permission to add users to this tag");
 				break;
-			case "add":
-				group.canAddUsers == 1 || (group.canAddUsers == 2 && tag.creatorId == userId) && await next();
-				break;
-			default:
-				await ctx.reply("You don't have the permission to use this command");
+			case "remusers":
+				group.canRemUsers == 1 || (group.canRemUsers == 2 && tag.creatorId == userId) ? await next() :
+				group.canRemUsers == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can remove users from it") :
+				await ctx.reply("You don't have permission to remove users from this tag");
 				break;
 		}
 	}

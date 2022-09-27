@@ -72,10 +72,11 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 		const group = await Group.findOne({where: {groupId: ctx.msg.chat.id}});
 		const tag = await Tag.findOne({relations: ["group"], where: {name: tagName, group: {groupId: groupId}}});
 
+		if(tag.creatorId == 0) 
+			return await ctx.reply("This tag was created before permissions were implemented, so only admins can delete it");
+
 		//print the name of the command
 		const commandName = ctx.msg.text.split(/\s+/)[0].substring(1);
-
-		console.log(commandName);
 
 		switch(commandName) {
 			case "delete":

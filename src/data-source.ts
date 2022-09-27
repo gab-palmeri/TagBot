@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USER || "root",
     password: process.env.DB_PASS || "root",
     database: process.env.DB_NAME || "tagbot",
-    synchronize: true,
+    synchronize: process.env.ENVIRONMENT == "dev" ? true : false,
     logging: false,
     entities: [Group,Tag,Subscriber,Admin],
     migrations: [],

@@ -24,6 +24,8 @@
    "scripts": {
       "start-dev": "nodemon --watch src src/index.ts",
       "start-prod": "tsc && node dist/index.js",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "migration:generate": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:generate -d src/data-source.ts",
+      "migration:up": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run -d src/data-source.ts",
+      "migration:down": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:revert -d src/data-source.ts"
    }
 }

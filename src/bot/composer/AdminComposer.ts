@@ -33,7 +33,7 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
         await ctx.reply('✅ Created tag ' + tagName + ' (@' + issuerUsername + ')');
         if(usernames.length > 0) {
             const message = await addUsersToTag(groupId, tagName, usernames);
-            await ctx.reply(message + ' (@' + issuerUsername + ')');
+            await ctx.reply(message + "\n" + ' (@' + issuerUsername + ')');
         }
     }
     else {

@@ -14,7 +14,7 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 
     //const tagName = ctx.match.toString();
-    const username = ctx.msg.from.username;
+    const issuerUsername = ctx.msg.from.username;
 
     //tagName must be at least 3 characters long and can contain only letters, numbers and underscores
     const regex = /^[a-zA-Z0-9_]{3,32}$/;
@@ -30,9 +30,10 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const response = await createTag(groupId, tagName, ctx.msg.from.id);
 
     if(response.state === "ok") {
-        await ctx.reply('✅ Created tag ' + tagName + ' (@' + username + ')');
+        await ctx.reply('✅ Created tag ' + tagName + ' (@' + issuerUsername + ')');
         if(usernames.length > 0) {
-            //await AdminController.addUsers(ctx);
+            const message = await addUsersToTag(groupId, tagName, usernames);
+            await ctx.reply(message + ' (@' + issuerUsername + ')');
         }
     }
     else {
@@ -42,7 +43,7 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
 
 AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     const tagName = ctx.match.toString();
-    const username = ctx.msg.from.username;
+    const issuerUsername = ctx.msg.from.username;
 
     if (tagName.length == 0)
         return await ctx.reply('⚠️ Syntax: /delete tagname');
@@ -51,7 +52,7 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
 
     const response = await deleteTag(groupId, tagName);
     const message = response.state === 'ok' ? 
-    '✅ Deleted tag ' + tagName + ' (@' + username + ')' : 
+    '✅ Deleted tag ' + tagName + ' (@' + issuerUsername + ')' : 
     "⚠️ " + response.message;
     await ctx.reply(message, { reply_markup: { remove_keyboard: true } });
 });
@@ -87,7 +88,6 @@ AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
     const issuerUsername = ctx.msg.from.username;
 
     //check if the usernames are valid telegram usernames starting with @ and if tag name is valid
-    const usernameRegex = /^@[a-zA-Z0-9_]{5,32}$/;
     const tagNameRegex = /^[a-zA-Z0-9_]{5,32}$/;
 
     if(!tagNameRegex.test(tagName))
@@ -102,47 +102,8 @@ AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
     
 
     const groupId = ctx.update.message.chat.id;
-    const validUsernames = [];
-    const alreadyInUsernames = [];
-    const invalidUsernames = [];
-
-    const notAddedCosFull = [];
-
-    for(const username of usernames) {
-
-        if(!usernameRegex.test(username)) {
-            invalidUsernames.push(username);
-            continue;
-        }
-
-        const response = await joinTag(groupId, tagName, username.substring(1));
-        if(response.state === "ok")
-            validUsernames.push(username);
-        else if(response.state === "ALREADY_SUBSCRIBED")
-            alreadyInUsernames.push(username);
-        else if(response.state === "TAG_FULL") {
-            //add all the remaining users in "usernames" to notAddedCosFull
-            notAddedCosFull.push(...usernames.slice(usernames.indexOf(username)));
-            break;
-        }
-    }
-
-    //build reply message based on the results
-    const addedMessage = validUsernames.length > 0 ? 
-    "✅ Added " + validUsernames.join(", ") + " to tag " + tagName + "\n" : 
-    "";
-    const alreadyInMessage = alreadyInUsernames.length > 0 ? 
-    "⚠️ Already in tag: " + alreadyInUsernames.join(", ") + "\n" : 
-    "";
-    const invalidMessage = invalidUsernames.length > 0 ? 
-    "🚫 Invalid usernames: " + invalidUsernames.join(", ") + "\n" : 
-    "";
-
-    const notAddedMessage = notAddedCosFull.length > 0 ?
-    "⚠️ Tag is full, not added: " + notAddedCosFull.join(", ") + "\n" :
-    "";
-
-    await ctx.reply(addedMessage + alreadyInMessage + invalidMessage + notAddedMessage + "\n" + "(@" + issuerUsername + ")");
+    const message = addUsersToTag(groupId, tagName, usernames);
+    await ctx.reply(message + "\n" + "(@" + issuerUsername + ")");
 });
 
 AdminComposer.command("remusers", checkIfGroup, canUpdate, async ctx => {
@@ -226,3 +187,52 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
 });
 
 export default AdminComposer;
+
+
+//This code has been put into its own functions to be able to use it in both the create and addusers commands
+export async function addUsersToTag(groupId: number, tagName: string, usernames: string | string[]) {
+
+	const usernameRegex = /^@[a-zA-Z0-9_]{5,32}$/;
+
+	const validUsernames = [];
+    const alreadyInUsernames = [];
+    const invalidUsernames = [];
+
+    const notAddedCosFull = [];
+
+    for(const username of usernames) {
+
+        if(!usernameRegex.test(username)) {
+            invalidUsernames.push(username);
+            continue;
+        }
+
+        const response = await joinTag(groupId, tagName, username.substring(1));
+        if(response.state === "ok")
+            validUsernames.push(username);
+        else if(response.state === "ALREADY_SUBSCRIBED")
+            alreadyInUsernames.push(username);
+        else if(response.state === "TAG_FULL") {
+            //add all the remaining users in "usernames" to notAddedCosFull
+            notAddedCosFull.push(...usernames.slice(usernames.indexOf(username)));
+            break;
+        }
+    }
+
+    //build reply message based on the results
+    const addedMessage = validUsernames.length > 0 ? 
+    "✅ Added " + validUsernames.join(", ") + " to tag " + tagName + "\n" : 
+    "";
+    const alreadyInMessage = alreadyInUsernames.length > 0 ? 
+    "⚠️ Already in tag: " + alreadyInUsernames.join(", ") + "\n" : 
+    "";
+    const invalidMessage = invalidUsernames.length > 0 ? 
+    "🚫 Invalid usernames: " + invalidUsernames.join(", ") + "\n" : 
+    "";
+
+    const notAddedMessage = notAddedCosFull.length > 0 ?
+    "⚠️ Tag is full, not added: " + notAddedCosFull.join(", ") + "\n" :
+    "";
+
+	return addedMessage + alreadyInMessage + invalidMessage + notAddedMessage;
+}

@@ -2,7 +2,7 @@ import { Context, NextFunction } from "grammy";
 import { Group } from "../entity/Group";
 import { Tag } from "../entity/Tag";
 
-export async function checkIfGroup(ctx: Context, next) {
+export async function checkIfGroup(ctx: Context, next: NextFunction) {
 
 	if(['group','supergroup','channel'].includes(ctx.update.message.chat.type) == false) {
 		await ctx.reply("This command can only be used in a group");
@@ -11,7 +11,7 @@ export async function checkIfGroup(ctx: Context, next) {
 	await next();
 }
 
-export async function checkIfPrivate(ctx: Context, next) {
+export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
 	if(ctx.update.message.chat.type != 'private') {
 		await ctx.reply("This command can only be used in a private chat");
@@ -20,7 +20,7 @@ export async function checkIfPrivate(ctx: Context, next) {
 	await next();
 }
 
-export async function checkIfAdmin(ctx: Context, next) {
+export async function checkIfAdmin(ctx: Context, next: NextFunction) {
 
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 

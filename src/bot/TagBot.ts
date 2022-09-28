@@ -20,17 +20,19 @@ export default class TagBot {
 
 		this.bot.api
             .setMyCommands([
+				{command: "start", description: "Start the bot"},
                 { command: 'create', description: 'Create a new grouptag' },
                 { command: 'delete', description: 'Delete a grouptag' },
 				{ command: 'rename', description: 'Rename a grouptag' },
                 { command: 'addusers', description: 'Add multiple users to a grouptag' },
 				{ command: 'remusers', description: 'Remove multiple users from a grouptag'},
+				{ command: 'restart', description: 'Restart the bot' },
+				{ command: 'settings', description: 'Change the settings of the bot in private' },
                 { command: 'join', description: 'Join a grouptag' },
                 { command: 'leave', description: 'Leave a grouptag' },
                 { command: 'list', description: 'List all the grouptags' },
                 { command: 'mytags', description: 'List all the grouptags you are subscribed to' },
 				{ command: 'help', description: 'Show the list of commands' },
-				{ command: 'restart', description: 'Restart the bot' }
             ])
             .catch(console.error);
 

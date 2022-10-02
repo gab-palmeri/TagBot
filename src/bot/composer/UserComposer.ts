@@ -20,7 +20,7 @@ UserComposer.command("join", checkIfGroup, async ctx => {
     '@' + username + ' joined tag ' + tagName + '. He will be notified when someone tags it.' : 
     "⚠️ " + response.message;
 
-    await ctx.reply(message, { reply_markup: { remove_keyboard: true }});
+    await ctx.reply(message);
 });
 
 UserComposer.command("leave", checkIfGroup, async ctx => {
@@ -38,7 +38,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     '@' + username + ' left tag ' + tagName + '. He will no longer be notified when someone tags it.' : 
     "⚠️ " + response.message;
 
-    await ctx.reply(message, {reply_markup: { remove_keyboard: true } });
+    await ctx.reply(message);
 });
 
 UserComposer.on("::hashtag", checkIfGroup, async ctx => {

@@ -54,7 +54,7 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     const message = response.state === 'ok' ? 
     '✅ Deleted tag ' + tagName + ' (@' + issuerUsername + ')' : 
     "⚠️ " + response.message;
-    await ctx.reply(message, { reply_markup: { remove_keyboard: true } });
+    await ctx.reply(message);
 });
 
 AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {

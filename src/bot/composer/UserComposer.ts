@@ -1,9 +1,10 @@
-import { Composer } from "grammy";
+import { Composer, InlineKeyboard } from "grammy";
 import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
 import { getGroupTags, getSubscribers, getSubscriberTags, getTag, joinTag, leaveTag, updateTagDate } from "../services/userServices";
 
 const UserComposer = new Composer<MyContext>();
+
 
 UserComposer.command("join", checkIfGroup, async ctx => {
 
@@ -18,9 +19,32 @@ UserComposer.command("join", checkIfGroup, async ctx => {
     const response = await joinTag(groupId, tagName, username);
     const message = response.state === "ok" ? 
     '@' + username + ' joined tag ' + tagName + '. He will be notified when someone tags it.' : 
-    "⚠️ " + response.message;
+    "⚠️ " + response.message + ', @' + username;
+
+	const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
+
+	response.state === "ok" ?
+	await ctx.reply(message, { reply_markup: inlineKeyboard }) :
+	await ctx.reply(message);
+});
+
+UserComposer.callbackQuery("join-tag", async (ctx) => {
+
+	const tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
+
+    if(tagName.length == 0) 
+        return await ctx.reply("⚠️ Syntax: /join tagname");
+
+    const groupId = ctx.callbackQuery.message.chat.id;
+    const username = ctx.callbackQuery.from.username;
+
+    const response = await joinTag(groupId, tagName, username);
+    const message = response.state === "ok" ? 
+    '@' + username + ' joined tag ' + tagName + '. He will be notified when someone tags it.' : 
+    "⚠️ " + response.message + ', @' + username;
 
     await ctx.reply(message);
+	await ctx.answerCallbackQuery();
 });
 
 UserComposer.command("leave", checkIfGroup, async ctx => {

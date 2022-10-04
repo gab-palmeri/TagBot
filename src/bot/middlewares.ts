@@ -61,7 +61,7 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 
 	if(user.status == "creator" || user.status == "administrator") {
-		return true;
+		await next();
 	}
 	else {
 

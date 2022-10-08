@@ -18,7 +18,7 @@ UserComposer.command("join", checkIfGroup, async ctx => {
 
     const response = await joinTag(groupId, tagName, username);
     const message = response.state === "ok" ? 
-    '@' + username + ' joined tag ' + tagName + '. He will be notified when someone tags it.' : 
+    '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.' : 
     "⚠️ " + response.message + ', @' + username;
 
 	const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
@@ -40,7 +40,7 @@ UserComposer.callbackQuery("join-tag", async (ctx) => {
 
     const response = await joinTag(groupId, tagName, username);
     const message = response.state === "ok" ? 
-    '@' + username + ' joined tag ' + tagName + '. He will be notified when someone tags it.' : 
+    '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.' : 
     "⚠️ " + response.message + ', @' + username;
 
     await ctx.reply(message);
@@ -59,7 +59,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
 
     const response = await leaveTag(groupId, tagName, username);
     const message = response.state === "ok" ? 
-    '@' + username + ' left tag ' + tagName + '. He will no longer be notified when someone tags it.' : 
+    '@' + username + ' left tag ' + tagName + '. They will no longer be notified when someone tags it.' : 
     "⚠️ " + response.message;
 
     await ctx.reply(message);

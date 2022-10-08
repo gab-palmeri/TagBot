@@ -102,7 +102,7 @@ AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
     
 
     const groupId = ctx.update.message.chat.id;
-    const message = addUsersToTag(groupId, tagName, usernames);
+    const message = await addUsersToTag(groupId, tagName, usernames);
     await ctx.reply(message + "\n" + "(@" + issuerUsername + ")");
 });
 

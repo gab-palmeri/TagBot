@@ -88,10 +88,10 @@ AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
     const issuerUsername = ctx.msg.from.username;
 
     //check if the usernames are valid telegram usernames starting with @ and if tag name is valid
-    const tagNameRegex = /^[a-zA-Z0-9_]{5,32}$/;
+    const tagNameRegex = /^[a-zA-Z0-9_]{3,32}$/;
 
     if(!tagNameRegex.test(tagName))
-        return await ctx.reply("⚠️ Tag must be at least 5 characters long and can contain only letters, numbers and underscores");
+        return await ctx.reply("⚠️ Tag must be at least 3 characters long and can contain only letters, numbers and underscores");
 
     if(usernames.length == 0) 
         return await ctx.reply("⚠️ Syntax: /addusers tagname @username1 @username2 ...");

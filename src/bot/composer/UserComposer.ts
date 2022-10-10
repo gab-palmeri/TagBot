@@ -67,8 +67,6 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
 
 UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
-    console.log(ctx.msg.entities);
-
     if(ctx.msg.forward_date !== undefined)
         return;
 

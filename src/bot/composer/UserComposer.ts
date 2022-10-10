@@ -67,11 +67,19 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
 
 UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
+    console.log(ctx.msg.entities);
+
     if(ctx.msg.forward_date !== undefined)
         return;
 
-    //get ALL tag names mentioned in the message
-    const tagNames = ctx.msg.text ? ctx.msg.text.match(/#\w+/g) : ctx.msg.caption.match(/#\w+/g);
+    //Get the text message, wheter it's a normal text or a media caption
+    const messageContent = ctx.msg.text || ctx.msg.caption;
+
+    //get ALL tag names mentioned in the using the indexes contained in ctx.msg.entities
+    const tagNames = ctx.msg.entities
+    .filter(entity => entity.type == 'hashtag')
+    .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
+
     const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;
 

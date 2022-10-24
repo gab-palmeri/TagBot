@@ -64,11 +64,22 @@ export default class TagBot {
 			ctx.api.config.use(async (prev, method, payload, signal) => {
 
 				const res = await prev(method, payload, signal);
-
 				if(method === "sendMessage" && "chat_id" in payload && "result" in res) {
+					
+					//get the command name
+					const commandName = ctx.msg.text.split(/\s+/)[0];
+
+					//check if commandName starts with /list or /help
+					let timeToWait = 5000;
+					if(commandName.startsWith("/list") || commandName.startsWith("/help")) {
+						timeToWait = 10000;
+					}
+
+					await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
+
 					setTimeout(async () => {
 						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
-					}, 10000);
+					}, timeToWait);
 				}
 
 				return res;

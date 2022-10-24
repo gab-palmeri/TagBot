@@ -1,12 +1,12 @@
 import { Composer, InlineKeyboard } from "grammy";
-import { deleteUserCommand, checkIfGroup } from "../middlewares";
+import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
 import { getGroupTags, getSubscribers, getSubscriberTags, getTag, joinTag, leaveTag, updateTagDate } from "../services/userServices";
 
 const UserComposer = new Composer<MyContext>();
 
 
-UserComposer.command("join", deleteUserCommand, checkIfGroup, async ctx => {
+UserComposer.command("join", checkIfGroup, async ctx => {
 
     const tagName = ctx.match.toString();
 
@@ -28,7 +28,7 @@ UserComposer.command("join", deleteUserCommand, checkIfGroup, async ctx => {
 	await ctx.reply(message);
 });
 
-UserComposer.callbackQuery("join-tag", deleteUserCommand, async (ctx) => {
+UserComposer.callbackQuery("join-tag", async (ctx) => {
 
 	const tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
 
@@ -47,7 +47,7 @@ UserComposer.callbackQuery("join-tag", deleteUserCommand, async (ctx) => {
 	await ctx.answerCallbackQuery();
 });
 
-UserComposer.command("leave", deleteUserCommand, checkIfGroup, async ctx => {
+UserComposer.command("leave", checkIfGroup, async ctx => {
 
     const tagName = ctx.match.toString();
 
@@ -65,7 +65,7 @@ UserComposer.command("leave", deleteUserCommand, checkIfGroup, async ctx => {
     await ctx.reply(message);
 });
 
-UserComposer.on("::hashtag", deleteUserCommand, checkIfGroup, async ctx => {
+UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
     if(ctx.msg.forward_date !== undefined)
         return;
@@ -130,7 +130,7 @@ UserComposer.on("::hashtag", deleteUserCommand, checkIfGroup, async ctx => {
         await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
 });
 
-UserComposer.command("list", deleteUserCommand, checkIfGroup, async ctx => {
+UserComposer.command("list", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
     const response = await getGroupTags(groupId);
@@ -152,7 +152,7 @@ UserComposer.command("list", deleteUserCommand, checkIfGroup, async ctx => {
 });
 
 //function that returns the tags the user is subcribed in
-UserComposer.command("mytags", deleteUserCommand, checkIfGroup, async ctx => {
+UserComposer.command("mytags", checkIfGroup, async ctx => {
     
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;

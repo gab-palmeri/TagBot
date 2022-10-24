@@ -2,12 +2,6 @@ import { Context, InlineKeyboard, NextFunction } from "grammy";
 import { Group } from "../entity/Group";
 import { Tag } from "../entity/Tag";
 
-export async function deleteUserCommand(ctx: Context, next: NextFunction) {
-	await ctx.deleteMessage();
-	await next();
-}
-
-
 export async function checkIfGroup(ctx: Context, next: NextFunction) {
 
 	if(['group','supergroup','channel'].includes(ctx.update.message.chat.type) == false) {

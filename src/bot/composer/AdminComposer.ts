@@ -4,12 +4,12 @@ import { createTag, deleteTag, getAdminGroups, renameTag } from "../services/adm
 import { getTag, joinTag, leaveTag } from "../services/userServices";
 
 import menu from "../menu/ControlPanel";
-import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
+import { deleteUserCommand, checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
 const AdminComposer = new Composer<MyContext>();
 
 
-AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
+AdminComposer.command("create", deleteUserCommand, checkIfGroup, canCreate, async ctx => {
     const args = ctx.match.toString();
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 
@@ -39,9 +39,10 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     else {
         await ctx.reply('⚠️ ' + response.message + ', @' + issuerUsername);
     }
+
 });
 
-AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
+AdminComposer.command("delete", deleteUserCommand, checkIfGroup, canUpdate, async ctx => {
     const tagName = ctx.match.toString();
     const issuerUsername = ctx.msg.from.username;
 
@@ -57,7 +58,7 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     await ctx.reply(message);
 });
 
-AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
+AdminComposer.command("rename", deleteUserCommand, checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     const [oldTagName, newTagName] = args.trim().split(/\s+/);
 
@@ -81,7 +82,7 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     await ctx.reply(message, {parse_mode: "HTML"});
 });
 
-AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
+AdminComposer.command("addusers", deleteUserCommand, checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 
@@ -106,7 +107,7 @@ AdminComposer.command("addusers", checkIfGroup, canUpdate, async ctx => {
     await ctx.reply(message + "\n" + "(@" + issuerUsername + ")");
 });
 
-AdminComposer.command("remusers", checkIfGroup, canUpdate, async ctx => {
+AdminComposer.command("remusers", deleteUserCommand, checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     const [tagName, ...usernames] = args.trim().split(/\s+/);
 

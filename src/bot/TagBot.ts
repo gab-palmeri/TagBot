@@ -18,6 +18,7 @@ export default class TagBot {
 	constructor(token: string) {
 		this.bot = new Bot<MyContext>(token);
 
+		//Set the bot commands list
 		this.bot.api
             .setMyCommands([
 				{command: "start", description: "Start the bot"},
@@ -36,6 +37,7 @@ export default class TagBot {
             ])
             .catch(console.error);
 
+		//Set the basic error handler
 		this.bot.catch((err) => {
             console.error(`Error while handling update ${err.ctx.update.update_id}:`);
 
@@ -46,13 +48,37 @@ export default class TagBot {
                 : console.error('Unknown error:', err.error);
         });
 
+		//Set the session middleware and initialize session data
 		this.bot.use(sequentialize(getSessionKey));
 		this.bot.use(session({getSessionKey, initial: () => ({groups: []})}));
 
+		//Set the anti-flood (telegram side)
 		const throttler = apiThrottler();
 		this.bot.api.config.use(throttler);
 
+		//Set the command panel menu
 		this.bot.use(menu);
+
+		//This code setups auto-deletion of bot messages after 5 seconds
+		this.bot.on("message::bot_command", async (ctx, next) => {
+			ctx.api.config.use(async (prev, method, payload, signal) => {
+
+				const res = await prev(method, payload, signal);
+
+				if(method === "sendMessage" && "chat_id" in payload && "result" in res) {
+					console.log(res);
+					console.log(method);
+					console.log(payload);
+					setTimeout(async () => {
+						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
+					}, 10000);
+				}
+
+				return res;
+			});
+
+			await next();
+		});
 
 		this.setCommands();
 	}

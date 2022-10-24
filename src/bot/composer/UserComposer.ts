@@ -73,7 +73,6 @@ UserComposer.on("::hashtag", deleteUserCommand, checkIfGroup, async ctx => {
     //Get the text message, wheter it's a normal text or a media caption
     const messageContent = ctx.msg.text || ctx.msg.caption;
 	const entities = ctx.msg.entities || ctx.msg.caption_entities;
-	console.log(ctx.msg);
 
     //get ALL tag names mentioned in the using the indexes contained in ctx.msg.entities
     const tagNames = entities

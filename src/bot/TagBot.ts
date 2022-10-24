@@ -66,9 +66,6 @@ export default class TagBot {
 				const res = await prev(method, payload, signal);
 
 				if(method === "sendMessage" && "chat_id" in payload && "result" in res) {
-					console.log(res);
-					console.log(method);
-					console.log(payload);
 					setTimeout(async () => {
 						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
 					}, 10000);

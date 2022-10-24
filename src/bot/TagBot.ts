@@ -75,7 +75,10 @@ export default class TagBot {
 						timeToWait = 10000;
 					}
 
-					await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
+					let bot = await ctx.getChatMember(ctx.me.id);
+					if(bot.status === "administrator" && bot.can_delete_messages) {
+						await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
+					}
 
 					setTimeout(async () => {
 						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);

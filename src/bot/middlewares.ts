@@ -1,4 +1,4 @@
-import { Context, NextFunction } from "grammy";
+import { Context, InlineKeyboard, NextFunction } from "grammy";
 import { Group } from "../entity/Group";
 import { Tag } from "../entity/Tag";
 
@@ -14,7 +14,8 @@ export async function checkIfGroup(ctx: Context, next: NextFunction) {
 export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
 	if(ctx.update.message.chat.type != 'private') {
-		await ctx.reply("This command can only be used in a private chat");
+		const inlineKeyboard = new InlineKeyboard().url("..press here!", "https://t.me/grouptags_test_bot?start");
+		await ctx.reply("To use this command...", { reply_markup: inlineKeyboard});
 		return;
 	}
 	await next();

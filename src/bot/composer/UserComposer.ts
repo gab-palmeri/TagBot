@@ -1,7 +1,7 @@
 import { Composer, InlineKeyboard } from "grammy";
 import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
-import { getGroupTags, getSubscribers, getSubscriberTags, getTag, joinTag, leaveTag, updateTagDate } from "../services/userServices";
+import { getGroupTags, getSubscribers, getSubscriberTags, joinTag, leaveTag } from "../services/userServices";
 
 const UserComposer = new Composer<MyContext>();
 
@@ -18,15 +18,19 @@ UserComposer.command("join", checkIfGroup, async ctx => {
     const userId = ctx.update.message.from.id.toString();
 
     const response = await joinTag(groupId, tagName, userId);
-    const message = response.state === "ok" ? 
-    '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.' : 
-    "⚠️ " + response.message + ', @' + username;
 
-	const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
+    if(response.state === "ok") {
+        const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
 
-	response.state === "ok" ?
-	await ctx.reply(message, { reply_markup: inlineKeyboard }) :
-	await ctx.reply(message);
+        const message = '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.'
+        + "\n<i>Remember to start the bot in private to get tagged privately</i>";
+        await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
+    }
+    else {
+        const message = "⚠️ " + response.message + ', @' + username;
+        await ctx.reply(message);
+    }
+	
 });
 
 UserComposer.callbackQuery("join-tag", async (ctx) => {
@@ -68,79 +72,6 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     await ctx.reply(message);
 });
 
-UserComposer.on("::hashtag", checkIfGroup, async ctx => {
-
-    if(ctx.msg.forward_date !== undefined)
-        return;
-
-    //Get the text message, wheter it's a normal text or a media caption
-    const messageContent = ctx.msg.text || ctx.msg.caption;
-	const entities = ctx.msg.entities || ctx.msg.caption_entities;
-
-    //get ALL tag names mentioned in the using the indexes contained in ctx.msg.entities
-    const tagNames = entities
-    .filter(entity => entity.type == 'hashtag')
-    .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
-
-    const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
-    const groupId = ctx.update.message.chat.id;
-
-    const emptyTags = [];
-    const nonExistentTags = [];
-    const onCooldown = [];
-
-    //for every tag name, get the subcribers and create a set of users preceded by "@"
-    //if the tag does not exist / is empty / is on cooldown, add it to the corresponding array
-    for(const tagName of tagNames) {
-        const response = await getSubscribers(tagName.substring(1), groupId);
-
-        if(response.state === "ok") {
-            
-            const tagResponse = await getTag(groupId, tagName.substring(1));
-            
-            //if the lastTagged date is not null AND it's less than 10 seconds ago, add it to the onCooldown array
-            if(tagResponse.payload.lastTagged !== null && (Date.now() - tagResponse.payload.lastTagged.getTime()) < 10000)
-                onCooldown.push(tagName);
-            else {
-
-                await updateTagDate(groupId, tagName.substring(1));
-
-                const usernames = await Promise.all(response.payload.map(async subscriber => {
-                    const user = await ctx.api.getChatMember(groupId, parseInt(subscriber));
-                    return '@' + user.user.username;
-                }));
-
-                const message = usernames.join(" ") + "\n";
-                await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
-            }
-        }
-        else if(response.state === "NOT_EXISTS")
-            nonExistentTags.push(tagName);
-        else if(response.state === "TAG_EMPTY")
-            emptyTags.push(tagName);
-    }
-
-    let errorMessages = "";
-
-    onCooldown.length == 1 ? 
-    errorMessages += "🕑 Tag " + onCooldown[0] + " is on cooldown. Please wait a few seconds before tagging it again.\n" :
-    onCooldown.length > 1 ?
-    errorMessages += "🕑 Tags " + onCooldown.join(", ") + " are on cooldown. Please wait a few seconds before tagging them again.\n" : null;
-
-    emptyTags.length == 1 ?
-    errorMessages += "⚠️ The tag " + emptyTags[0] + " is empty\n" :
-    emptyTags.length > 1 ?
-    errorMessages += "⚠️ These tags are empty: " + emptyTags.join(", ") + "\n" : null;
-
-    nonExistentTags.length == 1 ? 
-    errorMessages += "❌ The tag " + nonExistentTags[0] + " does not exist\n" : 
-    nonExistentTags.length > 1 ?
-    errorMessages += "❌ These tags do not exist: " + nonExistentTags.join(", ") : null;
-    
-    if(errorMessages.length > 0)
-        await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
-});
-
 UserComposer.command("list", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
@@ -179,5 +110,96 @@ UserComposer.command("mytags", checkIfGroup, async ctx => {
 
     await ctx.reply(message, { parse_mode: "HTML" });
 });
+
+UserComposer.on("::hashtag", checkIfGroup, async ctx => {
+
+    if(ctx.msg.forward_date !== undefined)
+        return;
+
+    //Get the text message, wheter it's a normal text or a media caption
+    const messageContent = ctx.msg.text || ctx.msg.caption;
+	const entities = ctx.msg.entities || ctx.msg.caption_entities;
+
+    //get ALL tag names mentioned in the using the indexes contained in ctx.msg.entities
+    const tagNames = entities
+    .filter(entity => entity.type == 'hashtag')
+    .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
+
+    const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
+    const groupId = ctx.update.message.chat.id;
+
+    const emptyTags = [];
+    const nonExistentTags = [];
+
+    //for every tag name, get the subcribers and create a set of users preceded by "@"
+    //if the tag does not exist / is empty, add it to the corresponding array
+    for(const tagName of tagNames) {
+        const response = await getSubscribers(tagName.substring(1), groupId);
+
+        if(response.state === "ok") {
+            //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
+            if(response.payload.length > 10) 
+                await tagPrivately(ctx, tagName, response.payload, messageToReplyTo);
+            else 
+                await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);       
+        }
+        else if(response.state === "NOT_EXISTS")
+            nonExistentTags.push(tagName);
+        else if(response.state === "TAG_EMPTY")
+            emptyTags.push(tagName);
+    }
+
+    //ERROR MESSAGES PHASE
+    let errorMessages = "";
+
+    emptyTags.length == 1 ?
+    errorMessages += "⚠️ The tag " + emptyTags[0] + " is empty\n" :
+    emptyTags.length > 1 ?
+    errorMessages += "⚠️ These tags are empty: " + emptyTags.join(", ") + "\n" : null;
+
+    nonExistentTags.length == 1 ? 
+    errorMessages += "❌ The tag " + nonExistentTags[0] + " does not exist\n" : 
+    nonExistentTags.length > 1 ?
+    errorMessages += "❌ These tags do not exist: " + nonExistentTags.join(", ") : null;
+    
+    //This message will be deleted shortly after
+    if(errorMessages.length > 0) {
+        const errorMessage = await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
+        setTimeout(async () => {
+            console.log(errorMessage.message_id);
+            await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
+        }, 3000);
+    }
+        
+});
+
+//This function tags the users directly in the group
+async function tagPublicly(ctx: MyContext, groupId: number, subscribers: string[], messageToReplyTo: number) {
+    
+    const usernames = await Promise.all(subscribers.map(async (subscriber: string) => {
+        const user = await ctx.api.getChatMember(groupId, parseInt(subscriber));
+        return '@' + user.user.username;
+    }));
+    const message = usernames.join(" ") + "\n";
+    await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
+}
+
+//This function sends a private message to each user subscribed to the tag
+async function tagPrivately(ctx: MyContext, tagName: string, subscribers: string[], messageToReplyTo: number) {
+    const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
+    for(const subscriber of subscribers) {
+        const message = "You have been tagged through the " + tagName + " tag. Click the link to see the message: " + messageLink;
+        await ctx.api.sendMessage(subscriber, message);
+    }
+
+    //This message will be deleted shortly after
+    const successMessage = await ctx.reply("✅ All users in " + tagName + " have been tagged privately.", { 
+        reply_to_message_id: ctx.msg.message_id
+    });
+    setTimeout(() => {
+        void ctx.api.deleteMessage(ctx.chat.id, successMessage.message_id);
+    }, 3000);
+}
+
 
 export default UserComposer;

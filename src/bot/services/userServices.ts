@@ -129,6 +129,7 @@ export async function getSubscriberTags(userId: string, groupId: number) {
 	}
 }
 
+//potentially useless
 export async function getTag(groupId: number, tagName: string) {
 
 	try {
@@ -145,6 +146,7 @@ export async function getTag(groupId: number, tagName: string) {
 	}
 }
 
+//potentially useless
 export async function updateTagDate(groupId: number, tagName: string) {
 
 	try {

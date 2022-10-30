@@ -2,6 +2,7 @@ import { Bot, GrammyError, HttpError, session } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { getSessionKey } from "./middlewares";
+import { limit } from "@grammyjs/ratelimiter";
 
 import GeneralComposer from "./composer/GeneralComposer";
 import AdminComposer from "./composer/AdminComposer";
@@ -56,9 +57,8 @@ export default class TagBot {
 
 		//Set the command panel menu
 		this.bot.use(menu);
-
+		this.setRateLimits();
 		this.setTransformers();
-
 		this.setCommands();
 	}
 
@@ -126,6 +126,34 @@ export default class TagBot {
 
 			await next();
 		});
+	}
+
+	public setRateLimits() {
+		//Set up the user-side rate limiter, only for commands
+		this.bot.filter(ctx => ctx.has("::bot_command")).use(limit({
+			timeFrame: 5000,
+			limit: 1,
+			onLimitExceeded: async (ctx) => {
+				await ctx.deleteMessage();
+				const msg = await ctx.reply("🕑 Wait some time before sending another command.");
+				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
+			},
+			
+			keyGenerator: (ctx) => ctx.from?.id.toString(),
+		}));
+
+		//Set up the group-side rate limiter, only for hashtags
+		this.bot.filter(ctx => ctx.has("::hashtag")).use(limit({
+			timeFrame: 300000,
+			limit: 1,
+			onLimitExceeded: async (ctx) => {
+				await ctx.deleteMessage();
+				const msg = await ctx.reply("🕑 Wait some time before tagging again.");
+				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
+			},
+			
+			keyGenerator: (ctx) => ctx.from?.id.toString(),
+		}));
 	}
 
 	public start() {

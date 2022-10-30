@@ -49,11 +49,10 @@ export default class TagBot {
 
 		//Set the session middleware and initialize session data
 		this.bot.use(sequentialize(getSessionKey));
-		this.bot.use(session({getSessionKey, initial: () => ({groups: []})}));
+		this.bot.use(session({getSessionKey, initial: () => ({groups: [], selectedGroup: null})}));
 
 		//Set the anti-flood (telegram side)
-		const throttler = apiThrottler();
-		this.bot.api.config.use(throttler);
+		this.bot.api.config.use(apiThrottler());
 
 		//Set the command panel menu
 		this.bot.use(menu);
@@ -135,7 +134,8 @@ export default class TagBot {
 			limit: 1,
 			onLimitExceeded: async (ctx) => {
 				await ctx.deleteMessage();
-				const msg = await ctx.reply("🕑 Wait some time before sending another command.");
+				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
+				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
 				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
 			},
 			
@@ -148,7 +148,8 @@ export default class TagBot {
 			limit: 1,
 			onLimitExceeded: async (ctx) => {
 				await ctx.deleteMessage();
-				const msg = await ctx.reply("🕑 Wait some time before tagging again.");
+				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
+				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");
 				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
 			},
 			

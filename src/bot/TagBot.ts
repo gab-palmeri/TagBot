@@ -57,6 +57,24 @@ export default class TagBot {
 		//Set the command panel menu
 		this.bot.use(menu);
 
+		this.setTransformers();
+
+		this.setCommands();
+	}
+
+	public setCommands() {
+
+		//ADMIN COMMANDS
+		this.bot.use(AdminComposer);
+
+		//USER COMMANDS
+		this.bot.use(UserComposer);
+
+		//GENERAL COMMANDS
+		this.bot.use(GeneralComposer);
+	}
+
+	public setTransformers() {
 		//This code setups auto-deletion of bot messages after 5 seconds
 		this.bot.on("message::bot_command", async (ctx, next) => {
 			ctx.api.config.use(async (prev, method, payload, signal) => {
@@ -90,19 +108,29 @@ export default class TagBot {
 			await next();
 		});
 
-		this.setCommands();
-	}
+		//This code setups auto-deletion of "tag doesnt exist" messages after 3 seconds
+		//If the message contains more error messages, it will be deleted after 5 seconds
+		this.bot.on("::hashtag", async (ctx, next) => {
+			ctx.api.config.use(async (prev, method, payload, signal) => {
 
-	public setCommands() {
+				const res = await prev(method, payload, signal);
+				if("result" in res && "chat_id" in payload && "text" in payload && !payload.text.includes("@")) {
 
-		//ADMIN COMMANDS
-		this.bot.use(AdminComposer);
+					let timeToWait = 3000;
+					if(payload.text.includes("not exist") && payload.text.includes("cooldown")) {
+						timeToWait = 5000;
+					}
 
-		//USER COMMANDS
-		this.bot.use(UserComposer);
+					setTimeout(async () => {
+						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
+					}, timeToWait);
+				}
 
-		//GENERAL COMMANDS
-		this.bot.use(GeneralComposer);
+				return res;
+			});
+
+			await next();
+		});
 	}
 
 	public start() {

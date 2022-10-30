@@ -6,7 +6,7 @@ import { Subscriber } from '../../entity/Subscriber';
 //USARE LA FUNZIONE GET TAG IN TUTTI GLI ALTRI METODI
 
 
-export async function joinTag(groupId: number, tagName: string, username: string) {
+export async function joinTag(groupId: number, tagName: string, userId: string) {
 
 	const tagResponse = await getTag(groupId, tagName); 
 
@@ -22,11 +22,11 @@ export async function joinTag(groupId: number, tagName: string, username: string
 		
 	try {
 		//add the tag to the subscriber
-		let subscriber = await Subscriber.findOne({where: {username: username}, relations: ["tags"]});
+		let subscriber = await Subscriber.findOne({where: {userId: userId}, relations: ["tags"]});
 
 		if(!subscriber) {
 			subscriber = new Subscriber();
-			subscriber.username = username;
+			subscriber.userId = userId;
 			subscriber.tags = [tag];
 			subscriber = await subscriber.save();
 		}
@@ -47,7 +47,7 @@ export async function joinTag(groupId: number, tagName: string, username: string
 	
 }
 
-export async function leaveTag(groupId: number, tagName: string, username: string) {
+export async function leaveTag(groupId: number, tagName: string, userId: string) {
 	const tagResponse = await getTag(groupId, tagName);
 
     if (tagResponse.state != 'ok') {
@@ -58,7 +58,7 @@ export async function leaveTag(groupId: number, tagName: string, username: strin
 
 	try {
 		//remove the tag from the subscriber
-		const subscriber = await Subscriber.findOne({relations: ["tags"], where: {username: username}, });
+		const subscriber = await Subscriber.findOne({relations: ["tags"], where: {userId: userId}, });
 
 		if(!subscriber || !subscriber.tags.find(n => n.id == tag.id)) {
 			return {state: "NOT_SUBSCRIBED", message: "You're not subscribed to this tag"};
@@ -89,7 +89,7 @@ export async function getSubscribers(tagName: string, groupId: number) {
 		if(tag.subscribers.length == 0)
 			return {state: "TAG_EMPTY", message: "No one is subscribed to this tag"};
 
-		return {state: "ok", payload: tag.subscribers.map(s => s.username)};
+		return {state: "ok", payload: tag.subscribers.map(s => s.userId)};
 	}
 	catch(e) {
 		console.log(e);
@@ -112,12 +112,12 @@ export async function getGroupTags(groupId: number) {
 	}
 }
 
-export async function getSubscriberTags(username: string, groupId: number) {
+export async function getSubscriberTags(userId: string, groupId: number) {
 
 	try {
 
 		//find all tags belonging to the group and the subscriber
-		const tags = await Tag.find({relations: ["group", "subscribers"], where: {group: {groupId: groupId}, subscribers: {username: username}}});
+		const tags = await Tag.find({relations: ["group", "subscribers"], where: {group: {groupId: groupId}, subscribers: {userId: userId}}});
 
 		if (!tags || tags.length == 0) {
             return { state: 'error', message: "You are not subscribed to any tag" };

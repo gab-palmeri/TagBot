@@ -9,7 +9,7 @@ export class Subscriber extends BaseEntity {
     id: number;
 
     @Column({type: "varchar", length: 25, nullable: false, unique: true})
-    username: string;
+    userId: string;
 
 	//many to many with notif
 	@ManyToMany(() => Tag, tag => tag.subscribers)

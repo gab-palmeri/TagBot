@@ -15,8 +15,9 @@ UserComposer.command("join", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
+    const userId = ctx.update.message.from.id.toString();
 
-    const response = await joinTag(groupId, tagName, username);
+    const response = await joinTag(groupId, tagName, userId);
     const message = response.state === "ok" ? 
     '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.' : 
     "⚠️ " + response.message + ', @' + username;
@@ -37,8 +38,9 @@ UserComposer.callbackQuery("join-tag", async (ctx) => {
 
     const groupId = ctx.callbackQuery.message.chat.id;
     const username = ctx.callbackQuery.from.username;
+    const userId = ctx.callbackQuery.from.id.toString();
 
-    const response = await joinTag(groupId, tagName, username);
+    const response = await joinTag(groupId, tagName, userId);
     const message = response.state === "ok" ? 
     '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.' : 
     "⚠️ " + response.message + ', @' + username;
@@ -56,8 +58,9 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
+    const userId = ctx.update.message.from.id.toString();
 
-    const response = await leaveTag(groupId, tagName, username);
+    const response = await leaveTag(groupId, tagName, userId);
     const message = response.state === "ok" ? 
     '@' + username + ' left tag ' + tagName + '. They will no longer be notified when someone tags it.' : 
     "⚠️ " + response.message;
@@ -92,14 +95,22 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         const response = await getSubscribers(tagName.substring(1), groupId);
 
         if(response.state === "ok") {
+            
             const tagResponse = await getTag(groupId, tagName.substring(1));
             
             //if the lastTagged date is not null AND it's less than 10 seconds ago, add it to the onCooldown array
             if(tagResponse.payload.lastTagged !== null && (Date.now() - tagResponse.payload.lastTagged.getTime()) < 10000)
                 onCooldown.push(tagName);
             else {
+
                 await updateTagDate(groupId, tagName.substring(1));
-                const message = Array.from(response.payload.map(subscriber => "@" + subscriber)).join(" ") + "\n";
+
+                const usernames = await Promise.all(response.payload.map(async subscriber => {
+                    const user = await ctx.api.getChatMember(groupId, parseInt(subscriber));
+                    return '@' + user.user.username;
+                }));
+
+                const message = usernames.join(" ") + "\n";
                 await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
             }
         }
@@ -156,8 +167,9 @@ UserComposer.command("mytags", checkIfGroup, async ctx => {
     
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
+    const userId = ctx.update.message.from.id.toString();
 
-    const response = await getSubscriberTags(username, groupId);
+    const response = await getSubscriberTags(userId, groupId);
 
     if(response.state == "error")
         return await ctx.reply("⚠️ " + response.message + ", @" + username);

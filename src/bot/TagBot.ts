@@ -116,14 +116,9 @@ export default class TagBot {
 				const res = await prev(method, payload, signal);
 				if("result" in res && "chat_id" in payload && "text" in payload && !payload.text.includes("@")) {
 
-					let timeToWait = 3000;
-					if(payload.text.includes("not exist") && payload.text.includes("cooldown")) {
-						timeToWait = 5000;
-					}
-
 					setTimeout(async () => {
 						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
-					}, timeToWait);
+					}, 5000);
 				}
 
 				return res;

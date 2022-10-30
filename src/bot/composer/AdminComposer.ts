@@ -15,14 +15,16 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     //const tagName = ctx.match.toString();
     const issuerUsername = ctx.msg.from.username;
 
+    //regex
     //tagName must be at least 3 characters long and can contain only letters, numbers and underscores
-    const regex = /^[a-zA-Z0-9_]{3,32}$/;
+    //tagName can't start with _
+    const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(tagName.length == 0)
         return await ctx.reply("⚠️ Syntax: /create tagname");
 
     if(!regex.test(tagName)) 
-        return await ctx.reply("⚠️ Tag must be at least 3 characters long and can contain only letters, numbers and underscores, @" + issuerUsername);
+        return await ctx.reply("⚠️ Tag must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@" + issuerUsername + ")");
     
     
     const groupId = ctx.msg.chat.id;
@@ -59,13 +61,13 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
 
     const issuerUsername = ctx.msg.from.username;
 
-    const regex = /^[a-zA-Z0-9_]{3,32}$/;
+    const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(oldTagName.length == 0 || newTagName.length == 0)
         return await ctx.reply("⚠️ Syntax: /rename oldtagname newtagname");
 
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-        return await ctx.reply("⚠️ Tag must be at least 3 characters long and can contain only letters, numbers and underscores");
+        return await ctx.reply("⚠️ Tag must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@" + issuerUsername + ")");
 
     const groupId = ctx.update.message.chat.id;
     const response = await renameTag(groupId, oldTagName, newTagName);

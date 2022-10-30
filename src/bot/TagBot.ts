@@ -143,7 +143,7 @@ export default class TagBot {
 				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 3000);
 			},
 			
-			keyGenerator: (ctx) => ctx.from?.id.toString(),
+			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
 		}));
 	}
 

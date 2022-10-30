@@ -127,7 +127,7 @@ export default class TagBot {
 
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
-				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
+				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 3000);
 			},
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString(),
@@ -138,18 +138,9 @@ export default class TagBot {
 			timeFrame: 300000,
 			limit: 1,
 			onLimitExceeded: async (ctx) => {
-				const bot = await ctx.getChatMember(ctx.me.id);
-				if(bot.status === "administrator" && bot.can_delete_messages) {
-					try {
-						await ctx.deleteMessage();
-					} catch (e) {
-						console.error(e);
-					}
-				}
-
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");
-				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
+				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 3000);
 			},
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString(),

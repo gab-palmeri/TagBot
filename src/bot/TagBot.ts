@@ -25,8 +25,6 @@ export default class TagBot {
                 { command: 'create', description: 'Create a new grouptag' },
                 { command: 'delete', description: 'Delete a grouptag' },
 				{ command: 'rename', description: 'Rename a grouptag' },
-                { command: 'addusers', description: 'Add multiple users to a grouptag' },
-				{ command: 'remusers', description: 'Remove multiple users from a grouptag'},
 				{ command: 'restart', description: 'Restart the bot' },
 				{ command: 'settings', description: 'Change the settings of the bot in private' },
                 { command: 'join', description: 'Join a grouptag' },
@@ -68,21 +66,22 @@ export default class TagBot {
 					
 					//get the command name
 					const commandName = ctx.msg.text.split(/\s+/)[0];
+					if(commandName !== "/settings") {
+						//check if commandName starts with /list or /help
+						let timeToWait = 5000;
+						if(commandName.startsWith("/list") || commandName.startsWith("/help")) {
+							timeToWait = 10000;
+						}
 
-					//check if commandName starts with /list or /help
-					let timeToWait = 5000;
-					if(commandName.startsWith("/list") || commandName.startsWith("/help")) {
-						timeToWait = 10000;
+						const bot = await ctx.getChatMember(ctx.me.id);
+						if(bot.status === "administrator" && bot.can_delete_messages) {
+							await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
+						}
+
+						setTimeout(async () => {
+							await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
+						}, timeToWait);
 					}
-
-					let bot = await ctx.getChatMember(ctx.me.id);
-					if(bot.status === "administrator" && bot.can_delete_messages) {
-						await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
-					}
-
-					setTimeout(async () => {
-						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
-					}, timeToWait);
 				}
 
 				return res;

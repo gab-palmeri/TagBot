@@ -55,7 +55,12 @@ GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created",
         );
     }
     else if(response.state === "ALREADY_EXISTS"){
-        await ctx.reply("It's good to be back! Type /help to see the list of commands.");
+        console.log("test");
+        //check if the bot is admin
+        let message = "It's good to be back! Type /help to see the list of commands.\n\n";
+        message += "<i>Remember to give me <b>administrator</b> permissions so that I can answer to #tags.</i>",
+
+        await ctx.reply(message, {parse_mode: "HTML"});
     }
     else {
         await ctx.reply("❌ An error occurred while setting up. Try adding me again.");

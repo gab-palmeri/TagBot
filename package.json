@@ -11,6 +11,7 @@
       "nodemon": "^2.0.20"
    },
    "dependencies": {
+      "@grammyjs/auto-retry": "^1.1.1",
       "@grammyjs/menu": "^1.1.2",
       "@grammyjs/ratelimiter": "^1.1.6",
       "@grammyjs/runner": "^1.0.4",

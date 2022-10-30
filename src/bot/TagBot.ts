@@ -3,6 +3,7 @@ import { run, sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { getSessionKey } from "./middlewares";
 import { limit } from "@grammyjs/ratelimiter";
+import { autoRetry } from "@grammyjs/auto-retry";
 
 import GeneralComposer from "./composer/GeneralComposer";
 import AdminComposer from "./composer/AdminComposer";
@@ -53,6 +54,7 @@ export default class TagBot {
 
 		//Set the anti-flood (telegram side)
 		this.bot.api.config.use(apiThrottler());
+		this.bot.api.config.use(autoRetry());
 
 		//Set the command panel menu
 		this.bot.use(menu);
@@ -106,25 +108,6 @@ export default class TagBot {
 
 			await next();
 		});
-
-		//This code setups auto-deletion of "tag doesnt exist" messages after 3 seconds
-		//If the message contains more error messages, it will be deleted after 5 seconds
-		this.bot.on("::hashtag", async (ctx, next) => {
-			ctx.api.config.use(async (prev, method, payload, signal) => {
-
-				const res = await prev(method, payload, signal);
-				if("result" in res && "chat_id" in payload && "text" in payload && !payload.text.includes("@")) {
-
-					setTimeout(async () => {
-						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
-					}, 5000);
-				}
-
-				return res;
-			});
-
-			await next();
-		});
 	}
 
 	public setRateLimits() {
@@ -133,7 +116,15 @@ export default class TagBot {
 			timeFrame: 5000,
 			limit: 1,
 			onLimitExceeded: async (ctx) => {
-				await ctx.deleteMessage();
+				const bot = await ctx.getChatMember(ctx.me.id);
+				if(bot.status === "administrator" && bot.can_delete_messages) {
+					try {
+						await ctx.deleteMessage();
+					} catch (e) {
+						console.error(e);
+					}
+				}
+
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
 				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);
@@ -142,12 +133,20 @@ export default class TagBot {
 			keyGenerator: (ctx) => ctx.from?.id.toString(),
 		}));
 
-		//Set up the group-side rate limiter, only for hashtags
+		//Set up the group-side rate limiter, only for hashtags (5 mins)
 		this.bot.filter(ctx => ctx.has("::hashtag")).use(limit({
 			timeFrame: 300000,
 			limit: 1,
 			onLimitExceeded: async (ctx) => {
-				await ctx.deleteMessage();
+				const bot = await ctx.getChatMember(ctx.me.id);
+				if(bot.status === "administrator" && bot.can_delete_messages) {
+					try {
+						await ctx.deleteMessage();
+					} catch (e) {
+						console.error(e);
+					}
+				}
+
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");
 				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 5000);

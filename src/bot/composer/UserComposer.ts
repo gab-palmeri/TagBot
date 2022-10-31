@@ -149,8 +149,8 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
     //This message will be deleted shortly after
     if(errorMessages.length > 0) {
         const errorMessage = await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
+
         setTimeout(async () => {
-            console.log(errorMessage.message_id);
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
         }, 3000);
     }

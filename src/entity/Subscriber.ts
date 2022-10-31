@@ -12,7 +12,7 @@ export class Subscriber extends BaseEntity {
     userId: string;
 
 	//many to many with notif
-	@ManyToMany(() => Tag, tag => tag.subscribers)
+	@ManyToMany(() => Tag, tag => tag.subscribers, { onDelete: "CASCADE" })
 	tags: Tag[];
 
 }

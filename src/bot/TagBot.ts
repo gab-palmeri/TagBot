@@ -87,7 +87,7 @@ export default class TagBot {
 					const commandName = ctx.msg.text.split(/\s+/)[0];
 					//check if commandName starts with /list or /help
 					let timeToWait = 5000;
-					if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
+					if(commandName.startsWith("/list") || commandName.startsWith("/help")) {
 						timeToWait = 10000;
 					}
 

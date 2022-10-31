@@ -9,8 +9,8 @@ const GeneralComposer = new Composer();
 GeneralComposer.command("start", async ctx => {
 
     await ctx.reply(
-        "Hi! I'm a bot that allows you to *create* and *manage* grouptags. Type */help* to see the *list of commands.*",
-        { parse_mode: "Markdown" }
+        "Hi! I'm a <a href='https://t.me/tagbotchannel/3'>bot</a> that allows you to <b>create</b> and <b>manage</b> grouptags. Type <b>/help</b> to see the <b>list of commands.</b>",
+        { parse_mode: "HTML", disable_web_page_preview: true }
     );
 
     const joinArgs = ctx.match.split("_");

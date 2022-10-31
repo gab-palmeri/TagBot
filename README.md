@@ -11,8 +11,6 @@ _Create #tags to mention multiple users at once in your group_
 - /create: _create a new grouptag_
 - /delete: _delete a grouptag_
 - /rename: _rename a grouptag_
-- /addusers: _add multiple users to a grouptag_
-- /remusers: _remove multiple users from a grouptag_
 - /join: _join a grouptag_
 - /leave: _leave a grouptag_
 - /list: _list all grouptags_

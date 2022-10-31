@@ -89,7 +89,7 @@ export default class TagBot {
 
 					//the /list or /help commands need more time to be deleted
 					let timeToWait = 5000;
-					if(commandName.startsWith("/list") || commandName.startsWith("/help")) {
+					if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
 						timeToWait = 10000;
 					}
 

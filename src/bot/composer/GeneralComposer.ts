@@ -75,9 +75,9 @@ GeneralComposer.on("my_chat_member", async ctx => {
     }
     else if(ctx.myChatMember.chat.type === "private") {
         if(ctx.myChatMember.new_chat_member.status === "member")
-            await saveUser(ctx.myChatMember.chat.id);
+            await saveUser(ctx.myChatMember.chat.id.toString());
         else
-            await deleteUser(ctx.myChatMember.chat.id);
+            await deleteUser(ctx.myChatMember.chat.id.toString());
     }
     console.log("UPDATE");
     console.log(ctx.myChatMember);

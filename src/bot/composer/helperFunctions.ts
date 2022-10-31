@@ -5,8 +5,10 @@ export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: 
     
     const subscribersWithoutMe = subscribers.filter(subscriber => subscriber != ctx.msg.from.id.toString());
 
-    if(subscribersWithoutMe.length == 0)
-        await ctx.reply("⚠️ You're the only one subscribed to this tag", { reply_to_message_id: messageToReplyTo });
+    if(subscribersWithoutMe.length == 0) {
+        await ctx.reply("⚠️ You're the only one subscribed to this tag", { reply_to_message_id: ctx.msg.message_id });
+        return;
+    }
 
     const usernames = await Promise.all(subscribersWithoutMe.map(async (subscriber: string) => {
         const user = await ctx.api.getChatMember(groupId, parseInt(subscriber));
@@ -24,6 +26,11 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
 
     const subscribersWithoutMe = subscribers.filter(subscriber => subscriber != ctx.msg.from.id.toString());
     
+    if(subscribersWithoutMe.length == 0) {
+        await ctx.reply("⚠️ You're the only one subscribed to this tag", { reply_to_message_id: ctx.msg.message_id });
+        return;
+    }
+
     //get the group name
     const group = await ctx.api.getChat(ctx.msg.chat.id);
 
@@ -38,9 +45,6 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     }
 
     let message = "";
-
-    if(subscribersWithoutMe.length == 0)
-        message = "⚠️ You are the only one subscribed to this tag";
 
     //if at least one user was privately tagged successfully..
     if(subscribersWithoutMe.length > notContacted.length)

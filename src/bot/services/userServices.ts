@@ -10,7 +10,7 @@ export async function saveUser(userId: string) {
         await user.save();
     }
     catch(e) {
-        console.log(e);
+        console.log("tried to add user with id: " + userId + " but it already exists (it can happen)");
     }
 }
 

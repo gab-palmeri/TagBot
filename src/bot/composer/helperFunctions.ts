@@ -21,7 +21,7 @@ export async function join(ctx: MyContext, userId: string, groupId: number, user
     }
     else {
         const message = "To join <b>tags</b>, @" + username + ", you need to /start the bot";
-        const inlineKeyboard = new InlineKeyboard().url("Start the bot!", "https://t.me/" + ctx.me.username + "?start=" + userId + "_" + groupId + "_" + tagName);
+        const inlineKeyboard = new InlineKeyboard().url("Start the bot and join " + tagName, "https://t.me/" + ctx.me.username + "?start=" + userId + "_" + groupId + "_" + tagName);
         await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
     }
 }

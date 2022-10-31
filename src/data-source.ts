@@ -4,6 +4,7 @@ import { Group } from './entity/Group';
 import { Tag } from './entity/Tag';
 import { Subscriber } from './entity/Subscriber';
 import { Admin } from './entity/Admin';
+import { User } from './entity/User';
 
 
 export const AppDataSource = new DataSource({
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME || "tagbot",
     synchronize: process.env.ENVIRONMENT == "dev" ? true : false,
     logging: false,
-    entities: [Group,Tag,Subscriber,Admin],
+    entities: [Group,Tag,Subscriber,Admin,User],
     migrations: [],
     subscribers: [],
 });

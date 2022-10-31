@@ -1,6 +1,7 @@
 import { Composer } from "grammy";
 import { checkIfAdmin, checkIfGroup } from "../middlewares";
 import { addAdmin, createGroup, loadAdminList, migrateGroup, removeAdmin } from "../services/generalServices";
+import { saveUser, deleteUser } from "../services/userServices";
 
 const GeneralComposer = new Composer();
 
@@ -72,6 +73,15 @@ GeneralComposer.on("my_chat_member", async ctx => {
     if(ctx.myChatMember.old_chat_member.status === "member" && ctx.myChatMember.new_chat_member.status === "administrator") {
         await ctx.reply("Now i'm fully operational!");
     }
+    else if(ctx.myChatMember.chat.type === "private") {
+        if(ctx.myChatMember.new_chat_member.status === "member")
+            await saveUser(ctx.myChatMember.chat.id);
+        else
+            await deleteUser(ctx.myChatMember.chat.id);
+    }
+    console.log("UPDATE");
+    console.log(ctx.myChatMember);
+
 });
 
 GeneralComposer.on(":migrate_to_chat_id", async ctx => {

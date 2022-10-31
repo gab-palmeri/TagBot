@@ -13,26 +13,35 @@ GeneralComposer.command("start", async ctx => {
         { parse_mode: "HTML", disable_web_page_preview: true }
     );
 
-    const joinArgs = ctx.match.split("_");
+    if(ctx.chat.type === "private") {
+        await saveUser(ctx.myChatMember.chat.id.toString());
 
-    if(ctx.chat.type === "private" && ctx.match.length > 0 && joinArgs.length === 3) {
-        
-        const userId = joinArgs[0];
-        const groupId = joinArgs[1];
-        const tagName = joinArgs[2];
+        const joinArgs = ctx.match.split("_");
 
-        const response = await joinTag(parseInt(groupId), tagName, userId);
+        if(ctx.match.length > 0 && joinArgs.length === 3) {
+            
+            const userId = joinArgs[0];
+            const groupId = joinArgs[1];
+            const tagName = joinArgs[2];
 
-        if(response.state === "ok") {
-            const message = "You have joined the tag <b>" + tagName + "</b>. You will be notified when someone tags it."
-            + "\n\n<i>Keep the bot started to get tagged privately!</i>";
-            await ctx.reply(message, { parse_mode: "HTML" });
-        }
-        else {
-            const message = "⚠️ " + response.message;
-            await ctx.reply(message);
+            const response = await joinTag(parseInt(groupId), tagName, userId);
+
+            if(response.state === "ok") {
+                const message = "You have joined the tag <b>" + tagName + "</b>. You will be notified when someone tags it."
+                + "\n\n<i>Keep the bot started to get tagged privately!</i>";
+                await ctx.reply(message, { parse_mode: "HTML" });
+            }
+            else {
+                const message = "⚠️ " + response.message;
+                await ctx.reply(message);
+            }
+
+            //THIS PART WILL BE REMOVED AFTER A WHILE
+            await ctx.reply("If you started the bot before 31/10/22, block and unblock it to get the new features.");
         }
     }
+
+    
 });
 
 GeneralComposer.command("help", async ctx => {
@@ -93,18 +102,12 @@ GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created",
 });
 
 GeneralComposer.on("my_chat_member", async ctx => {
-    if(ctx.myChatMember.old_chat_member.status === "member" && ctx.myChatMember.new_chat_member.status === "administrator") {
+    if(ctx.myChatMember.chat.type !== "private" && ctx.myChatMember.old_chat_member.status === "member" && ctx.myChatMember.new_chat_member.status === "administrator") {
         await ctx.reply("Now i'm fully operational!");
     }
-    else if(ctx.myChatMember.chat.type === "private") {
-        if(ctx.myChatMember.new_chat_member.status === "member")
-            await saveUser(ctx.myChatMember.chat.id.toString());
-        else
-            await deleteUser(ctx.myChatMember.chat.id.toString());
+    else if(ctx.myChatMember.chat.type === "private" && ctx.myChatMember.new_chat_member.status !== "member") {
+        await deleteUser(ctx.myChatMember.chat.id.toString());
     }
-
-    console.log(ctx.myChatMember);
-
 });
 
 GeneralComposer.on(":migrate_to_chat_id", async ctx => {

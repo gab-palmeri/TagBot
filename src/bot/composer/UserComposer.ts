@@ -138,7 +138,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
         if(response.state === "ok") {
             //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-            if(response.payload.length > 10) 
+            if(response.payload.length < 10) 
                 await tagPrivately(ctx, tagName, response.payload, messageToReplyTo);
             else 
                 await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);       
@@ -176,10 +176,16 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 //This function tags the users directly in the group
 async function tagPublicly(ctx: MyContext, groupId: number, subscribers: string[], messageToReplyTo: number) {
     
-    const usernames = await Promise.all(subscribers.map(async (subscriber: string) => {
+    const subscribersWithoutMe = subscribers.filter(subscriber => subscriber != ctx.msg.from.id.toString());
+
+    if(subscribersWithoutMe.length == 0)
+        await ctx.reply("⚠️ You're the only one subscribed to this tag", { reply_to_message_id: messageToReplyTo });
+
+    const usernames = await Promise.all(subscribersWithoutMe.map(async (subscriber: string) => {
         const user = await ctx.api.getChatMember(groupId, parseInt(subscriber));
         return '@' + user.user.username;
     }));
+
     const message = usernames.join(" ") + "\n";
     await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
 }
@@ -187,18 +193,44 @@ async function tagPublicly(ctx: MyContext, groupId: number, subscribers: string[
 //This function sends a private message to each user subscribed to the tag
 async function tagPrivately(ctx: MyContext, tagName: string, subscribers: string[], messageToReplyTo: number) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
-    for(const subscriber of subscribers) {
-        const message = "You have been tagged through the " + tagName + " tag. Click the link to see the message: " + messageLink;
-        await ctx.api.sendMessage(subscriber, message);
+    const notContacted = [];
+
+    const subscribersWithoutMe = subscribers.filter(subscriber => subscriber != ctx.msg.from.id.toString());
+    
+    //get the group name
+    const group = await ctx.api.getChat(ctx.msg.chat.id);
+
+    const toSendMessage = "You have been tagged in <b>" + group["title"] + "</b> through the " + tagName + " tag. Click <a href='" + messageLink + "'>here</a> to see the message";
+
+    for(const subscriber of subscribersWithoutMe) {
+        try {
+            await ctx.api.sendMessage(subscriber, toSendMessage, { parse_mode: "HTML" });
+        } catch(error) {
+            notContacted.push((await ctx.getChatMember(parseInt(subscriber))).user.first_name);
+        }
     }
 
-    //This message will be deleted shortly after
-    const successMessage = await ctx.reply("✅ All users in " + tagName + " have been tagged privately.", { 
+    let message = "";
+
+    if(subscribersWithoutMe.length == 0)
+        message = "⚠️ You are the only one subscribed to this tag";
+
+    //if at least one user was privately tagged successfully..
+    if(subscribersWithoutMe.length > notContacted.length)
+        message += "✅ Users in " + tagName + " have been tagged privately.\n";
+
+    //If the bot was not able to contact at least one user..
+    if(notContacted.length > 0) 
+        message += "⚠️ These users didn't start the bot in private: " + notContacted.join(", ");
+    
+
+    const sentMessage = await ctx.reply(message, { 
         reply_to_message_id: ctx.msg.message_id
     });
+
     setTimeout(() => {
-        void ctx.api.deleteMessage(ctx.chat.id, successMessage.message_id);
-    }, 3000);
+        void ctx.api.deleteMessage(ctx.chat.id, sentMessage.message_id);
+    }, 5000);
 }
 
 

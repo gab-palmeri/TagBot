@@ -77,27 +77,30 @@ export default class TagBot {
 
 	public setTransformers() {
 		//This code setups auto-deletion of bot messages after 5 seconds
-		this.bot.on("message::bot_command", async (ctx, next) => {
+		this.bot.on(["message::bot_command", "callback_query"], async (ctx, next) => {
+			
 			ctx.api.config.use(async (prev, method, payload, signal) => {
 
 				const res = await prev(method, payload, signal);
-				if(ctx.chat.type !== "private" && method === "sendMessage" && "chat_id" in payload && "result" in res) {
-					
+				if(ctx.chat.type !== "private" && method === "sendMessage" && "result" in res) {
+
 					//get the command name
 					const commandName = ctx.msg.text.split(/\s+/)[0];
-					//check if commandName starts with /list or /help
+
+					//the /list or /help commands need more time to be deleted
 					let timeToWait = 5000;
 					if(commandName.startsWith("/list") || commandName.startsWith("/help")) {
 						timeToWait = 10000;
 					}
 
+					//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
 					const bot = await ctx.getChatMember(ctx.me.id);
-					if(bot.status === "administrator" && bot.can_delete_messages) {
-						await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
+					if(bot.status === "administrator" && bot.can_delete_messages && commandName.startsWith("/")) {
+						await ctx.api.deleteMessage(ctx.chat.id, ctx.msg.message_id);
 					}
 
 					setTimeout(async () => {
-						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
+						await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
 					}, timeToWait);
 				}
 

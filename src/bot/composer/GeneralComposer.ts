@@ -14,7 +14,7 @@ GeneralComposer.command("start", async ctx => {
     );
 
     if(ctx.chat.type === "private") {
-        await saveUser(ctx.myChatMember.chat.id.toString());
+        await saveUser(ctx.chat.id.toString());
 
         const joinArgs = ctx.match.split("_");
 

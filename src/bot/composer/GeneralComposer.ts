@@ -35,9 +35,6 @@ GeneralComposer.command("start", async ctx => {
                 const message = "⚠️ " + response.message;
                 await ctx.reply(message);
             }
-
-            //THIS PART WILL BE REMOVED AFTER A WHILE
-            await ctx.reply("If you started the bot before 31/10/22, block and unblock it to get the new features.");
         }
     }
 

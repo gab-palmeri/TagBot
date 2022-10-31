@@ -3,9 +3,15 @@ import { User } from "../../entity/User";
 
 //given an userid, save it to the db
 export async function saveUser(userId: string) {
-    const user = new User();
-    user.userId = userId;
-    await user.save();
+    //note: userId is unique, so saving might crash
+    try {
+        const user = new User();
+        user.userId = userId;
+        await user.save();
+    }
+    catch(e) {
+        console.log(e);
+    }
 }
 
 //given an userid, remove it from the db

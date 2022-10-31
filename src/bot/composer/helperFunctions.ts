@@ -1,4 +1,31 @@
+import { InlineKeyboard } from "grammy";
 import MyContext from "../MyContext";
+import { joinTag } from "../services/subscriberServices";
+import { userExists } from "../services/userServices";
+
+export async function join(ctx: MyContext, userId: string, groupId: number, username: string, tagName: string) {
+    if(await userExists(userId)) {
+
+        const response = await joinTag(groupId, tagName, userId);
+
+        if(response.state === "ok") {
+            const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
+
+            const message = '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.';
+            await ctx.reply(message, { reply_markup: inlineKeyboard });
+        }
+        else {
+            const message = "⚠️ " + response.message + ', @' + username;
+            await ctx.reply(message);
+        }
+    }
+    else {
+        const message = "To join <b>tags</b>, @" + username + ", you need to start the bot";
+        const inlineKeyboard = new InlineKeyboard().url("Join " + tagName + "!", "https://t.me/" + ctx.me.username + "?start=" + userId + "_" + groupId + "_" + tagName);
+        await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
+    }
+}
+
 
 //This function tags the users directly in the group
 export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: string[], messageToReplyTo: number) {
@@ -48,7 +75,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
 
     //if at least one user was privately tagged successfully..
     if(subscribersWithoutMe.length > notContacted.length)
-        message += "✅ Users in " + tagName + " have been tagged privately.\n";
+        message += "✅ Users in " + tagName + " have been tagged privately. <a href='https://t.me/tagbotchannel/7'>Why?</a>\n";
 
     //If the bot was not able to contact at least one user..
     if(notContacted.length > 0) 
@@ -56,7 +83,9 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     
 
     const sentMessage = await ctx.reply(message, { 
-        reply_to_message_id: ctx.msg.message_id
+        reply_to_message_id: ctx.msg.message_id,
+        parse_mode: "HTML",
+        disable_web_page_preview: true
     });
 
     setTimeout(() => {

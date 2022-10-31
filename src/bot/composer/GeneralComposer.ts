@@ -1,15 +1,38 @@
 import { Composer } from "grammy";
 import { checkIfAdmin, checkIfGroup } from "../middlewares";
 import { addAdmin, createGroup, loadAdminList, migrateGroup, removeAdmin } from "../services/generalServices";
+import { joinTag } from "../services/subscriberServices";
 import { saveUser, deleteUser } from "../services/userServices";
 
 const GeneralComposer = new Composer();
 
 GeneralComposer.command("start", async ctx => {
+
     await ctx.reply(
         "Hi! I'm a bot that allows you to *create* and *manage* grouptags. Type */help* to see the *list of commands.*",
         { parse_mode: "Markdown" }
-    ); 
+    );
+
+    const joinArgs = ctx.match.split("_");
+
+    if(ctx.chat.type === "private" && ctx.match.length > 0 && joinArgs.length === 3) {
+        
+        const userId = joinArgs[0];
+        const groupId = joinArgs[1];
+        const tagName = joinArgs[2];
+
+        const response = await joinTag(parseInt(groupId), tagName, userId);
+
+        if(response.state === "ok") {
+            const message = "You have joined the tag <b>" + tagName + "</b>. You will be notified when someone tags it."
+            + "\n\n<i>Keep the bot started to get tagged privately!</i>";
+            await ctx.reply(message, { parse_mode: "HTML" });
+        }
+        else {
+            const message = "⚠️ " + response.message;
+            await ctx.reply(message);
+        }
+    }
 });
 
 GeneralComposer.command("help", async ctx => {
@@ -79,8 +102,6 @@ GeneralComposer.on("my_chat_member", async ctx => {
         else
             await deleteUser(ctx.myChatMember.chat.id.toString());
     }
-    console.log("UPDATE");
-    console.log(ctx.myChatMember);
 
 });
 

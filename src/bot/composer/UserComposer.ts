@@ -1,8 +1,8 @@
-import { Composer, InlineKeyboard } from "grammy";
+import { Composer } from "grammy";
 import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
-import { getGroupTags, getSubscribers, getSubscriberTags, joinTag, leaveTag } from "../services/subscriberServices";
-import { tagPrivately, tagPublicly } from "./helperFunctions";
+import { getGroupTags, getSubscribers, getSubscriberTags, leaveTag } from "../services/subscriberServices";
+import { join, tagPrivately, tagPublicly } from "./helperFunctions";
 
 
 const UserComposer = new Composer<MyContext>();
@@ -19,20 +19,7 @@ UserComposer.command("join", checkIfGroup, async ctx => {
     const username = ctx.update.message.from.username;
     const userId = ctx.update.message.from.id.toString();
 
-    const response = await joinTag(groupId, tagName, userId);
-
-    if(response.state === "ok") {
-        const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
-
-        const message = '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.'
-        + "\n<i>Remember to start the bot in private to get tagged privately</i>";
-        await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
-    }
-    else {
-        const message = "⚠️ " + response.message + ', @' + username;
-        await ctx.reply(message);
-    }
-	
+    await join(ctx, userId, groupId, username, tagName);
 });
 
 UserComposer.callbackQuery("join-tag", async (ctx) => {
@@ -46,12 +33,7 @@ UserComposer.callbackQuery("join-tag", async (ctx) => {
     const username = ctx.callbackQuery.from.username;
     const userId = ctx.callbackQuery.from.id.toString();
 
-    const response = await joinTag(groupId, tagName, userId);
-    const message = response.state === "ok" ? 
-    '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.' : 
-    "⚠️ " + response.message + ', @' + username;
-
-    await ctx.reply(message);
+    await join(ctx, userId, groupId, username, tagName);
 	await ctx.answerCallbackQuery();
 });
 
@@ -140,7 +122,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
         if(response.state === "ok") {
             //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-            if(response.payload.length < 10) 
+            if(response.payload.length > 10) 
                 await tagPrivately(ctx, tagName, response.payload, messageToReplyTo);
             else 
                 await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);       

@@ -81,26 +81,24 @@ export default class TagBot {
 			ctx.api.config.use(async (prev, method, payload, signal) => {
 
 				const res = await prev(method, payload, signal);
-				if(method === "sendMessage" && "chat_id" in payload && "result" in res) {
+				if(ctx.chat.type !== "private" && method === "sendMessage" && "chat_id" in payload && "result" in res) {
 					
 					//get the command name
 					const commandName = ctx.msg.text.split(/\s+/)[0];
-					if(!commandName.startsWith("/settings")) {
-						//check if commandName starts with /list or /help
-						let timeToWait = 5000;
-						if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
-							timeToWait = 10000;
-						}
-
-						const bot = await ctx.getChatMember(ctx.me.id);
-						if(bot.status === "administrator" && bot.can_delete_messages) {
-							await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
-						}
-
-						setTimeout(async () => {
-							await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
-						}, timeToWait);
+					//check if commandName starts with /list or /help
+					let timeToWait = 5000;
+					if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
+						timeToWait = 10000;
 					}
+
+					const bot = await ctx.getChatMember(ctx.me.id);
+					if(bot.status === "administrator" && bot.can_delete_messages) {
+						await ctx.api.deleteMessage(payload.chat_id, ctx.msg.message_id);
+					}
+
+					setTimeout(async () => {
+						await ctx.api.deleteMessage(payload.chat_id, res.result["message_id"]);
+					}, timeToWait);
 				}
 
 				return res;
@@ -130,7 +128,7 @@ export default class TagBot {
 				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 3000);
 			},
 			
-			keyGenerator: (ctx) => ctx.from?.id.toString(),
+			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
 		}));
 
 		//Set up the group-side rate limiter, only for hashtags (5 mins)

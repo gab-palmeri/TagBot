@@ -134,10 +134,10 @@ export default class TagBot {
 			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
 		}));
 
-		//Set up the group-side rate limiter, only for hashtags (5 mins)
+		//Set up the group-side rate limiter, only for hashtags (max 3 hashtags in 5 mins)
 		this.bot.filter(ctx => ctx.has("::hashtag")).use(limit({
 			timeFrame: 300000,
-			limit: 1,
+			limit: 3,
 			onLimitExceeded: async (ctx) => {
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");

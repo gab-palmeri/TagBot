@@ -103,6 +103,8 @@ GeneralComposer.on("my_chat_member", async ctx => {
             await deleteUser(ctx.myChatMember.chat.id.toString());
     }
 
+    console.log(ctx.myChatMember);
+
 });
 
 GeneralComposer.on(":migrate_to_chat_id", async ctx => {

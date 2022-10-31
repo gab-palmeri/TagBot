@@ -34,6 +34,13 @@ export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: 
 
     if(subscribersWithoutMe.length == 0) {
         await ctx.reply("⚠️ You're the only one subscribed to this tag", { reply_to_message_id: ctx.msg.message_id });
+        //THIS PART WILL BE REMOVED AFTER A WHILE
+        const updateMessage = "With the 31/10/22 update, users now need to join their tags again. Stay up-to-date with upcoming changes by joining the <a href='https://t.me/tagbotchannel'>TagBot Channel</a>.";
+        const sentUpdateMessage = await ctx.reply(updateMessage, {parse_mode: "HTML", disable_web_page_preview: true });
+        setTimeout(async () => {
+            await ctx.api.deleteMessage(ctx.chat.id, sentUpdateMessage.message_id);
+        }, 10000);
+        
         return;
     }
 
@@ -44,6 +51,13 @@ export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: 
 
     const message = usernames.join(" ") + "\n";
     await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
+
+    //THIS PART WILL BE REMOVED AFTER A WHILE
+    const updateMessage = "With the 31/10/22 update, users now need to join their tags again. Stay up-to-date with upcoming changes by joining the <a href='https://t.me/tagbotchannel'>TagBot Channel</a>.";
+    const sentUpdateMessage = await ctx.reply(updateMessage, {parse_mode: "HTML", disable_web_page_preview: true });
+    setTimeout(async () => {
+        await ctx.api.deleteMessage(ctx.chat.id, sentUpdateMessage.message_id);
+    }, 10000);
 }
 
 //This function sends a private message to each user subscribed to the tag
@@ -55,14 +69,18 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     
     if(subscribersWithoutMe.length == 0) {
         await ctx.reply("⚠️ You're the only one subscribed to this tag", { reply_to_message_id: ctx.msg.message_id });
+        //THIS PART WILL BE REMOVED AFTER A WHILE
+        const updateMessage = "With the 31/10/22 update, users now need to join their tags again. Stay up-to-date with upcoming changes by joining the <a href='https://t.me/tagbotchannel'>TagBot Channel</a>.";
+        const sentUpdateMessage = await ctx.reply(updateMessage, {parse_mode: "HTML", disable_web_page_preview: true });
+        setTimeout(async () => {
+            await ctx.api.deleteMessage(ctx.chat.id, sentUpdateMessage.message_id);
+        }, 10000);
         return;
     }
 
     //get the group name
     const group = await ctx.api.getChat(ctx.msg.chat.id);
-
     const toSendMessage = "You have been tagged in <b>" + group["title"] + "</b> through the " + tagName + " tag. Click <a href='" + messageLink + "'>here</a> to see the message";
-
     for(const subscriber of subscribersWithoutMe) {
         try {
             await ctx.api.sendMessage(subscriber, toSendMessage, { parse_mode: "HTML" });
@@ -80,7 +98,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     //If the bot was not able to contact at least one user..
     if(notContacted.length > 0) 
         message += "⚠️ These users didn't start the bot in private: " + notContacted.join(", ");
-    
+
 
     const sentMessage = await ctx.reply(message, { 
         reply_to_message_id: ctx.msg.message_id,
@@ -91,4 +109,11 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     setTimeout(() => {
         void ctx.api.deleteMessage(ctx.chat.id, sentMessage.message_id);
     }, 5000);
+
+    //THIS PART WILL BE REMOVED AFTER A WHILE
+    const updateMessage = "With the 31/10/22 update, users now need to join their tags again. Stay up-to-date with upcoming changes by joining the <a href='https://t.me/tagbotchannel'>TagBot Channel</a>.";
+    const sentUpdateMessage = await ctx.reply(updateMessage, {parse_mode: "HTML", disable_web_page_preview: true });
+    setTimeout(async () => {
+        await ctx.api.deleteMessage(ctx.chat.id, sentUpdateMessage.message_id);
+    }, 10000);
 }

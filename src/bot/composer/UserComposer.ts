@@ -1,7 +1,7 @@
 import { Composer, InlineKeyboard } from "grammy";
 import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
-import { getGroupTags, getSubscribers, getSubscriberTags, joinTag, leaveTag } from "../services/userServices";
+import { getGroupTags, getSubscribers, getSubscriberTags, joinTag, leaveTag } from "../services/subscriberServices";
 import { tagPrivately, tagPublicly } from "./helperFunctions";
 
 

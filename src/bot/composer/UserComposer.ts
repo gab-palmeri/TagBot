@@ -123,12 +123,12 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
         if(response.state === "ok") {
             //Remove the current user from the subscribers list
-            const subscribers = response.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
+            const subscribersWithoutMe = response.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
 
-            if(subscribers.length > 0) {
+            if(subscribersWithoutMe.length > 0) {
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 
-                    await tagPrivately(ctx, tagName, subscribers, messageToReplyTo);
+                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
                 else 
                     await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);  
             }

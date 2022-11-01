@@ -114,18 +114,27 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
     const emptyTags = [];
     const nonExistentTags = [];
+    const onlyOneInTags = [];
 
     //for every tag name, get the subcribers and create a set of users preceded by "@"
-    //if the tag does not exist / is empty, add it to the corresponding array
+    //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
         const response = await getSubscribers(tagName.substring(1), groupId);
 
         if(response.state === "ok") {
-            //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-            if(response.payload.length > 10) 
-                await tagPrivately(ctx, tagName, response.payload, messageToReplyTo);
-            else 
-                await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);       
+            //Remove the current user from the subscribers list
+            const subscribers = response.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
+
+            if(subscribers.length > 0) {
+                //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
+                if(response.payload.length > 10) 
+                    await tagPrivately(ctx, tagName, subscribers, messageToReplyTo);
+                else 
+                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);  
+            }
+            else {
+                onlyOneInTags.push(tagName);
+            } 
         }
         else if(response.state === "NOT_EXISTS")
             nonExistentTags.push(tagName);
@@ -145,6 +154,11 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
     errorMessages += "❌ The tag " + nonExistentTags[0] + " does not exist\n" : 
     nonExistentTags.length > 1 ?
     errorMessages += "❌ These tags do not exist: " + nonExistentTags.join(", ") : null;
+
+    onlyOneInTags.length == 1 ?
+    errorMessages += "⚠️ You're the only one in the tag " + onlyOneInTags[0] + "\n" :
+    onlyOneInTags.length > 1 ?
+    errorMessages += "⚠️ You're the only one in these tags: " + onlyOneInTags.join(", ") + "\n" : null;
     
     //This message will be deleted shortly after
     if(errorMessages.length > 0) {
@@ -152,7 +166,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
-        }, 3000);
+        }, 5000);
     }
         
 });

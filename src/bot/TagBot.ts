@@ -97,9 +97,7 @@ export default class TagBot {
 						try {
 							await ctx.deleteMessage();
 						} catch (error) {
-							const messageText = ctx.msg.text;
-							const groupId = ctx.msg.text.split(/\s+/)[1];
-							console.log(`Could not delete the message "${messageText}" from the group ${groupId} because the bot is not an admin`);
+							console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id} because the bot is not an admin`);
 						}
 					}
 
@@ -126,9 +124,7 @@ export default class TagBot {
 				try {
 					await ctx.deleteMessage();
 				} catch (error) {
-					const messageText = ctx.msg.text;
-					const groupId = ctx.msg.text.split(/\s+/)[1];
-					console.log(`Could not delete the message "${messageText}" from the group ${groupId} because the bot is not an admin`);
+					console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id} because the bot is not an admin`);
 				}
 
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;

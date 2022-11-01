@@ -109,7 +109,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
     .filter(entity => entity.type == 'hashtag')
     .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
 
-    const messageToReplyTo = ctx.update.message.reply_to_message ? ctx.update.message.reply_to_message.message_id : ctx.msg.message_id;
+    const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;
 
     const emptyTags = [];

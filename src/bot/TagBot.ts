@@ -78,7 +78,6 @@ export default class TagBot {
 	public setTransformers() {
 		//This code setups auto-deletion of bot messages after 5 seconds
 		this.bot.on(["message::bot_command", "callback_query"], async (ctx, next) => {
-			
 			ctx.api.config.use(async (prev, method, payload, signal) => {
 
 				const res = await prev(method, payload, signal);
@@ -94,19 +93,26 @@ export default class TagBot {
 					}
 
 					//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
-					const bot = await ctx.getChatMember(ctx.me.id);
-					if(bot.status === "administrator" && bot.can_delete_messages && commandName.startsWith("/")) {
-						await ctx.api.deleteMessage(ctx.chat.id, ctx.msg.message_id);
+					if(commandName.startsWith("/")) {
+						try {
+							await ctx.deleteMessage();
+						} catch (error) {
+							const messageText = ctx.msg.text;
+							const groupId = ctx.msg.text.split(/\s+/)[1];
+							console.log(`Could not delete the message "${messageText}" from the group ${groupId} because the bot is not an admin`);
+						}
 					}
 
 					setTimeout(async () => {
-						await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
+						try {
+							await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
+						} catch(error) {
+							console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id}`);
+						}
 					}, timeToWait);
 				}
-
 				return res;
 			});
-
 			await next();
 		});
 	}
@@ -115,20 +121,25 @@ export default class TagBot {
 		//Set up the user-side rate limiter, only for commands
 		this.bot.filter(ctx => ctx.has("::bot_command")).use(limit({
 			timeFrame: 5000,
-			limit: 1,
+			limit: 3,
 			onLimitExceeded: async (ctx) => {
-				const bot = await ctx.getChatMember(ctx.me.id);
-				if(bot.status === "administrator" && bot.can_delete_messages) {
-					try {
-						await ctx.deleteMessage();
-					} catch (e) {
-						console.error(e);
-					}
+				try {
+					await ctx.deleteMessage();
+				} catch (error) {
+					const messageText = ctx.msg.text;
+					const groupId = ctx.msg.text.split(/\s+/)[1];
+					console.log(`Could not delete the message "${messageText}" from the group ${groupId} because the bot is not an admin`);
 				}
 
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
-				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 3000);
+				setTimeout(async () => {
+					try {
+						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
+					} catch (error) {
+						console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id}`);
+					}
+				}, 3000);
 			},
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
@@ -141,7 +152,13 @@ export default class TagBot {
 			onLimitExceeded: async (ctx) => {
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");
-				setTimeout(() => ctx.api.deleteMessage(ctx.chat.id, msg.message_id), 3000);
+				setTimeout(async () => {
+					try {
+						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
+					} catch (error) {
+						console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id}`);
+					}
+				}, 3000);
 			},
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),

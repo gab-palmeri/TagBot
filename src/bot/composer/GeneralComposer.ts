@@ -47,8 +47,6 @@ GeneralComposer.command("help", async ctx => {
         "🔑 *Admin commands:*\n" +
             '/create tagname -> _Create a new grouptag_\n' +
             '/delete tagname -> _Delete a grouptag_\n' +
-            '/addusers tagname <usernames> -> _Add multiple users to a grouptag_\n' +
-            '/remusers tagname <usernames> -> _Remove multiple users from a grouptag_\n\n' +
         '👤 *User commands:*\n' +
             '#tagname -> _Tag a grouptag_\n' +
             '/join tagname -> _Join a grouptag_\n' +

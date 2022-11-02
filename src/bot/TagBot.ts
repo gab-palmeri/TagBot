@@ -7,7 +7,7 @@ import { autoRetry } from "@grammyjs/auto-retry";
 
 import GeneralComposer from "./composer/GeneralComposer";
 import AdminComposer from "./composer/AdminComposer";
-import UserComposer from "./composer/UserComposer";
+import SubscriberComposer from "./composer/SubscriberComposer";
 
 
 import MyContext from './MyContext';
@@ -68,8 +68,8 @@ export default class TagBot {
 		//ADMIN COMMANDS
 		this.bot.use(AdminComposer);
 
-		//USER COMMANDS
-		this.bot.use(UserComposer);
+		//SUBSCRIBER COMMANDS
+		this.bot.use(SubscriberComposer);
 
 		//GENERAL COMMANDS
 		this.bot.use(GeneralComposer);

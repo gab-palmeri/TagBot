@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
 import { checkIfAdmin, checkIfGroup } from "../middlewares";
-import { addAdmin, createGroup, loadAdminList, migrateGroup, removeAdmin } from "../services/generalServices";
-import { joinTag } from "../services/subscriberServices";
-import { saveUser, deleteUser } from "../services/userServices";
+import GeneralServices from "../services/generalServices";
+import SubscriberServices from "../services/SubscriberServices";
+import UserServices from "../services/UserServices";
 
 const GeneralComposer = new Composer();
 
@@ -14,7 +14,7 @@ GeneralComposer.command("start", async ctx => {
     );
 
     if(ctx.chat.type === "private") {
-        await saveUser(ctx.chat.id.toString());
+        await UserServices.saveUser(ctx.chat.id.toString());
 
         const joinArgs = ctx.match.split("_");
 
@@ -24,7 +24,7 @@ GeneralComposer.command("start", async ctx => {
             const groupId = joinArgs[1];
             const tagName = joinArgs[2];
 
-            const response = await joinTag(parseInt(groupId), tagName, userId);
+            const response = await SubscriberServices.joinTag(parseInt(groupId), tagName, userId);
 
             if(response.state === "ok") {
                 const message = "You have joined the tag <b>" + tagName + "</b>. You will be notified when someone tags it."
@@ -60,7 +60,7 @@ GeneralComposer.command("help", async ctx => {
 GeneralComposer.command("restart", checkIfGroup, checkIfAdmin, async ctx => {
     //reload the admin list of the group
     const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
-    const response = await loadAdminList(ctx.chat.id, adminList.map(admin => admin.user.id));
+    const response = await GeneralServices.loadAdminList(ctx.chat.id, adminList.map(admin => admin.user.id));
 
     if(response.state === "ok") {
         await ctx.reply("✅ Admin list updated!");
@@ -73,7 +73,7 @@ GeneralComposer.command("restart", checkIfGroup, checkIfAdmin, async ctx => {
 
 GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created", "message:supergroup_chat_created"], async ctx => {
     const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
-    const response = await createGroup(ctx.chat.id, adminList.map(admin => admin.user.id));
+    const response = await GeneralServices.createGroup(ctx.chat.id, adminList.map(admin => admin.user.id));
 
     if(response.state === "ok") {
         await ctx.reply(
@@ -101,12 +101,12 @@ GeneralComposer.on("my_chat_member", async ctx => {
         await ctx.reply("Now i'm fully operational!");
     }
     else if(ctx.myChatMember.chat.type === "private" && ctx.myChatMember.new_chat_member.status !== "member") {
-        await deleteUser(ctx.myChatMember.chat.id.toString());
+        await UserServices.deleteUser(ctx.myChatMember.chat.id.toString());
     }
 });
 
 GeneralComposer.on(":migrate_to_chat_id", async ctx => {
-    const response = await migrateGroup(ctx.chat.id, ctx.msg.migrate_to_chat_id);
+    const response = await GeneralServices.migrateGroup(ctx.chat.id, ctx.msg.migrate_to_chat_id);
     if(response.state === "ok")
         await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, "✅ Your group tags have been migrated to the supergroup chat!");
     else 
@@ -116,12 +116,12 @@ GeneralComposer.on(":migrate_to_chat_id", async ctx => {
 
 GeneralComposer.on("chat_member", async ctx => {
     ctx.chatMember.old_chat_member.status === "member" && ctx.chatMember.new_chat_member.status === "administrator"
-    && !ctx.chatMember.new_chat_member.user.is_bot && addAdmin(ctx.chat.id, ctx.chatMember.new_chat_member.user.id);
+    && !ctx.chatMember.new_chat_member.user.is_bot && GeneralServices.addAdmin(ctx.chat.id, ctx.chatMember.new_chat_member.user.id);
     
     ctx.chatMember.old_chat_member.status === "administrator"
     && (ctx.chatMember.new_chat_member.status === "member" || ctx.chatMember.new_chat_member.status === "left")
     && !ctx.chatMember.new_chat_member.user.is_bot
-    && removeAdmin(ctx.chat.id, ctx.chatMember.old_chat_member.user.id);
+    && GeneralServices.removeAdmin(ctx.chat.id, ctx.chatMember.old_chat_member.user.id);
 });
 
 export default GeneralComposer;

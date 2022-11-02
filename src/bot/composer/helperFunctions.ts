@@ -1,12 +1,12 @@
 import { InlineKeyboard } from "grammy";
 import MyContext from "../MyContext";
-import { joinTag } from "../services/subscriberServices";
-import { userExists } from "../services/userServices";
+import SubscriberServices from "../services/SubscriberServices";
+import UserServices from "../services/UserServices";
 
 export async function join(ctx: MyContext, userId: string, groupId: number, username: string, tagName: string) {
-    if(await userExists(userId)) {
+    if(await UserServices.userExists(userId)) {
 
-        const response = await joinTag(groupId, tagName, userId);
+        const response = await SubscriberServices.joinTag(groupId, tagName, userId);
 
         if(response.state === "ok") {
             const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");

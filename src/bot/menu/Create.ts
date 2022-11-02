@@ -1,13 +1,13 @@
 import { Menu } from "@grammyjs/menu";
 import MyContext from "../MyContext";
 
-import { editGroupPermissions } from "../services/adminServices";
+import AdminServices from "../services/AdminServices";
 
 const Create = new Menu<MyContext>("create-menu")
 
 .text(ctx => ctx.session.selectedGroup.canCreate == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
     if(ctx.session.selectedGroup.canCreate !== 1) {
-        const response = await editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canCreate: 1});
+        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canCreate: 1});
         if(response.state == "ok") {
             ctx.session.selectedGroup.canCreate = 1;
             ctx.menu.update();
@@ -20,7 +20,7 @@ const Create = new Menu<MyContext>("create-menu")
 
 .text(ctx => ctx.session.selectedGroup.canCreate == 0 ? "👉🏻 Only admins" : "Only admins", async (ctx) => {
     if(ctx.session.selectedGroup.canCreate !== 0) {
-        const response = await editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canCreate: 0});
+        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canCreate: 0});
         if(response.state == "ok") {
             ctx.session.selectedGroup.canCreate = 0;
             ctx.menu.update();

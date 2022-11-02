@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 import MyContext from "../MyContext";
-import { createTag, deleteTag, getAdminGroups, renameTag } from "../services/adminServices";
+import AdminServices from "../services/AdminServices";
 
 import menu from "../menu/ControlPanel";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
@@ -28,7 +28,7 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     
     
     const groupId = ctx.msg.chat.id;
-    const response = await createTag(groupId, tagName, ctx.msg.from.id);
+    const response = await AdminServices.createTag(groupId, tagName, ctx.msg.from.id);
 
     if(response.state === "ok") {
         await ctx.reply('✅ Created tag ' + tagName + ' (@' + issuerUsername + ')');
@@ -48,7 +48,7 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
 
-    const response = await deleteTag(groupId, tagName);
+    const response = await AdminServices.deleteTag(groupId, tagName);
     const message = response.state === 'ok' ? 
     '✅ Deleted tag ' + tagName + ' (@' + issuerUsername + ')' : 
     "⚠️ " + response.message + ', @' + issuerUsername;
@@ -70,7 +70,7 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
         return await ctx.reply("⚠️ Tag must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@" + issuerUsername + ")");
 
     const groupId = ctx.update.message.chat.id;
-    const response = await renameTag(groupId, oldTagName, newTagName);
+    const response = await AdminServices.renameTag(groupId, oldTagName, newTagName);
 
     const message = response.state === "ok" ? 
     "✅ Renamed tag <b>" + oldTagName + "</b> to <b>" + newTagName + "</b> (@" + issuerUsername + ")" : 
@@ -80,7 +80,7 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
 });
 
 AdminComposer.command("settings", checkIfPrivate, async ctx => {
-    const response = await getAdminGroups(ctx.msg.from.id);
+    const response = await AdminServices.getAdminGroups(ctx.msg.from.id);
     if(response.state !== "ok")
         return await ctx.reply("⚠️ " + response.message);
 

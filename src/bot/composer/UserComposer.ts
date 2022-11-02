@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
-import { getGroupTags, getSubscribers, getSubscriberTags, leaveTag } from "../services/subscriberServices";
+import SubscriberServices from "../services/SubscriberServices";
 import { join, tagPrivately, tagPublicly } from "./helperFunctions";
 
 
@@ -48,7 +48,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     const username = ctx.update.message.from.username;
     const userId = ctx.update.message.from.id.toString();
 
-    const response = await leaveTag(groupId, tagName, userId);
+    const response = await SubscriberServices.leaveTag(groupId, tagName, userId);
     const message = response.state === "ok" ? 
     '@' + username + ' left tag ' + tagName + '. They will no longer be notified when someone tags it.' : 
     "⚠️ " + response.message;
@@ -59,7 +59,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
 UserComposer.command("list", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
-    const response = await getGroupTags(groupId);
+    const response = await SubscriberServices.getGroupTags(groupId);
 
     if(response.state == "error") {
         await ctx.reply("⚠️ " + response.message);
@@ -84,7 +84,7 @@ UserComposer.command("mytags", checkIfGroup, async ctx => {
     const username = ctx.update.message.from.username;
     const userId = ctx.update.message.from.id.toString();
 
-    const response = await getSubscriberTags(userId, groupId);
+    const response = await SubscriberServices.getSubscriberTags(userId, groupId);
 
     if(response.state == "error")
         return await ctx.reply("⚠️ " + response.message + ", @" + username);
@@ -119,7 +119,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
     //for every tag name, get the subcribers and create a set of users preceded by "@"
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
-        const response = await getSubscribers(tagName.substring(1), groupId);
+        const response = await SubscriberServices.getSubscribers(tagName.substring(1), groupId);
 
         if(response.state === "ok") {
             //Remove the current user from the subscribers list

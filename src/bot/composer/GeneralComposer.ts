@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 import { checkIfAdmin, checkIfGroup } from "../middlewares";
-import GeneralServices from "../services/generalServices";
+import GeneralServices from "../services/GeneralServices";
 import SubscriberServices from "../services/SubscriberServices";
 import UserServices from "../services/UserServices";
 

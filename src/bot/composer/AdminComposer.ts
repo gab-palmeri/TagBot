@@ -5,6 +5,8 @@ import AdminServices from "../services/AdminServices";
 import menu from "../menu/ControlPanel";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
+import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgAddRemUsers, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
+
 const AdminComposer = new Composer<MyContext>();
 
 
@@ -21,17 +23,17 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(tagName.length == 0)
-        return await ctx.reply("⚠️ Syntax: /create tagname");
+        return await ctx.reply(msgCreateSyntaxError);
 
     if(!regex.test(tagName)) 
-        return await ctx.reply("⚠️ Tag must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@" + issuerUsername + ")");
+        return await ctx.reply(msgCreateTagError(issuerUsername));
     
     
     const groupId = ctx.msg.chat.id;
     const response = await AdminServices.createTag(groupId, tagName, ctx.msg.from.id);
 
     response.state === "ok"
-    ? await ctx.reply('✅ Created tag ' + tagName + ' (@' + issuerUsername + ')')
+    ? await ctx.reply(msgCreateTag(tagName, issuerUsername))
     : await ctx.reply('⚠️ ' + response.message + ', @' + issuerUsername);
         
 });
@@ -41,13 +43,13 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     const issuerUsername = ctx.msg.from.username;
 
     if (tagName.length == 0)
-        return await ctx.reply('⚠️ Syntax: /delete tagname');
+        return await ctx.reply(msgDeleteSyntaxError);
 
     const groupId = ctx.update.message.chat.id;
 
     const response = await AdminServices.deleteTag(groupId, tagName);
     response.state === "ok"
-    ? await ctx.reply('✅ Deleted tag ' + tagName + ' (@' + issuerUsername + ')')
+    ? await ctx.reply(msgDeleteTag(tagName, issuerUsername))
     : await ctx.reply("⚠️ " + response.message + ', @' + issuerUsername);
         
 });
@@ -61,16 +63,16 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(oldTagName.length == 0 || newTagName.length == 0)
-        return await ctx.reply("⚠️ Syntax: /rename oldtagname newtagname");
+        return await ctx.reply(msgRenameSyntaxError);
 
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-        return await ctx.reply("⚠️ Tag must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@" + issuerUsername + ")");
+        return await ctx.reply(msgRenameTagError(issuerUsername));
 
     const groupId = ctx.update.message.chat.id;
     const response = await AdminServices.renameTag(groupId, oldTagName, newTagName);
 
     response.state === "ok"
-    ? await ctx.reply("✅ Renamed tag <b>" + oldTagName + "</b> to <b>" + newTagName + "</b> (@" + issuerUsername + ")" , {parse_mode: "HTML"})
+    ? await ctx.reply(msgRenameTag(oldTagName,newTagName,issuerUsername) , {parse_mode: "HTML"})
     : await ctx.reply("⚠️ " + response.message + ", @" + issuerUsername, {parse_mode: "HTML"});
 
 });
@@ -108,9 +110,7 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
 
 AdminComposer.command(["addusers", "remusers"], async ctx => {
 
-    const message = "This command has been temporarily disabled since the last update.\n\n<i>Stay up to date with the latest news on @tagbotchannel</i>";
-
-    await ctx.reply(message, {parse_mode: "HTML"});
+    await ctx.reply(msgAddRemUsers, {parse_mode: "HTML"});
 });
 
 export default AdminComposer;

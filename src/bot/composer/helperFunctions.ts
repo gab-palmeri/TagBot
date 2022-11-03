@@ -3,16 +3,18 @@ import MyContext from "../MyContext";
 import SubscriberServices from "../services/SubscriberServices";
 import UserServices from "../services/UserServices";
 
+import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "../messages/subscriberMessages";
+
 export async function join(ctx: MyContext, userId: string, groupId: number, username: string, tagName: string) {
     if(await UserServices.userExists(userId)) {
 
         const response = await SubscriberServices.joinTag(groupId, tagName, userId);
 
         if(response.state === "ok") {
-            const inlineKeyboard = new InlineKeyboard().text("Join this tag", "join-tag");
+            const [msg, inlineKeyboardText] = msgJoinPublic(tagName, username);
+            const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, "join-tag");
 
-            const message = '@' + username + ' joined tag ' + tagName + '. They will be notified when someone tags it.';
-            await ctx.reply(message, { reply_markup: inlineKeyboard });
+            await ctx.reply(msg, { reply_markup: inlineKeyboard });
         }
         else {
             const message = "⚠️ " + response.message + ', @' + username;
@@ -20,9 +22,9 @@ export async function join(ctx: MyContext, userId: string, groupId: number, user
         }
     }
     else {
-        const message = "To join <b>tags</b>, @" + username + ", you need to /start the bot";
-        const inlineKeyboard = new InlineKeyboard().url("Start the bot and join " + tagName, "https://t.me/" + ctx.me.username + "?start=" + userId + "_" + groupId + "_" + tagName);
-        await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
+        const [msg, inlineKeyboardText] = msgJoinStartBot(tagName, username);
+        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, "https://t.me/" + ctx.me.username + "?start=" + userId + "_" + groupId + "_" + tagName);
+        await ctx.reply(msg, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
     }
 }
 
@@ -48,7 +50,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
 
     //get the group name
     const group = await ctx.api.getChat(ctx.msg.chat.id);
-    const toSendMessage = "You have been tagged in <b>" + group["title"] + "</b> through the " + tagName + " tag. Click <a href='" + messageLink + "'>here</a> to see the message";
+    const toSendMessage = msgPrivateTag(tagName, group["title"], messageLink);
     for(const subscriber of subscribers) {
         try {
             await ctx.api.sendMessage(subscriber, toSendMessage, { parse_mode: "HTML" });
@@ -61,11 +63,11 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
 
     //if at least one user was privately tagged successfully..
     if(subscribers.length > notContacted.length)
-        message += "✅ Users in " + tagName + " have been tagged privately. <a href='https://t.me/tagbotchannel/7'>Why?</a>\n";
+        message += msgPrivateTagResponse(tagName);
 
     //If the bot was not able to contact at least one user..
     if(notContacted.length > 0) 
-        message += "⚠️ These users didn't start the bot in private: " + notContacted.join(", ");
+        message += msgPrivateTagError(notContacted.join(", "));
 
 
     const sentMessage = await ctx.reply(message, { 

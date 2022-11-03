@@ -4,6 +4,7 @@ import MyContext from "../MyContext";
 import SubscriberServices from "../services/SubscriberServices";
 import { join, tagPrivately, tagPublicly } from "./helperFunctions";
 
+import { msgJoinSyntaxError, msgLeaveSyntaxError, msgLeaveTag, msgListTags, msgMyTags, msgTagsErrors } from "../messages/subscriberMessages";
 
 const UserComposer = new Composer<MyContext>();
 
@@ -13,7 +14,7 @@ UserComposer.command("join", checkIfGroup, async ctx => {
     const tagName = ctx.match.toString();
 
     if(tagName.length == 0) 
-        return await ctx.reply("⚠️ Syntax: /join tagname");
+        return await ctx.reply(msgJoinSyntaxError);
 
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
@@ -27,7 +28,7 @@ UserComposer.callbackQuery("join-tag", async (ctx) => {
 	const tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
 
     if(tagName.length == 0) 
-        return await ctx.reply("⚠️ Syntax: /join tagname");
+        return await ctx.reply(msgJoinSyntaxError);
 
     const groupId = ctx.callbackQuery.message.chat.id;
     const username = ctx.callbackQuery.from.username;
@@ -42,7 +43,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     const tagName = ctx.match.toString();
 
     if(tagName.length == 0)
-        return await ctx.reply('⚠️ Syntax: /leave tagname');
+        return await ctx.reply(msgLeaveSyntaxError);
 
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
@@ -51,7 +52,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     const response = await SubscriberServices.leaveTag(groupId, tagName, userId);
 
     response.state === "ok"
-    ? await ctx.reply('@' + username + ' left tag ' + tagName + '. They will no longer be notified when someone tags it.')
+    ? await ctx.reply(msgLeaveTag(username, tagName))
     : await ctx.reply("⚠️ " + response.message);
 });
 
@@ -65,15 +66,7 @@ UserComposer.command("list", checkIfGroup, async ctx => {
         return;
     }
 
-    //create a fancy message with the tags list
-    const message = "📄 <b>Here's a list of all the tags in this group:</b>\n\n" + response.payload.map((tag) => {
-        if(tag.subscribers.length == 1)
-            return "- " + tag.name + " <i>(1/50 sub)</i>";
-        else
-            return "- " + tag.name + " <i>(" + tag.subscribers.length + "/50 subs)</i>";
-    }).join("\n");
-
-    await ctx.reply(message, {parse_mode: "HTML"});
+    await ctx.reply(msgListTags(response.payload), {parse_mode: "HTML"});
 });
 
 //function that returns the tags the user is subcribed in
@@ -88,10 +81,7 @@ UserComposer.command("mytags", checkIfGroup, async ctx => {
     if(response.state == "error")
         return await ctx.reply("⚠️ " + response.message + ", @" + username);
 
-    const message = "📄 <b>Here's a list of the tags you're in, @" + username + ":</b>\n\n" + 
-    response.payload.map((tag) => "- " + tag.name).join("\n");
-
-    await ctx.reply(message, { parse_mode: "HTML" });
+    await ctx.reply(msgMyTags(response.payload, username), { parse_mode: "HTML" });
 });
 
 UserComposer.on("::hashtag", checkIfGroup, async ctx => {
@@ -142,22 +132,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
     }
 
     //ERROR MESSAGES PHASE
-    let errorMessages = "";
-
-    emptyTags.length == 1 ?
-    errorMessages += "⚠️ The tag " + emptyTags[0] + " is empty\n" :
-    emptyTags.length > 1 ?
-    errorMessages += "⚠️ These tags are empty: " + emptyTags.join(", ") + "\n" : null;
-
-    nonExistentTags.length == 1 ? 
-    errorMessages += "❌ The tag " + nonExistentTags[0] + " does not exist\n" : 
-    nonExistentTags.length > 1 ?
-    errorMessages += "❌ These tags do not exist: " + nonExistentTags.join(", ") : null;
-
-    onlyOneInTags.length == 1 ?
-    errorMessages += "⚠️ You're the only one in the tag " + onlyOneInTags[0] + "\n" :
-    onlyOneInTags.length > 1 ?
-    errorMessages += "⚠️ You're the only one in these tags: " + onlyOneInTags.join(", ") + "\n" : null;
+    const errorMessages = msgTagsErrors(emptyTags, nonExistentTags, onlyOneInTags);
     
     //This message will be deleted shortly after
     if(errorMessages.length > 0) {

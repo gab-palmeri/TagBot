@@ -97,16 +97,15 @@ export default class TagBot {
 						try {
 							await ctx.deleteMessage();
 						} catch (error) {
-							//get group info from ID
 							console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
 						}
 					}
 
-					setTimeout(async (ctx) => {
+					setTimeout(async () => {
 						try {
 							await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
 						} catch(error) {
-							console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id})`);
+							console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat["title"]} (${ctx.chat.id})`);
 						}
 					}, timeToWait);
 				}

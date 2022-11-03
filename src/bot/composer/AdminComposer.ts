@@ -30,13 +30,10 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const groupId = ctx.msg.chat.id;
     const response = await AdminServices.createTag(groupId, tagName, ctx.msg.from.id);
 
-    if(response.state === "ok") {
-        await ctx.reply('✅ Created tag ' + tagName + ' (@' + issuerUsername + ')');
-    }
-    else {
-        await ctx.reply('⚠️ ' + response.message + ', @' + issuerUsername);
-    }
-
+    response.state === "ok"
+    ? await ctx.reply('✅ Created tag ' + tagName + ' (@' + issuerUsername + ')')
+    : await ctx.reply('⚠️ ' + response.message + ', @' + issuerUsername);
+        
 });
 
 AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
@@ -49,10 +46,10 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     const groupId = ctx.update.message.chat.id;
 
     const response = await AdminServices.deleteTag(groupId, tagName);
-    const message = response.state === 'ok' ? 
-    '✅ Deleted tag ' + tagName + ' (@' + issuerUsername + ')' : 
-    "⚠️ " + response.message + ', @' + issuerUsername;
-    await ctx.reply(message);
+    response.state === "ok"
+    ? await ctx.reply('✅ Deleted tag ' + tagName + ' (@' + issuerUsername + ')')
+    : await ctx.reply("⚠️ " + response.message + ', @' + issuerUsername);
+        
 });
 
 AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
@@ -72,11 +69,10 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const groupId = ctx.update.message.chat.id;
     const response = await AdminServices.renameTag(groupId, oldTagName, newTagName);
 
-    const message = response.state === "ok" ? 
-    "✅ Renamed tag <b>" + oldTagName + "</b> to <b>" + newTagName + "</b> (@" + issuerUsername + ")" : 
-    "⚠️ " + response.message + ", @" + issuerUsername;
+    response.state === "ok"
+    ? await ctx.reply("✅ Renamed tag <b>" + oldTagName + "</b> to <b>" + newTagName + "</b> (@" + issuerUsername + ")" , {parse_mode: "HTML"})
+    : await ctx.reply("⚠️ " + response.message + ", @" + issuerUsername, {parse_mode: "HTML"});
 
-    await ctx.reply(message, {parse_mode: "HTML"});
 });
 
 AdminComposer.command("settings", checkIfPrivate, async ctx => {

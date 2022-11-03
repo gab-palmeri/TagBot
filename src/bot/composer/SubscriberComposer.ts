@@ -49,11 +49,10 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     const userId = ctx.update.message.from.id.toString();
 
     const response = await SubscriberServices.leaveTag(groupId, tagName, userId);
-    const message = response.state === "ok" ? 
-    '@' + username + ' left tag ' + tagName + '. They will no longer be notified when someone tags it.' : 
-    "⚠️ " + response.message;
 
-    await ctx.reply(message);
+    response.state === "ok"
+    ? await ctx.reply('@' + username + ' left tag ' + tagName + '. They will no longer be notified when someone tags it.')
+    : await ctx.reply("⚠️ " + response.message);
 });
 
 UserComposer.command("list", checkIfGroup, async ctx => {

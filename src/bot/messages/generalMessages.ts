@@ -7,7 +7,8 @@ export const startMessage = "Hi! I'm a <a href='https://t.me/tagbotchannel/3'>bo
 export const helpMessage = "👇 <b>Here's the list of commands!</b>\n\n" +
 "🔑 <b>Admin commands:</b>\n" +
     '/create tagname -> <i>Create a new grouptag</i>\n' +
-    '/delete tagname -> <i>Delete a grouptag</i>\n\n' +
+    '/delete tagname -> <i>Delete a grouptag</i>\n' +
+    '/rename oldtagname newtagname -> <i>Rename a grouptag</i>\n\n' +
 '👤 <b>User commands:</b>\n' +
     '#tagname -> <i>Tag a grouptag</i>\n' +
     '/join tagname -> <i>Join a grouptag</i>\n' +

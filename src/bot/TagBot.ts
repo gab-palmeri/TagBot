@@ -98,15 +98,15 @@ export default class TagBot {
 							await ctx.deleteMessage();
 						} catch (error) {
 							//get group info from ID
-							console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
+							console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
 						}
 					}
 
-					setTimeout(async () => {
+					setTimeout(async (ctx) => {
 						try {
 							await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
 						} catch(error) {
-							console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id}`);
+							console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id})`);
 						}
 					}, timeToWait);
 				}
@@ -125,16 +125,22 @@ export default class TagBot {
 				try {
 					await ctx.deleteMessage();
 				} catch (error) {
-					console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id} because the bot is not an admin`);
+					let groupInfo: string | number;
+					if(ctx.chat.type !== "private")
+						groupInfo = `${ctx.chat.title} (${ctx.chat.id})`;
+					else 
+						groupInfo = ctx.chat.id;
+
+					console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo} because the bot is not an admin`);
 				}
 
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
-				setTimeout(async () => {
+				setTimeout(async (groupInfo) => {
 					try {
 						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
 					} catch (error) {
-						console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id}`);
+						console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
 					}
 				}, 3000);
 			},
@@ -150,10 +156,16 @@ export default class TagBot {
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");
 				setTimeout(async () => {
+					let groupInfo: string | number;
+					if(ctx.chat.type !== "private")
+						groupInfo = `${ctx.chat.title} (${ctx.chat.id})`;
+					else 
+						groupInfo = ctx.chat.id;
+
 					try {
 						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
 					} catch (error) {
-						console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id}`);
+						console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
 					}
 				}, 3000);
 			},

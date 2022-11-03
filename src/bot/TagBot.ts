@@ -97,7 +97,8 @@ export default class TagBot {
 						try {
 							await ctx.deleteMessage();
 						} catch (error) {
-							console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.id} because the bot is not an admin`);
+							//get group info from ID
+							console.log(`Could not delete the message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
 						}
 					}
 

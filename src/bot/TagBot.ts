@@ -1,6 +1,5 @@
 import { Bot, GrammyError, HttpError, session } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
-import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { getSessionKey } from "./middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
@@ -52,8 +51,7 @@ export default class TagBot {
 		this.bot.use(sequentialize(getSessionKey));
 		this.bot.use(session({getSessionKey, initial: () => ({groups: [], selectedGroup: null})}));
 
-		//Set the anti-flood (telegram side)
-		this.bot.api.config.use(apiThrottler());
+		//Set the auto-retry middleware
 		this.bot.api.config.use(autoRetry());
 
 		//Set the command panel menu

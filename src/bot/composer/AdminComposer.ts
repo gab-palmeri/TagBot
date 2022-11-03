@@ -112,7 +112,7 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
 
 AdminComposer.command(["addusers", "remusers"], async ctx => {
 
-    const message = "This command has been temporarily disabled since the last update.\n\n<i>Stay up to date with the latest news on @tagbotnews</i>";
+    const message = "This command has been temporarily disabled since the last update.\n\n<i>Stay up to date with the latest news on @tagbotchannel</i>";
 
     await ctx.reply(message, {parse_mode: "HTML"});
 });

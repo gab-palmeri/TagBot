@@ -1,7 +1,7 @@
 {
-   "name": "notifbot",
+   "name": "tagbot",
    "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
+   "description": "Create #tags to mention multiple users at once in your group",
    "type": "commonjs",
    "devDependencies": {
       "@types/node": "^16.11.60",

@@ -65,7 +65,9 @@ export default class AdminServices {
 			return {state: "ok", message: null};
 		}
 		catch(error) {
-			console.log(error);
+			if(error.code == "ER_DUP_ENTRY")
+				return {state: "error", message:"A tag with this name already exists"};
+
 			return {state: "error", message: "An error occured"};
 		}
 	}

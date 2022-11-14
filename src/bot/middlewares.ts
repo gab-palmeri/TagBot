@@ -4,7 +4,7 @@ import { Tag } from "../entity/Tag";
 
 export async function checkIfGroup(ctx: Context, next: NextFunction) {
 
-	if(['group','supergroup','channel'].includes(ctx.update.message.chat.type) == false) {
+	if(['group','supergroup','channel'].includes(ctx.msg.chat.type) == false) {
 		await ctx.reply("This command can only be used in a group");
 		return;
 	}

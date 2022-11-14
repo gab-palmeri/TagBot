@@ -3,7 +3,7 @@
 
 _Create #tags to mention multiple users at once in your group_
 
-[Start the bot!](https://t.me/grouptags_bot)
+[Start the bot!](https://t.me/grouptags_bot) / [Bot updates channel](https://t.me/tagbotchannel)
 
 ## List of commands
 - /start: _start the bot_

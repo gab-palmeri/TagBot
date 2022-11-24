@@ -76,29 +76,37 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 		//print the name of the command
 		const commandName = ctx.msg.text.split(/\s+/)[0].substring(1);
 
+		const replyErrorPrefixes = ["This tag was created before permissions were implemented, so only admins can perform the operation of ",
+									"Only admins or the creator of this tag can perform the operation of "];
+		var replySuffix = "";
+		
 		switch(commandName) {
 			case "delete":
+				replySuffix = "delete";
 				group.canDelete == 1 || (group.canDelete == 2 && tag.creatorId == userId) ? await next() :
-				group.canDelete == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can delete it") :
-				group.canDelete == 2 ? await ctx.reply("Only admins or the creator of this tag can delete it") :
+				group.canDelete == 2 && tag.creatorId == 0 ? await ctx.reply(replyErrorPrefixes[0] + replySuffix) :
+				group.canDelete == 2 ? await ctx.reply(replyErrorPrefixes[1] + replySuffix) :
 				await ctx.reply("Only admins can delete tags");
 				break;
 			case "rename":
+				replySuffix = "rename";
 				group.canRename == 1 || (group.canRename == 2 && tag.creatorId == userId) ? await next() :
-				group.canRename == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can rename it") :
-				group.canRename == 2 ? await ctx.reply("Only admins or the creator of this tag can rename it") :
+				group.canRename == 2 && tag.creatorId == 0 ? await ctx.reply(replyErrorPrefixes[0] + replySuffix) :
+				group.canRename == 2 ? await ctx.reply(replyErrorPrefixes[1] + replySuffix) :
 				await ctx.reply("Only admins can rename tags");
 				break;
 			case "addusers":
+				replySuffix = "add users to it";
 				group.canAddUsers == 1 || (group.canAddUsers == 2 && tag.creatorId == userId) ? await next() :
-				group.canAddUsers == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can add users to it") :
-				group.canAddUsers == 2 ? await ctx.reply("Only admins or the creator of this tag can add users to it") :
+				group.canAddUsers == 2 && tag.creatorId == 0 ? await ctx.reply(replyErrorPrefixes[0] + replySuffix) :
+				group.canAddUsers == 2 ? await ctx.reply(replyErrorPrefixes[1] + replySuffix) :
 				await ctx.reply("Only admins can add users to tags");
 				break;
 			case "remusers":
+				replySuffix = "remove users from it";
 				group.canRemUsers == 1 || (group.canRemUsers == 2 && tag.creatorId == userId) ? await next() :
-				group.canRemUsers == 2 && tag.creatorId == 0 ? await ctx.reply("This tag was created before permissions were implemented, so only admins can remove users from it") :
-				group.canRemUsers == 2 ? await ctx.reply("Only admins or the creator of this tag can remove users from it") :
+				group.canRemUsers == 2 && tag.creatorId == 0 ? await ctx.reply(replyErrorPrefixes[0] + replySuffix) :
+				group.canRemUsers == 2 ? await ctx.reply(replyErrorPrefixes[1] + replySuffix) :
 				await ctx.reply("Only admins can remove users from tags");
 				break;
 		}

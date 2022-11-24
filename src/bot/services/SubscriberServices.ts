@@ -29,7 +29,7 @@ export default class SubscriberServices {
 			}
 			else {
 				if(subscriber.tags.find(n => n.id == tag.id))
-					return {state: "ALREADY_SUBSCRIBED", message: "You are already subscribed to this tag"};
+					return {state: "ALREADY_SUBSCRIBED", message: "You already subscribed to this tag"};
 	
 				subscriber.tags.push(tag);
 				await subscriber.save();

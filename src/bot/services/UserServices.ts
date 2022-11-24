@@ -10,7 +10,7 @@ export default class UserServices {
             await user.save();
         }
         catch(e) {
-            console.log("tried to add user with id: " + userId + " but it already exists (it can happen)");
+            console.log("Tried to add user with id: " + userId + " but it already exists (it can happen)");
         }
     }
 

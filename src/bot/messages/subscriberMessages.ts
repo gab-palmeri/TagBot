@@ -14,7 +14,7 @@ export function msgJoinPrivate(tagName: string) {
 
 export function msgJoinPublic(tagName: string, username: string) {
     return [
-        `@${username} joined tag ${tagName}. They will be notified when someone tags it.`,
+        `@${username} joined tag ${tagName}. A notification will now be sent when someone tags it.`,
         `Join this tag`
     ];
 }
@@ -27,7 +27,7 @@ export function msgJoinStartBot(tagName: string, username: string) {
 }
 
 export function msgLeaveTag(username: string, tagName: string) {
-    return `@${username} left tag ${tagName}. They will no longer be notified when someone tags it.`;
+    return `@${username} left tag ${tagName}. User will not be notified when someone tags it anymore.`;
 }
 /* ******************************************* */
 

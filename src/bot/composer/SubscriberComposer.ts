@@ -11,10 +11,13 @@ const UserComposer = new Composer<MyContext>();
 
 UserComposer.command("join", checkIfGroup, async ctx => {
 
-    const tagName = ctx.match.toString();
+    let tagName = ctx.match.toString();
 
     if(tagName.length == 0) 
         return await ctx.reply(msgJoinSyntaxError);
+    
+    //if tagName starts with #, remove it
+    tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
 
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
@@ -25,10 +28,13 @@ UserComposer.command("join", checkIfGroup, async ctx => {
 
 UserComposer.callbackQuery("join-tag", async (ctx) => {
 
-	const tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
+	let tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
 
     if(tagName.length == 0) 
         return await ctx.reply(msgJoinSyntaxError);
+    
+    //if tagName starts with #, remove it
+    tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
 
     const groupId = ctx.callbackQuery.message.chat.id;
     const username = ctx.callbackQuery.from.username;
@@ -40,10 +46,13 @@ UserComposer.callbackQuery("join-tag", async (ctx) => {
 
 UserComposer.command("leave", checkIfGroup, async ctx => {
 
-    const tagName = ctx.match.toString();
+    let tagName = ctx.match.toString();
 
     if(tagName.length == 0)
         return await ctx.reply(msgLeaveSyntaxError);
+    
+    //if tagName starts with #, remove it
+    tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
 
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;

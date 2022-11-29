@@ -9,7 +9,7 @@ export const msgLeaveSyntaxError = `⚠️ Syntax: /leave tagname`;
 //JOIN/LEAVE MESSAGES
 export function msgJoinPrivate(tagName: string) {
     return `You have joined the tag <b>${tagName}</b>. You will be notified when someone tags it.`
-    + `\n\n<i>Keep the bot started to get tagged privately!</i>`; //add a link to the channel
+    + `\n\n<i>Keep the bot started to get tagged privately!</i>`;
 }
 
 export function msgJoinPublic(tagName: string, username: string) {

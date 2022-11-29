@@ -146,7 +146,7 @@ export default class TagBot {
 		}));
 
 		//Set up the group-side rate limiter, only for hashtags (max 3 hashtags in 5 mins)
-		this.bot.filter(ctx => ctx.has("::hashtag")).use(limit({
+		/*this.bot.filter(ctx => ctx.has("::hashtag")).use(limit({
 			timeFrame: 300000,
 			limit: 3,
 			onLimitExceeded: async (ctx) => {
@@ -168,7 +168,7 @@ export default class TagBot {
 			},
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
-		}));
+		}));*/
 	}
 
 	public start() {

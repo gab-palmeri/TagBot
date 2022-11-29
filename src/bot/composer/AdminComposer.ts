@@ -56,7 +56,11 @@ AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
 
 AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
-    const [oldTagName, newTagName] = args.trim().split(/\s+/);
+    let [oldTagName, newTagName] = args.trim().split(/\s+/);
+
+    //if oldTagName or newTagName start with #, remove it
+    oldTagName = oldTagName.startsWith("#") ? oldTagName.slice(1) : oldTagName;
+    newTagName = newTagName.startsWith("#") ? newTagName.slice(1) : newTagName;
 
     const issuerUsername = ctx.msg.from.username;
 

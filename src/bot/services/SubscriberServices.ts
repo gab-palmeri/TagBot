@@ -126,7 +126,6 @@ export default class SubscriberServices {
 		}
 	}
 	
-	//potentially useless
 	static async getTag(groupId: number, tagName: string) {
 	
 		try {

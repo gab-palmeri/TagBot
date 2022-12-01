@@ -84,28 +84,31 @@ export default class TagBot {
 					//get the command name
 					const commandName = ctx.msg.text.split(/\s+/)[0];
 
-					//the /list or /help commands need more time to be deleted
-					let timeToWait = 5000;
-					if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
-						timeToWait = 10000;
-					}
-
-					//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
-					if(commandName.startsWith("/")) {
-						try {
-							await ctx.deleteMessage();
-						} catch (error) {
-							console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
+					//if commandName equals to rename, return
+					if(commandName !== "/rename") {
+						//the /list or /help commands need more time to be deleted
+						let timeToWait = 5000;
+						if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
+							timeToWait = 10000;
 						}
-					}
 
-					setTimeout(async () => {
-						try {
-							await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
-						} catch(error) {
-							console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat["title"]} (${ctx.chat.id})`);
+						//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
+						if(commandName.startsWith("/")) {
+							try {
+								await ctx.deleteMessage();
+							} catch (error) {
+								console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
+							}
 						}
-					}, timeToWait);
+
+						setTimeout(async () => {
+							try {
+								await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
+							} catch(error) {
+								console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat["title"]} (${ctx.chat.id})`);
+							}
+						}, timeToWait);
+					}
 				}
 				return res;
 			});

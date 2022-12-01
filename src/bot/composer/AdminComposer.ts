@@ -6,6 +6,8 @@ import menu from "../menu/ControlPanel";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
 import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgAddRemUsers, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
+import SubscriberServices from "../services/SubscriberServices";
+import { tagPrivately, tagPublicly } from "./helperFunctions";
 
 const AdminComposer = new Composer<MyContext>();
 
@@ -75,9 +77,33 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const groupId = ctx.update.message.chat.id;
     const response = await AdminServices.renameTag(groupId, oldTagName, newTagName);
 
-    response.state === "ok"
-    ? await ctx.reply(msgRenameTag(oldTagName,newTagName,issuerUsername) , {parse_mode: "HTML"})
-    : await ctx.reply("⚠️ " + response.message + ", @" + issuerUsername, {parse_mode: "HTML"});
+    if(response.state !== "ok") {
+        console.log("halt");
+        return await ctx.reply("⚠️ " + response.message + ", @" + issuerUsername, {parse_mode: "HTML"});
+    }
+        
+    else {
+        const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,issuerUsername) , {parse_mode: "HTML"});
+        
+        //NOTIFY SUBSCRIBERS OF THE TAG RENAMING
+        const subs = await SubscriberServices.getSubscribers(newTagName, groupId);
+
+        if(subs.state === "ok") {
+            //Remove the current user from the subscribers list
+            const subscribersWithoutMe = subs.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
+            console.log(subscribersWithoutMe);
+            if(subscribersWithoutMe.length > 0) {
+                //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
+                if(subs.payload.length > 10) 
+                    await tagPrivately(ctx, oldTagName, subscribersWithoutMe, sentMessage.message_id);
+                else 
+                    await tagPublicly(ctx, groupId, subscribersWithoutMe, sentMessage.message_id);
+            }
+        }
+    }
+
+
+    
 
 });
 

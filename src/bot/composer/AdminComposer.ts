@@ -91,22 +91,17 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
     //get name of the groups
     const groupsNamesAndIdsAndPermissions = [];
     for(const group of groups) {
-        try {
-            const groupDetails = await ctx.api.getChat(group.groupId);
-            if(groupDetails.type !== "private") {
-                groupsNamesAndIdsAndPermissions.push({
-                    groupName: groupDetails.title,
-                    groupId: group.groupId,
-                    canCreate: group.canCreate,
-                    canDelete: group.canDelete,
-                    canRename: group.canRename,
-                    canAddUsers: group.canAddUsers,
-                    canRemUsers: group.canRemUsers,
-                });
-            }
-        }
-        catch (e) {
-            console.log(e);
+        const groupDetails = await ctx.api.getChat(group.groupId);
+        if(groupDetails.type !== "private") {
+            groupsNamesAndIdsAndPermissions.push({
+                groupName: groupDetails.title,
+                groupId: group.groupId,
+                canCreate: group.canCreate,
+                canDelete: group.canDelete,
+                canRename: group.canRename,
+                canAddUsers: group.canAddUsers,
+                canRemUsers: group.canRemUsers,
+            });
         }
     }
 

@@ -18,13 +18,15 @@ export default class GeneralServices {
 		}
 		catch (error) {
 	
-			await GeneralServices.loadAdminList(groupId, adminList);
-	
-			const response =
-				error.code == "ER_DUP_ENTRY"
-					? { state: "ALREADY_EXISTS", message: "This group already exists" }
-					: { state: "error", message: "An error occured" };
-			return response;
+			if(error.code === "ER_DUP_ENTRY") {
+
+				await GeneralServices.createAdminList(groupId, adminList);
+
+				return { state: "ALREADY_EXISTS", message: "This group already exists" };
+			}
+			else {
+				return { state: "error", message: "An error occurred" };
+			}
 		}
 	}
 	
@@ -43,7 +45,48 @@ export default class GeneralServices {
 		}
 	}
 	
-	static async loadAdminList(groupId: number, adminList: number[]) {
+	static async createAdminList(groupId: number, adminList: number[]) {
+		try {
+			const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
+			if (!group) {
+				return { state: "NOT_FOUND", message: "Group not found" };
+			}
+	
+			group.admins = group.admins.concat(
+				adminList.map((userId) => {
+					const admin = new Admin();
+					admin.userId = userId;
+					return admin;
+				})
+			);
+	
+			await group.save();
+			return { state: "ok", message: null };
+		}
+		catch (err) {
+			return { state: "error", message: err.message };
+		}
+	}
+
+	static async deleteAdminList(groupId: number) {
+		try {
+			const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
+			if (!group) {
+				return { state: "NOT_FOUND", message: "Group not found" };
+			}
+			
+			console.log(group.groupId);
+
+			await Admin.remove(group.admins);
+
+			return { state: "ok", message: null };
+		}
+		catch (err) {
+			return { state: "error", message: err.message };
+		}
+	}
+
+	static async reloadAdminList(groupId: number, adminList: number[]) {
 		try {
 			const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
 			if (!group) {

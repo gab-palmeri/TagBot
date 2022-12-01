@@ -49,7 +49,7 @@ GeneralComposer.command("help", async ctx => {
 GeneralComposer.command("restart", checkIfGroup, checkIfAdmin, async ctx => {
     //reload the admin list of the group
     const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
-    const response = await GeneralServices.loadAdminList(ctx.chat.id, adminList.map(admin => admin.user.id));
+    const response = await GeneralServices.reloadAdminList(ctx.chat.id, adminList.map(admin => admin.user.id));
 
     if(response.state === "ok") {
         await ctx.reply(restartSuccessMessage);
@@ -78,10 +78,19 @@ GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created",
 });
 
 GeneralComposer.on("my_chat_member", async ctx => {
-    if(ctx.myChatMember.chat.type !== "private" && ctx.myChatMember.old_chat_member.status === "member" && ctx.myChatMember.new_chat_member.status === "administrator") {
-        await ctx.reply(botPromotedMessage);
+
+    const chatType = ctx.chat.type;
+    const oldStatus = ctx.myChatMember.old_chat_member.status;
+    const newStatus = ctx.myChatMember.new_chat_member.status;
+
+
+    if(chatType !== "private") {
+        if(oldStatus === "member" && newStatus === "administrator")
+            await ctx.reply(botPromotedMessage);
+        else if(newStatus === "kicked" || newStatus === "left")
+            await GeneralServices.deleteAdminList(ctx.myChatMember.chat.id);
     }
-    else if(ctx.myChatMember.chat.type === "private" && ctx.myChatMember.new_chat_member.status !== "member") {
+    else if(chatType === "private" && newStatus !== "member") {
         await UserServices.deleteUser(ctx.myChatMember.chat.id.toString());
     }
 });

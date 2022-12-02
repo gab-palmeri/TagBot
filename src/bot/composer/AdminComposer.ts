@@ -1,5 +1,5 @@
 import { Composer } from "grammy";
-import MyContext from "../MyContext";
+import {MyContext} from "../customTypes";
 import AdminServices from "../services/AdminServices";
 
 import menu from "../menu/ControlPanel";

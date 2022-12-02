@@ -9,7 +9,7 @@ import AdminComposer from "./composer/AdminComposer";
 import SubscriberComposer from "./composer/SubscriberComposer";
 
 
-import MyContext from './MyContext';
+import {MyContext} from './customTypes';
 import menu from "./menu/ControlPanel";
 
 export default class TagBot {

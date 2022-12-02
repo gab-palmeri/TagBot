@@ -1,6 +1,6 @@
 import { Menu } from "@grammyjs/menu";
 
-import MyContext from '../MyContext';
+import { MyContext } from '../customTypes';
 
 import Create from './Create';
 import Delete from './Delete';

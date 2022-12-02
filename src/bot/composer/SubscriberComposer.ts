@@ -1,6 +1,6 @@
 import { Composer } from "grammy";
 import { checkIfGroup } from "../middlewares";
-import MyContext from "../MyContext";
+import {MyContext} from "../customTypes";
 import SubscriberServices from "../services/SubscriberServices";
 import { isUserFlooding, join, tagPrivately, tagPublicly } from "./helperFunctions";
 

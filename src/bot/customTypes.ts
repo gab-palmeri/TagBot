@@ -1,6 +1,6 @@
 import { Context, SessionFlavor } from "grammy";
 
-type MyContext = Context & SessionFlavor<{
+export type MyContext = Context & SessionFlavor<{
     groups: {
         groupName:string, 
         groupId:number,
@@ -19,10 +19,10 @@ type MyContext = Context & SessionFlavor<{
         canAddUsers:number,
         canRemUsers:number,
     },
-    lastUsedTags: {
-        userId:string,
-        timestamps: number[],
-    }[]
+    lastUsedTags: LastUsedTags
 }>;
 
-export default MyContext;
+export type LastUsedTags = {
+    userId: string,
+    timestamps: number[],
+}[]

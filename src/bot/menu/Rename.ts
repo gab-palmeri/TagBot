@@ -1,5 +1,5 @@
 import { Menu } from "@grammyjs/menu";
-import MyContext from "../MyContext";
+import {MyContext} from "../customTypes";
 
 import AdminServices from "../services/AdminServices";
 

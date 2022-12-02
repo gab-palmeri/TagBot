@@ -1,5 +1,5 @@
 import { InlineKeyboard } from "grammy";
-import MyContext from "../MyContext";
+import { MyContext, LastUsedTags } from "../customTypes";
 import SubscriberServices from "../services/SubscriberServices";
 import UserServices from "../services/UserServices";
 
@@ -81,11 +81,11 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     }, 5000);
 }
 
-export async function isUserFlooding(userId: string, lastUsedTags: {userId:string,timestamps: number[]}[]) {
+export async function isUserFlooding(userId: string, lastUsedTags: LastUsedTags) {
     
     const now = new Date().getTime();
 
-    //ctx.session.lastUsedTags entries contain: userId, list of last three timestamps
+    //lastUsedTags entries contain: userId, list of last three timestamps
     const userTimestamps = lastUsedTags.find(usedTag => usedTag.userId == userId);
 
     //If the user has never used a tag, add an entry to the array

@@ -14,7 +14,7 @@ export async function checkIfGroup(ctx: Context, next: NextFunction) {
 export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
 	if(ctx.update.message.chat.type != 'private') {
-		const inlineKeyboard = new InlineKeyboard().url("..press here!", "https://t.me/grouptags_test_bot?start");
+		const inlineKeyboard = new InlineKeyboard().url("..press here!", "https://t.me/grouptags_bot?start");
 		await ctx.reply("To use this command...", { reply_markup: inlineKeyboard});
 		return;
 	}

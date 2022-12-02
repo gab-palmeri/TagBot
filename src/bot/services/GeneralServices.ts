@@ -75,8 +75,6 @@ export default class GeneralServices {
 				return { state: "NOT_FOUND", message: "Group not found" };
 			}
 			
-			console.log(group.groupId);
-
 			await Admin.remove(group.admins);
 
 			return { state: "ok", message: null };

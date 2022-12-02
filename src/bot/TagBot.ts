@@ -49,7 +49,7 @@ export default class TagBot {
 
 		//Set the session middleware and initialize session data
 		this.bot.use(sequentialize(getSessionKey));
-		this.bot.use(session({getSessionKey, initial: () => ({groups: [], selectedGroup: null})}));
+		this.bot.use(session({getSessionKey, initial: () => ({groups: [], selectedGroup: null, lastUsedTags: []})}));
 
 		//Set the auto-retry middleware
 		this.bot.api.config.use(autoRetry());
@@ -84,21 +84,21 @@ export default class TagBot {
 					//get the command name
 					const commandName = ctx.msg.text.split(/\s+/)[0];
 
-					//if commandName equals to rename, return
+					//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
+					if(commandName.startsWith("/")) {
+						try {
+							await ctx.deleteMessage();
+						} catch (error) {
+							console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
+						}
+					}
+
+					//The rename command is a special case -> do not delete it
 					if(commandName !== "/rename") {
 						//the /list or /help commands need more time to be deleted
 						let timeToWait = 5000;
 						if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
 							timeToWait = 10000;
-						}
-
-						//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
-						if(commandName.startsWith("/")) {
-							try {
-								await ctx.deleteMessage();
-							} catch (error) {
-								console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
-							}
 						}
 
 						setTimeout(async () => {
@@ -147,31 +147,6 @@ export default class TagBot {
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
 		}));
-
-		//Set up the group-side rate limiter, only for hashtags (max 3 hashtags in 5 mins)
-		/*this.bot.filter(ctx => ctx.has("::hashtag")).use(limit({
-			timeFrame: 300000,
-			limit: 3,
-			onLimitExceeded: async (ctx) => {
-				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
-				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before tagging again.");
-				setTimeout(async () => {
-					let groupInfo: string | number;
-					if(ctx.chat.type !== "private")
-						groupInfo = `${ctx.chat.title} (${ctx.chat.id})`;
-					else 
-						groupInfo = ctx.chat.id;
-
-					try {
-						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
-					} catch (error) {
-						console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
-					}
-				}, 3000);
-			},
-			
-			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
-		}));*/
 	}
 
 	public start() {

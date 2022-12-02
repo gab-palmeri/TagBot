@@ -18,7 +18,11 @@ type MyContext = Context & SessionFlavor<{
         canRename:number,
         canAddUsers:number,
         canRemUsers:number,
-    }
+    },
+    lastUsedTags: {
+        userId:string,
+        timestamps: number[],
+    }[]
 }>;
 
 export default MyContext;

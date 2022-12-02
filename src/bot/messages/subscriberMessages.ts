@@ -65,6 +65,8 @@ export function msgTagsErrors(emptyTags: string[], nonExistentTags: string[], on
 
     return errorMessages;
 }
+
+export const msgFloodingError = `🕑 You can only mention three tags every five minutes. Slow down!`;
 /* ******************************************* */
 
 

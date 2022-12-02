@@ -2,9 +2,9 @@ import { Composer } from "grammy";
 import { checkIfGroup } from "../middlewares";
 import MyContext from "../MyContext";
 import SubscriberServices from "../services/SubscriberServices";
-import { join, tagPrivately, tagPublicly } from "./helperFunctions";
+import { isUserFlooding, join, tagPrivately, tagPublicly } from "./helperFunctions";
 
-import { msgJoinSyntaxError, msgLeaveSyntaxError, msgLeaveTag, msgListTags, msgMyTags, msgTagsErrors } from "../messages/subscriberMessages";
+import { msgJoinSyntaxError, msgLeaveSyntaxError, msgLeaveTag, msgListTags, msgMyTags, msgTagsErrors, msgFloodingError } from "../messages/subscriberMessages";
 
 const UserComposer = new Composer<MyContext>();
 
@@ -104,8 +104,8 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
     //get ALL tag names mentioned in the using the indexes contained in ctx.msg.entities
     const tagNames = entities
-    .filter(entity => entity.type == 'hashtag')
-    .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
+        .filter(entity => entity.type == 'hashtag')
+        .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
 
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;
@@ -113,17 +113,30 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
     const emptyTags = [];
     const nonExistentTags = [];
     const onlyOneInTags = [];
+    let isFlooding = false;
 
     //for every tag name, get the subcribers and create a set of users preceded by "@"
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
+        
+
         const response = await SubscriberServices.getSubscribers(tagName.substring(1), groupId);
 
         if(response.state === "ok") {
+
             //Remove the current user from the subscribers list
             const subscribersWithoutMe = response.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
 
             if(subscribersWithoutMe.length > 0) {
+
+                //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
+                const userId = ctx.update.message.from.id.toString();
+                const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
+                if(iuf) {
+                    isFlooding = true;
+                    break;
+                }
+
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 
                     await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
@@ -150,6 +163,15 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
         }, 5000);
+    }
+
+    //ANTI FLOOD MESSAGE PHASE
+    if(isFlooding) {
+        const antiFloodMessage = await ctx.reply(msgFloodingError, { reply_to_message_id: messageToReplyTo });
+
+        setTimeout(async () => {
+            await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);
+        }, 8000);
     }
         
 });

@@ -3,6 +3,7 @@ import { run, sequentialize } from "@grammyjs/runner";
 import { getSessionKey } from "./middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
+import { apiThrottler } from "@grammyjs/transformer-throttler";
 
 import GeneralComposer from "./composer/GeneralComposer";
 import AdminComposer from "./composer/AdminComposer";
@@ -56,6 +57,10 @@ export default class TagBot {
 
 		//Set the command panel menu
 		this.bot.use(menu);
+
+		const throttler = apiThrottler();
+		this.bot.api.config.use(throttler);
+
 		this.setRateLimits();
 		this.setTransformers();
 		this.setCommands();

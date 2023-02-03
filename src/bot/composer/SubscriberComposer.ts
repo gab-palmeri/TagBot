@@ -107,6 +107,9 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         .filter(entity => entity.type == 'hashtag')
         .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
 
+     //print a message that says "{username} tagged this tag: {tagname}"
+     console.log(ctx.from.username + "used this tag(s): " + tagNames);
+
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;
 

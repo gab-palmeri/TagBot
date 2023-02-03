@@ -2,9 +2,10 @@ import { Group } from "../../entity/Group";
 import { Admin } from "../../entity/Admin";
 
 export default class GeneralServices {
-	static async createGroup(groupId: number, adminList: number[]) {
+	static async createGroup(groupName: string, groupId: number, adminList: number[]) {
 		try {
 			let group = new Group();
+			group.groupName = groupName;
 			group.groupId = groupId;
 	
 			group.admins = adminList.map((userId) => {

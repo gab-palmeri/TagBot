@@ -61,20 +61,23 @@ GeneralComposer.command("restart", checkIfGroup, checkIfAdmin, async ctx => {
 });
 
 GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created", "message:supergroup_chat_created"], async ctx => {
-    const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
-    const response = await GeneralServices.createGroup(ctx.chat.id, adminList.map(admin => admin.user.id));
+    if(ctx.chat.type !== "private") {
+        const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
+        const response = await GeneralServices.createGroup(ctx.chat.title, ctx.chat.id, adminList.map(admin => admin.user.id));
 
-    if(response.state === "ok") {
-        await ctx.reply(startMessage, { parse_mode: "HTML" });
+        if(response.state === "ok") {
+            await ctx.reply(startMessage, { parse_mode: "HTML" });
+        }
+        else if(response.state === "ALREADY_EXISTS"){
+            //check if the bot is admin
+            await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
+        }
+        else {
+            await ctx.reply(botJoinErrorMessage);
+            await ctx.leaveChat();
+        }
     }
-    else if(response.state === "ALREADY_EXISTS"){
-        //check if the bot is admin
-        await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
-    }
-    else {
-        await ctx.reply(botJoinErrorMessage);
-        await ctx.leaveChat();
-    }
+        
 });
 
 GeneralComposer.on("my_chat_member", async ctx => {

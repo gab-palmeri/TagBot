@@ -9,6 +9,9 @@ export class Group extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({type: "varchar", nullable:true})
+    groupName: string;
+
     @Column({type: "varchar", length: 25, nullable: false, unique: true})
     groupId: number;
 
@@ -28,10 +31,10 @@ export class Group extends BaseEntity {
     canRemUsers: number;
 
 	//ONE TO MANY with Notif
-	@OneToMany(() => Tag, tag => tag.group, {onDelete: "CASCADE"})
+	@OneToMany(() => Tag, tag => tag.group)
 	tags: Tag[];
 
-    @OneToMany(() => Admin, admin => admin.group, {onDelete: "CASCADE", cascade: true})
+    @OneToMany(() => Admin, admin => admin.group)
     admins: Admin[];
 
 }

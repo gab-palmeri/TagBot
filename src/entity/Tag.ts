@@ -18,7 +18,7 @@ export class Tag extends BaseEntity {
     @Column({type: 'varchar', length: 25, nullable: false, default: '0'})
     creatorId: number;
 
-    @ManyToOne(() => Group, (group) => group.tags)
+    @ManyToOne(() => Group, (group) => group.tags, { onDelete: 'CASCADE' })
     group: Group;
 
     //many to many with subscriber

@@ -108,7 +108,8 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
 
      //print a message that says "{username} tagged this tag: {tagname}"
-     console.log(ctx.from.username + "used this tag(s): " + tagNames);
+     //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
+     console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
 
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;

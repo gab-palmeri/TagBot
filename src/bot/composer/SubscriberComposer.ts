@@ -147,7 +147,6 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
                 else 
                     await tagPublicly(ctx, groupId, response.payload, messageToReplyTo); 
                     
-                console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
             }
             else {
                 onlyOneInTags.push(tagName);
@@ -158,6 +157,8 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         else if(response.state === "TAG_EMPTY")
             emptyTags.push(tagName);
     }
+
+    console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
 
     //ERROR MESSAGES PHASE
     const errorMessages = msgTagsErrors(emptyTags, nonExistentTags, onlyOneInTags);

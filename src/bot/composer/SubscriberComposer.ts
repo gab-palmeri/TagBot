@@ -145,7 +145,9 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
                 if(response.payload.length > 10) 
                     await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
                 else 
-                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo);  
+                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo); 
+                    
+                console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
             }
             else {
                 onlyOneInTags.push(tagName);

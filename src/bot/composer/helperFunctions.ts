@@ -4,6 +4,7 @@ import SubscriberServices from "../services/SubscriberServices";
 import UserServices from "../services/UserServices";
 
 import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "../messages/subscriberMessages";
+import { Subscriber } from "../../entity/Subscriber";
 
 export async function join(ctx: MyContext, userId: string, groupId: number, username: string, tagName: string) {
     if(await UserServices.userExists(userId)) {
@@ -30,21 +31,32 @@ export async function join(ctx: MyContext, userId: string, groupId: number, user
 
 
 //This function tags the users directly in the group
-export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: string[], messageToReplyTo: number) {
+export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
 
-    const usernames = await Promise.all(subscribers.map(async (subscriber: string) => {
-        const user = await ctx.api.getChatMember(groupId, parseInt(subscriber));
-        return '@' + user.user.username;
-    }));
+    const mentions = await Promise.all(subscribers.map(async (subscriber: {[key: string]: string}) => {
 
-    const message = usernames.join(" ") + "\n";
-    await ctx.reply(message, { reply_to_message_id: messageToReplyTo });
+        let username: string = subscriber.username;
+
+        //This should be removed after the DB has stabilized completely
+        if(subscriber.username === null) {
+            username = (await ctx.api.getChatMember(groupId, parseInt(subscriber.userId))).user.username;
+
+            const sub = await Subscriber.findOne({ where: { userId: subscriber.userId }});
+            sub.username = username;
+            await sub.save();
+        }
+
+        return `<a href="tg://user?id=${subscriber.userId}">@${username}</a>`;
+    })); 
+
+    const message = mentions.join(" ");
+    await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" });
 
     
 }
 
 //This function sends a private message to each user subscribed to the tag
-export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: string[], messageToReplyTo: number) {
+export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
     const notContacted = [];
 
@@ -53,9 +65,11 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     const toSendMessage = msgPrivateTag(tagName, group["title"], messageLink);
     for(const subscriber of subscribers) {
         try {
-            await ctx.api.sendMessage(subscriber, toSendMessage, { parse_mode: "HTML" });
+            await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "HTML" });
         } catch(error) {
-            notContacted.push((await ctx.getChatMember(parseInt(subscriber))).user.first_name);
+
+            //TODO: Introduce a local storage of the user's first name, also.
+            notContacted.push((await ctx.getChatMember(parseInt(subscriber.userId))).user.first_name);
         }
     }
 

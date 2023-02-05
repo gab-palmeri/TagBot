@@ -129,7 +129,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         if(response.state === "ok") {
 
             //Remove the current user from the subscribers list
-            const subscribersWithoutMe = response.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
+            const subscribersWithoutMe = response.payload.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
 
             if(subscribersWithoutMe.length > 0) {
 
@@ -181,6 +181,21 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
         }, 8000);
     }
         
+});
+
+
+UserComposer.on("message", checkIfGroup, async ctx => {
+    console.log(ctx.from.username + " sent a message at " + new Date().toLocaleString("it-IT"));
+
+    const subscriber = await SubscriberServices.getSubscriber(ctx.from.id.toString());
+
+    if(subscriber.state === "ok") {
+        //Check that the subscriber.username is equal to the ctx.from.username
+        if(subscriber.payload.username !== ctx.from.username) {
+            //If not, update the subscriber
+            await SubscriberServices.updateSubscriberUsername(ctx.from.id.toString(), ctx.from.username);
+        }
+    }
 });
 
 

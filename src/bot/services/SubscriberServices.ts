@@ -86,7 +86,15 @@ export default class SubscriberServices {
 			if(tag.subscribers.length == 0)
 				return {state: "TAG_EMPTY", message: "No one is subscribed to this tag"};
 	
-			return {state: "ok", payload: tag.subscribers.map(s => s.userId)};
+			return {
+				state: "ok", 
+				payload: tag.subscribers.map(s => { 
+					return {
+						userId: s.userId,
+						username: s.username
+					};
+				})
+			};
 		}
 		catch(e) {
 			console.log(e);
@@ -135,6 +143,39 @@ export default class SubscriberServices {
 				return {state: "NOT_EXISTS", message: "This tag doesn't exist"};
 			else
 				return {state: "ok", payload: tag};
+		}
+		catch(e) {
+			console.log(e);
+			return {state: "error", message: "Service not available"};
+		}
+	}
+
+	static async getSubscriber(userId: string) {
+		try {
+			const subscriber = await Subscriber.findOne({where: {userId: userId}, relations: ["tags"]});
+	
+			if(!subscriber)
+				return {state: "NOT_EXISTS", message: "This subscriber doesn't exist"};
+			else
+				return {state: "ok", payload: subscriber};
+		}
+		catch(e) {
+			console.log(e);
+			return {state: "error", message: "Service not available"};
+		}
+	}
+
+	static async updateSubscriberUsername(userId: string, username: string) {
+		try {
+			const subscriber = await Subscriber.findOne({where: {userId: userId}});
+	
+			if(!subscriber)
+				return {state: "NOT_EXISTS", message: "This subscriber doesn't exist"};
+			else {
+				subscriber.username = username;
+				await subscriber.save();
+				return {state: "ok", payload: subscriber};
+			}
 		}
 		catch(e) {
 			console.log(e);

@@ -89,7 +89,7 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
 
         if(subs.state === "ok") {
             //Remove the current user from the subscribers list
-            const subscribersWithoutMe = subs.payload.filter(subscriber => subscriber !== ctx.from.id.toString());
+            const subscribersWithoutMe = subs.payload.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
             if(subscribersWithoutMe.length > 0) {
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(subs.payload.length > 10) 

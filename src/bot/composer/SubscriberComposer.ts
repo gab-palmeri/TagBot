@@ -28,20 +28,26 @@ UserComposer.command("join", checkIfGroup, async ctx => {
 
 UserComposer.callbackQuery("join-tag", async (ctx) => {
 
-	let tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
+    if(ctx.callbackQuery.message.chat.type !== "private") {
+        //debug console log mentioning the user, the group and the tag
+        console.log(ctx.callbackQuery.from.username + " joined " + ctx.callbackQuery.message.chat.title + " " + ctx.callbackQuery.message.text);
 
-    if(tagName.length == 0) 
-        return await ctx.reply(msgJoinSyntaxError);
+        let tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
+
+        if(tagName.length == 0) 
+            return await ctx.reply(msgJoinSyntaxError);
+        
+        //if tagName starts with #, remove it
+        tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
+
+        const groupId = ctx.callbackQuery.message.chat.id;
+        const username = ctx.callbackQuery.from.username;
+        const userId = ctx.callbackQuery.from.id.toString();
+
+        await join(ctx, userId, groupId, username, tagName);
+        await ctx.answerCallbackQuery();
+    }
     
-    //if tagName starts with #, remove it
-    tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
-
-    const groupId = ctx.callbackQuery.message.chat.id;
-    const username = ctx.callbackQuery.from.username;
-    const userId = ctx.callbackQuery.from.id.toString();
-
-    await join(ctx, userId, groupId, username, tagName);
-	await ctx.answerCallbackQuery();
 });
 
 UserComposer.command("leave", checkIfGroup, async ctx => {

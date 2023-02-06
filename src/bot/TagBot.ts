@@ -71,11 +71,13 @@ export default class TagBot {
 		//ADMIN COMMANDS
 		this.bot.use(AdminComposer);
 
+		//GENERAL COMMANDS
+		this.bot.use(GeneralComposer);
+		
 		//SUBSCRIBER COMMANDS
 		this.bot.use(SubscriberComposer);
 
-		//GENERAL COMMANDS
-		this.bot.use(GeneralComposer);
+		
 	}
 
 	public setTransformers() {

@@ -6,15 +6,16 @@ export const startMessage = "Hi! I'm a <a href='https://t.me/tagbotchannel/3'>bo
 
 export const helpMessage = "👇 <b>Here's the list of commands!</b>\n\n" +
 "🔑 <b>Admin commands:</b>\n" +
-    '/create tagname -> <i>Create a new grouptag</i>\n' +
-    '/delete tagname -> <i>Delete a grouptag</i>\n' +
-    '/rename oldtagname newtagname -> <i>Rename a grouptag</i>\n\n' +
+    '/create tagname -> <i>Create a new tag</i>\n' +
+    '/delete tagname -> <i>Delete a tag</i>\n' +
+    '/rename oldtagname newtagname -> <i>Rename a tag</i>\n' +
+	'/settings -> <i>Access tagbot settings</i>\n\n' +
 '👤 <b>User commands:</b>\n' +
-    '#tagname -> <i>Tag a grouptag</i>\n' +
-    '/join tagname -> <i>Join a grouptag</i>\n' +
-    '/leave tagname -> <i>Leave a grouptag</i>\n' +
-    '/list -> <i>List all the grouptags</i>\n' +
-    '/mytags -> <i>List all the grouptags you are subscribed to</i>\n\n' +
+    '#tagname -> <i>Mention all the users subscribed to a tag</i>\n' +
+    '/join tagname -> <i>Join a tag</i>\n' +
+    '/leave tagname -> <i>Leave a tag</i>\n' +
+    '/list -> <i>List all the tags</i>\n' +
+    '/mytags -> <i>List all the tags you are subscribed to</i>\n\n' +
 '<i>To report a bug, suggest a feature or get bot updates, join @tagbotchannel</i>';
 
 

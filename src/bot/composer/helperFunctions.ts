@@ -84,15 +84,11 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
         message += msgPrivateTagError(notContacted.join(", "));
 
 
-    const sentMessage = await ctx.reply(message, { 
+    await ctx.reply(message, { 
         reply_to_message_id: ctx.msg.message_id,
         parse_mode: "HTML",
         disable_web_page_preview: true
     });
-
-    setTimeout(() => {
-        void ctx.api.deleteMessage(ctx.chat.id, sentMessage.message_id);
-    }, 5000);
 }
 
 export async function isUserFlooding(userId: string, lastUsedTags: LastUsedTags) {

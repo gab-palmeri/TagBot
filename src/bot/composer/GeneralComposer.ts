@@ -16,28 +16,26 @@ GeneralComposer.command("start", async ctx => {
         { parse_mode: "HTML", disable_web_page_preview: true }
     );
 
-    if(ctx.chat.type === "private") {
-        await UserServices.saveUser(ctx.chat.id.toString());
+	await UserServices.saveUser(ctx.chat.id.toString());
 
-        const joinArgs = ctx.match.split("_");
+	const joinArgs = ctx.match.split("_");
 
-        if(ctx.match.length > 0 && joinArgs.length === 3) {
-            
-            const userId = joinArgs[0];
-            const groupId = joinArgs[1];
-            const tagName = joinArgs[2];
+	if(ctx.match.length > 0 && joinArgs.length === 3) {
+		
+		const userId = joinArgs[0];
+		const groupId = joinArgs[1];
+		const tagName = joinArgs[2];
 
-            const response = await SubscriberServices.joinTag(parseInt(groupId), tagName, userId);
+		const response = await SubscriberServices.joinTag(parseInt(groupId), tagName, userId);
 
-            if(response.state === "ok") {
-                await ctx.reply(msgJoinPrivate(tagName), { parse_mode: "HTML" });
-            }
-            else {
-                const message = "⚠️ " + response.message;
-                await ctx.reply(message);
-            }
-        }
-    }
+		if(response.state === "ok") {
+			await ctx.reply(msgJoinPrivate(tagName), { parse_mode: "HTML" });
+		}
+		else {
+			const message = "⚠️ " + response.message;
+			await ctx.reply(message);
+		}
+	}
 
     
 });

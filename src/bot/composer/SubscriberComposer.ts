@@ -191,7 +191,6 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 
 
 UserComposer.on("message", checkIfGroup, async ctx => {
-    console.log(ctx.from.username + " sent a message at " + new Date().toLocaleString("it-IT"));
 
     const subscriber = await SubscriberServices.getSubscriber(ctx.from.id.toString());
 

@@ -18,6 +18,8 @@ export default class GeneralServices {
 			return { state: "ok", message: null };
 		}
 		catch (error) {
+
+			console.log(error);
 	
 			if(error.code === "ER_DUP_ENTRY") {
 

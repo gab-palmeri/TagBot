@@ -63,8 +63,6 @@ GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created",
         const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
         const response = await GeneralServices.createGroup(ctx.chat.title, ctx.chat.id, adminList.map(admin => admin.user.id));
 
-		console.log(adminList);
-		console.log(response);
 
         if(response.state === "ok") {
             await ctx.reply(startMessage, { parse_mode: "HTML" });

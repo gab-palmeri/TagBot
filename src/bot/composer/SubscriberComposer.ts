@@ -6,10 +6,10 @@ import { isUserFlooding, join, tagPrivately, tagPublicly } from "./helperFunctio
 
 import { msgJoinSyntaxError, msgLeaveSyntaxError, msgLeaveTag, msgListTags, msgMyTags, msgTagsErrors, msgFloodingError } from "../messages/subscriberMessages";
 
-const UserComposer = new Composer<MyContext>();
+const SubscriberComposer = new Composer<MyContext>();
 
 
-UserComposer.command("join", checkIfGroup, async ctx => {
+SubscriberComposer.command("join", checkIfGroup, async ctx => {
 
     let tagName = ctx.match.toString();
 
@@ -26,7 +26,7 @@ UserComposer.command("join", checkIfGroup, async ctx => {
     await join(ctx, userId, groupId, username, tagName);
 });
 
-UserComposer.callbackQuery("join-tag", async (ctx) => {
+SubscriberComposer.callbackQuery("join-tag", async (ctx) => {
 
     if(ctx.callbackQuery.message.chat.type !== "private") {
         //debug console log mentioning the user, the group and the tag
@@ -50,7 +50,7 @@ UserComposer.callbackQuery("join-tag", async (ctx) => {
     
 });
 
-UserComposer.command("leave", checkIfGroup, async ctx => {
+SubscriberComposer.command("leave", checkIfGroup, async ctx => {
 
     let tagName = ctx.match.toString();
 
@@ -71,7 +71,7 @@ UserComposer.command("leave", checkIfGroup, async ctx => {
     : await ctx.reply("⚠️ " + response.message);
 });
 
-UserComposer.command("list", checkIfGroup, async ctx => {
+SubscriberComposer.command("list", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
     const response = await SubscriberServices.getGroupTags(groupId);
@@ -85,7 +85,7 @@ UserComposer.command("list", checkIfGroup, async ctx => {
 });
 
 //function that returns the tags the user is subcribed in
-UserComposer.command("mytags", checkIfGroup, async ctx => {
+SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
     
     const groupId = ctx.update.message.chat.id;
     const username = ctx.update.message.from.username;
@@ -99,7 +99,7 @@ UserComposer.command("mytags", checkIfGroup, async ctx => {
     await ctx.reply(msgMyTags(response.payload, username), { parse_mode: "HTML" });
 });
 
-UserComposer.on("::hashtag", checkIfGroup, async ctx => {
+SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
     if(ctx.msg.forward_date !== undefined)
         return;
@@ -190,7 +190,7 @@ UserComposer.on("::hashtag", checkIfGroup, async ctx => {
 });
 
 
-UserComposer.on("message", checkIfGroup, async ctx => {
+SubscriberComposer.on("message", checkIfGroup, async ctx => {
 
     const subscriber = await SubscriberServices.getSubscriber(ctx.from.id.toString());
 
@@ -204,4 +204,4 @@ UserComposer.on("message", checkIfGroup, async ctx => {
 });
 
 
-export default UserComposer;
+export default SubscriberComposer;

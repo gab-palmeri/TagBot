@@ -2,8 +2,6 @@
 export const msgCreateSyntaxError = `⚠️ Syntax: /create tagname`;
 export const msgDeleteSyntaxError = `⚠️ Syntax: /delete tagname`;
 export const msgRenameSyntaxError = `⚠️ Syntax: /rename oldtagname newtagname`;
-export const msgAddRemUsers = `This command has been temporarily disabled since the last update.\n\n` + 
-                            `<i>Stay up to date with the latest news on @tagbotchannel</i>`;
 /* ******************************************* */
 
 

@@ -5,7 +5,7 @@ import AdminServices from "../services/AdminServices";
 import menu from "../menu/ControlPanel";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
-import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgAddRemUsers, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
+import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
 import SubscriberServices from "../services/SubscriberServices";
 import { tagPrivately, tagPublicly } from "./helperFunctions";
 
@@ -136,11 +136,6 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
 
     await ctx.reply("Select a group:", { reply_markup: menu });
 
-});
-
-AdminComposer.command(["addusers", "remusers"], async ctx => {
-
-    await ctx.reply(msgAddRemUsers, {parse_mode: "HTML"});
 });
 
 export default AdminComposer;

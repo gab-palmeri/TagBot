@@ -60,6 +60,9 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const args = ctx.match.toString();
     let [oldTagName, newTagName] = args.trim().split(/\s+/);
 
+    if(oldTagName.length == 0 || newTagName.length == 0)
+        return await ctx.reply(msgRenameSyntaxError);
+    
     //if oldTagName or newTagName start with #, remove it
     oldTagName = oldTagName.startsWith("#") ? oldTagName.slice(1) : oldTagName;
     newTagName = newTagName.startsWith("#") ? newTagName.slice(1) : newTagName;
@@ -67,9 +70,6 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const issuerUsername = ctx.msg.from.username;
 
     const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
-
-    if(oldTagName.length == 0 || newTagName.length == 0)
-        return await ctx.reply(msgRenameSyntaxError);
 
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
         return await ctx.reply(msgRenameTagError(issuerUsername));

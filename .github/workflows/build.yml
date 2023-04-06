@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '14'
-      - run: npm install -g bats
+      - run: npm install
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

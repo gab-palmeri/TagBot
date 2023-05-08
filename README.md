@@ -1,5 +1,5 @@
 # Tag Bot
-[![Mentioned in Awesome grammY](https://awesome.re/mentioned-badge.svg)](https://github.com/grammyjs/awesome-grammY)
+[![Mentioned in Awesome grammY](https://awesome.re/mentioned-badge.svg)](https://github.com/grammyjs/awesome-grammY) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=tagbot&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=tagbot) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=tagbot&metric=bugs)](https://sonarcloud.io/summary/new_code?id=tagbot) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=tagbot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=tagbot)
 
 _Create #tags to mention multiple users at once in your group_
 

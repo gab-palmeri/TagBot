@@ -1,8 +1,10 @@
 import { Group } from '../../entity/Group';
 import { Tag } from '../../entity/Tag';
 import { Subscriber } from '../../entity/Subscriber';
+import { SubscriberTag } from '../../entity/SubscriberTag';
 
 export default class SubscriberServices {
+   
 	static async joinTag(groupId: number, tagName: string, userId: string) {
 
 		const tagResponse = await SubscriberServices.getTag(groupId, tagName); 
@@ -13,25 +15,37 @@ export default class SubscriberServices {
 	
 		const tag = tagResponse.payload;
 	
-		if(tag.subscribers.length >= 50) {
+		if(tag.subscribersTags.length >= 50) {
 			return { state: "TAG_FULL", message: "This tag is full" };
 		}
 			
 		try {
 			//add the tag to the subscriber
-			let subscriber = await Subscriber.findOne({where: {userId: userId}, relations: ["tags"]});
+			let subscriber = await Subscriber.findOne({where: {userId: userId}, relations: ["subscribersTags", "subscribersTags.tag"]});
 	
 			if(!subscriber) {
 				subscriber = new Subscriber();
 				subscriber.userId = userId;
-				subscriber.tags = [tag];
+
+				const subscribersTags = new SubscriberTag();
+				subscribersTags.subscriber = subscriber;
+				subscribersTags.tag = tag;
+				subscriber.subscribersTags = [subscribersTags];
+
+				//subscriber.tags = [tag];
 				subscriber = await subscriber.save();
 			}
 			else {
-				if(subscriber.tags.find(n => n.id == tag.id))
+				if(subscriber.subscribersTags.find(n => n.tag.id == tag.id))
 					return {state: "ALREADY_SUBSCRIBED", message: "You are already subscribed to this tag"};
 	
-				subscriber.tags.push(tag);
+
+				const subscribersTags = new SubscriberTag();
+				subscribersTags.subscriber = subscriber;
+				subscribersTags.tag = tag;
+
+				subscriber.subscribersTags.push(subscribersTags);
+				//subscriber.tags.push(tag);
 				await subscriber.save();
 			}
 	
@@ -55,13 +69,17 @@ export default class SubscriberServices {
 	
 		try {
 			//remove the tag from the subscriber
-			const subscriber = await Subscriber.findOne({relations: ["tags"], where: {userId: userId}, });
+			const subscriber = await Subscriber.findOne({relations: ["subscribersTags", "subscribersTags.tag"], where: {userId: userId}, });
 	
-			if(!subscriber || !subscriber.tags.find(n => n.id == tag.id)) {
+			if(!subscriber || !subscriber.subscribersTags.find(n => n.tag.id == tag.id)) {
 				return {state: "NOT_SUBSCRIBED", message: "You're not subscribed to this tag"};
 			}
 			else {
-				subscriber.tags = subscriber.tags.filter(n => n.id != tag.id);
+
+				await subscriber.subscribersTags.find(n => n.tag.id == tag.id).remove();
+
+				subscriber.subscribersTags = subscriber.subscribersTags.filter(n => n.tag.id != tag.id);
+				
 				await subscriber.save();
 			}
 	
@@ -78,20 +96,20 @@ export default class SubscriberServices {
 		
 		try {
 			//get tag belonging to the group
-			const tag = await Tag.findOne({relations: ["group", "subscribers"], where: { name: tagName, group: {groupId: groupId}}});
+			const tag = await Tag.findOne({relations: ["group", "subscribersTags", "subscribersTags.subscriber"], where: { name: tagName, group: {groupId: groupId}}});
 	
 			if(!tag) 
 				return {state: "NOT_EXISTS", message: "This tag doesn't exist"};
 	
-			if(tag.subscribers.length == 0)
+			if(tag.subscribersTags.length == 0)
 				return {state: "TAG_EMPTY", message: "No one is subscribed to this tag"};
 	
 			return {
 				state: "ok", 
-				payload: tag.subscribers.map(s => { 
+				payload: tag.subscribersTags.filter(st => st.isActive).map(st => { 
 					return {
-						userId: s.userId,
-						username: s.username
+						userId: st.subscriber.userId,
+						username: st.subscriber.username
 					};
 				})
 			};
@@ -105,14 +123,15 @@ export default class SubscriberServices {
 	static async getGroupTags(groupId: number) {
 	
 		try {
-			const group = await Group.findOne({where: {groupId: groupId}, relations: ["tags", "tags.subscribers"]});
+			const group = await Group.findOne({where: {groupId: groupId}, relations: ["tags", "tags.subscribersTags"]});
 			if(!group || group.tags.length == 0) {
 				return {state: "error", message: "No tags found"};
 			}
 			else
 				return {state: "ok", payload: group.tags};
 		}
-		catch {
+		catch(e) {
+			console.log(e);
 			return {state: "error", message: "Service not available"};
 		}
 	}
@@ -122,7 +141,7 @@ export default class SubscriberServices {
 		try {
 	
 			//find all tags belonging to the group and the subscriber
-			const tags = await Tag.find({relations: ["group", "subscribers"], where: {group: {groupId: groupId}, subscribers: {userId: userId}}});
+			const tags = await Tag.find({relations: ["group", "subscribersTags", "subscribersTags.subscriber"], where: {group: {groupId: groupId}, subscribersTags: { subscriber: {userId: userId}}}});
 	
 			if (!tags || tags.length == 0) {
 				return { state: 'error', message: "You are not subscribed to any tag" };
@@ -137,7 +156,7 @@ export default class SubscriberServices {
 	static async getTag(groupId: number, tagName: string) {
 	
 		try {
-			const tag = await Tag.findOne({where: {name: tagName, group: {groupId: groupId}}, relations: ["group", "subscribers"]});
+			const tag = await Tag.findOne({where: {name: tagName, group: {groupId: groupId}}, relations: ["group", "subscribersTags"]});
 	
 			if(!tag)
 				return {state: "NOT_EXISTS", message: "This tag doesn't exist"};
@@ -152,7 +171,7 @@ export default class SubscriberServices {
 
 	static async getSubscriber(userId: string) {
 		try {
-			const subscriber = await Subscriber.findOne({where: {userId: userId}, relations: ["tags"]});
+			const subscriber = await Subscriber.findOne({where: {userId: userId}});
 	
 			if(!subscriber)
 				return {state: "NOT_EXISTS", message: "This subscriber doesn't exist"};
@@ -182,5 +201,41 @@ export default class SubscriberServices {
 			return {state: "error", message: "Service not available"};
 		}
 	}
+
+	static async setInactive(groupId: number, userId: number) {
+
+        try {
+			//take the SubscriberTag relation which correspond to all the tags in the groupId and the userId and set them to inactive
+			const subscriberTag = await SubscriberTag.find({relations: ["subscriber", "tag"], where: {subscriber: {userId: userId.toString()}, tag: {group: {groupId: groupId}}}});
+
+			if(subscriberTag && subscriberTag.length > 0)
+				subscriberTag.forEach(async st => {
+
+					st.isActive = false;
+					await st.save();
+				});
+
+		}
+		catch(e) {
+			console.log(e);
+		}
+    }
+
+	static async setActive(groupId: number, userId: number) {
+        try {
+			//take the SubscriberTag relation which correspond to all the tags in the groupId and the userId and set them to inactive
+			const subscriberTag = await SubscriberTag.find({relations: ["subscriber", "tag"], where: {subscriber: {userId: userId.toString()}, tag: {group: {groupId: groupId}}}});
+
+			if(subscriberTag && subscriberTag.length > 0)
+				subscriberTag.forEach(async st => {
+					st.isActive = true;
+					await st.save();
+				});
+
+		}
+		catch(e) {
+			console.log(e);
+		}
+    }
 }
 

@@ -73,10 +73,10 @@ export const msgFloodingError = `🕑 You can only mention three tags every five
 //MISC MESSAGES
 export function msgListTags(tags: Tag[]) {
     return `📄 <b>Here's a list of all the tags in this group:</b>\n\n${tags.map((tag) => {
-        if(tag.subscribers.length == 1)
+        if(tag.subscribersTags.length == 1)
             return `- ` + tag.name + ` <i>(1/50 sub)</i>`;
         else
-            return `- ` + tag.name + ` <i>(` + tag.subscribers.length + `/50 subs)</i>`;
+            return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + `/50 subs)</i>`;
     }).join(`\n`)}`;
 }
 

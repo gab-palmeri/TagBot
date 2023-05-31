@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToMany } from "typeorm";
-import { Tag } from "./Tag";
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, OneToMany } from "typeorm";
+import { SubscriberTag } from "./SubscriberTag";
 
 
 @Entity()
@@ -15,7 +15,7 @@ export class Subscriber extends BaseEntity {
     username: string;
 
 	//many to many with notif
-	@ManyToMany(() => Tag, tag => tag.subscribers, { onDelete: "CASCADE" })
-	tags: Tag[];
+	@OneToMany(() => SubscriberTag, st => st.subscriber, {cascade: ["insert", "remove"]})
+	subscribersTags: SubscriberTag[];
 
 }

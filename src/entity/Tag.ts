@@ -1,6 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToMany, ManyToOne, Unique, JoinTable } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne, Unique, OneToMany } from "typeorm";
 import { Group } from "./Group";
-import { Subscriber } from "./Subscriber";
+import { SubscriberTag } from "./SubscriberTag";
 
 
 @Entity()
@@ -22,7 +22,6 @@ export class Tag extends BaseEntity {
     group: Group;
 
     //many to many with subscriber
-    @ManyToMany(() => Subscriber, (subscriber) => subscriber.tags, { onDelete: 'CASCADE' })
-    @JoinTable()
-    subscribers: Subscriber[];
+    @OneToMany(() => SubscriberTag, st => st.tag, { cascade: true })
+    subscribersTags: SubscriberTag[];
 }

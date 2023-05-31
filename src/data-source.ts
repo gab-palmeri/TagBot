@@ -5,7 +5,7 @@ import { Tag } from './entity/Tag';
 import { Subscriber } from './entity/Subscriber';
 import { Admin } from './entity/Admin';
 import { User } from './entity/User';
-
+import { SubscriberTag } from './entity/SubscriberTag';
 
 export const AppDataSource = new DataSource({
     type: "mariadb",
@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME || "tagbot",
     synchronize: process.env.ENVIRONMENT == "dev" ? true : false,
     logging: false,
-    entities: [Group,Tag,Subscriber,Admin,User],
+    entities: [Group,Tag,Subscriber,Admin,User,SubscriberTag],
     migrations: [],
     subscribers: [],
 	charset: "utf8mb4",

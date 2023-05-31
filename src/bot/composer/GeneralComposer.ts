@@ -114,6 +114,14 @@ GeneralComposer.on("chat_member", async ctx => {
     && (ctx.chatMember.new_chat_member.status === "member" || ctx.chatMember.new_chat_member.status === "left")
     && !ctx.chatMember.new_chat_member.user.is_bot
     && GeneralServices.removeAdmin(ctx.chat.id, ctx.chatMember.old_chat_member.user.id);
+
+    //If the user is not a bot and left the group or was kicked:
+    ctx.chatMember.old_chat_member.status === "member" && (ctx.chatMember.new_chat_member.status === "left" || ctx.chatMember.new_chat_member.status === "kicked")
+    && !ctx.chatMember.new_chat_member.user.is_bot && SubscriberServices.setInactive(ctx.chatMember.chat.id, ctx.chatMember.old_chat_member.user.id);
+
+    //If the user is not a bot and joined the group, thus being a new member
+    ctx.chatMember.old_chat_member.status === "left" && ctx.chatMember.new_chat_member.status === "member"
+    && !ctx.chatMember.new_chat_member.user.is_bot && SubscriberServices.setActive(ctx.chatMember.chat.id, ctx.chatMember.new_chat_member.user.id);
 });
 
 export default GeneralComposer;

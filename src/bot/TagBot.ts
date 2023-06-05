@@ -157,7 +157,12 @@ export default class TagBot {
 	}
 
 	public start() {
-		const runner = run(this.bot, 500, {allowed_updates: ["message", "callback_query", "my_chat_member", "chat_member"]});
+		const runner = run(
+			this.bot, 
+			500, 
+			{allowed_updates: ["message", "callback_query", "my_chat_member", "chat_member"]},
+			{retryInterval: 1000}
+		);
 
 		const stopRunner = () => runner.isRunning() && runner.stop();
 		process.once("SIGINT", stopRunner);

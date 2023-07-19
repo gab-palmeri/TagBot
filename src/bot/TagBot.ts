@@ -62,7 +62,7 @@ export default class TagBot {
 		this.bot.api.config.use(throttler);
 
 		this.setRateLimits();
-		this.setTransformers();
+		//this.setTransformers();
 		this.setCommands();
 	}
 

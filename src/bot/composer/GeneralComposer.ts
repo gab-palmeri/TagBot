@@ -68,7 +68,7 @@ GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created",
             await ctx.reply(startMessage, { parse_mode: "HTML" });
         }
         else if(response.state === "ALREADY_EXISTS"){
-            //check if the bot is admin
+            await GeneralServices.toggleGroupActive(ctx.chat.id);
             await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
         }
         else {
@@ -89,8 +89,11 @@ GeneralComposer.on("my_chat_member", async ctx => {
     if(chatType !== "private") {
         if(oldStatus === "member" && newStatus === "administrator")
             await ctx.reply(botPromotedMessage);
-        else if(newStatus === "kicked" || newStatus === "left")
+        else if(newStatus === "kicked" || newStatus === "left") {
             await GeneralServices.deleteAdminList(ctx.myChatMember.chat.id);
+            await GeneralServices.toggleGroupActive(ctx.myChatMember.chat.id);
+        }
+            
     }
     else if(chatType === "private" && newStatus !== "member") {
         await UserServices.deleteUser(ctx.myChatMember.chat.id.toString());

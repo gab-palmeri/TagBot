@@ -30,7 +30,7 @@ export class Group extends BaseEntity {
     @Column({type: "smallint", nullable: false, default: 0})
     canRemUsers: number;
 
-	@Column({type: "boolean", nullable: false, default: false})
+	@Column({type: "boolean", nullable: false, default: true})
     isActive: boolean;
 
 

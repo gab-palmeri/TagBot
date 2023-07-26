@@ -47,6 +47,22 @@ export default class GeneralServices {
 			return { state: "error", message: err.message };
 		}
 	}
+
+	static async toggleGroupActive(groupId: number) {
+		try {
+			const group = await Group.findOne({where: {groupId: groupId}});
+			if (!group) {
+				return { state: "NOT_FOUND", message: "Group not found" };
+			}
+			group.isActive = !group.isActive;
+			await group.save();
+			return { state: "ok", message: null };
+		}
+		catch (err) {
+			return { state: "error", message: err.message };
+		}
+	}
+
 	
 	static async createAdminList(groupId: number, adminList: number[]) {
 		try {

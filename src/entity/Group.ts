@@ -30,7 +30,10 @@ export class Group extends BaseEntity {
     @Column({type: "smallint", nullable: false, default: 0})
     canRemUsers: number;
 
-	//ONE TO MANY with Notif
+	@Column({type: "boolean", nullable: false, default: false})
+    isActive: boolean;
+
+
 	@OneToMany(() => Tag, tag => tag.group)
 	tags: Tag[];
 

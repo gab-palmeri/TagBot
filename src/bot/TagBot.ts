@@ -165,22 +165,6 @@ export default class TagBot {
 			{retryInterval: 1000}
 		);
 
-		//get all groups
-		const groups = await Group.find();
-
-		for(const group of groups) {
-			
-			this.bot.api.getChat(group.groupId).then(async (chat) => {
-				//set group isActive to true
-				group.isActive = true;
-				await group.save();
-			}).catch(async (error) => {
-				//set group isActive to false
-				group.isActive = false;
-				await group.save();
-			});
-		}
-
 		const stopRunner = () => runner.isRunning() && runner.stop();
 		process.once("SIGINT", stopRunner);
 		process.once("SIGTERM", stopRunner);

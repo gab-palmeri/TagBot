@@ -12,6 +12,7 @@ import SubscriberComposer from "./composer/SubscriberComposer";
 
 import {MyContext} from './customTypes';
 import menu from "./menu/ControlPanel";
+import { Group } from "../entity/Group";
 
 export default class TagBot {
 
@@ -156,13 +157,29 @@ export default class TagBot {
 		}));
 	}
 
-	public start() {
+	public async start() {
 		const runner = run(
 			this.bot, 
 			500, 
 			{allowed_updates: ["message", "callback_query", "my_chat_member", "chat_member"]},
 			{retryInterval: 1000}
 		);
+
+		//get all groups
+		const groups = await Group.find();
+
+		for(const group of groups) {
+			
+			this.bot.api.getChat(group.groupId).then(async (chat) => {
+				//set group isActive to true
+				group.isActive = true;
+				await group.save();
+			}).catch(async (error) => {
+				//set group isActive to false
+				group.isActive = false;
+				await group.save();
+			});
+		}
 
 		const stopRunner = () => runner.isRunning() && runner.stop();
 		process.once("SIGINT", stopRunner);

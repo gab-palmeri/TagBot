@@ -1,9 +1,11 @@
 import { Composer } from "grammy";
 import { checkIfGroup } from "../middlewares";
-import {MyContext} from "../customTypes";
-import SubscriberServices from "../services/SubscriberServices";
-import { isUserFlooding, join, tagPrivately, tagPublicly } from "./helperFunctions";
+import { MyContext } from "../customTypes";
 
+import SubscriberServices from "../services/SubscriberServices";
+import TagServices from "../services/TagServices";
+
+import { isUserFlooding, join, tagPrivately, tagPublicly } from "./helperFunctions";
 import { msgJoinSyntaxError, msgLeaveSyntaxError, msgLeaveTag, msgListTags, msgMyTags, msgTagsErrors, msgFloodingError } from "../messages/subscriberMessages";
 
 const SubscriberComposer = new Composer<MyContext>();
@@ -146,6 +148,8 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
                     isFlooding = true;
                     break;
                 }
+
+                void TagServices.updateLastTagged(tagName.substring(1), groupId);
 
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 

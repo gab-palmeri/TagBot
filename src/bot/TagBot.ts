@@ -12,7 +12,6 @@ import SubscriberComposer from "./composer/SubscriberComposer";
 
 import {MyContext} from './customTypes';
 import menu from "./menu/ControlPanel";
-import { Group } from "../entity/Group";
 
 export default class TagBot {
 

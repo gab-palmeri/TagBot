@@ -2,7 +2,7 @@ import { Composer } from "grammy";
 import {MyContext} from "../customTypes";
 import AdminServices from "../services/AdminServices";
 
-import menu from "../menu/ControlPanel";
+import groupsMenu from "../menu/settings/groupsMenu";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
 import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
@@ -134,7 +134,7 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
     if(groupsNamesAndIdsAndPermissions.length == 0)
         return await ctx.reply("You are not an admin of any group");
 
-    await ctx.reply("Select a group:", { reply_markup: menu });
+    await ctx.reply("Select a group:", { reply_markup: groupsMenu });
 
 });
 

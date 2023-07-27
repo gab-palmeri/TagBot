@@ -1,9 +1,9 @@
 import { Menu } from "@grammyjs/menu";
-import {MyContext} from "../customTypes";
+import {MyContext} from "../../customTypes";
 
-import AdminServices from "../services/AdminServices";
+import AdminServices from "../../services/AdminServices";
 
-const Rename = new Menu<MyContext>("rename-menu")
+const renameMenu = new Menu<MyContext>("rename-menu")
 
 .text(ctx => ctx.session.selectedGroup.canRename == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
     if(ctx.session.selectedGroup.canRename !== 1) {
@@ -48,4 +48,4 @@ const Rename = new Menu<MyContext>("rename-menu")
     await ctx.editMessageText("🔑 <i><u>Select the command</u> you want to edit</i>", {parse_mode:"HTML"});
 });
 
-export default Rename;
+export default renameMenu;

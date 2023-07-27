@@ -11,8 +11,7 @@ const groupsMenu = new Menu<MyContext>("groups-list");
 
 groupsMenu.dynamic((ctx, range) => {
     for (const group of ctx.session.groups) {
-        range 
-            .submenu(group.groupName, "control-panel", async ctx => {
+        range.submenu(group.groupName, "control-panel", async ctx => {
                 ctx.session.selectedGroup = group;
                 await ctx.editMessageText(controlPanelDescription(ctx.session.selectedGroup.groupName), {parse_mode:"HTML"});
             }).row();

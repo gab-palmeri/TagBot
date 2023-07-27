@@ -11,7 +11,8 @@ import SubscriberComposer from "./composer/SubscriberComposer";
 
 
 import {MyContext} from './customTypes';
-import menu from "./menu/settings/controlPanel";
+
+import controlPanel from "./menu/settings/controlPanel";
 
 export default class TagBot {
 
@@ -55,8 +56,8 @@ export default class TagBot {
 		//Set the auto-retry middleware
 		this.bot.api.config.use(autoRetry());
 
-		//Set the command panel menu
-		this.bot.use(menu);
+		//Set the menus
+		this.bot.use(controlPanel);
 
 		const throttler = apiThrottler();
 		this.bot.api.config.use(throttler);

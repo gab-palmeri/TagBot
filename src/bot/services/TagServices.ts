@@ -1,6 +1,11 @@
 import { Group } from "../../entity/Group";
 import { Tag } from "../../entity/Tag";
 
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+
 export default class TagServices {
 
 
@@ -11,7 +16,7 @@ export default class TagServices {
             return { state: "NOT_FOUND", message: "Tag not found" };
         }
 
-        tag.lastTagged = new Date();
+		tag.lastTagged  = dayjs.utc().format();
         await tag.save();
 
         return { state: "ok", message: null };

@@ -20,4 +20,5 @@ export const AppDataSource = new DataSource({
     migrations: [],
     subscribers: [],
 	charset: "utf8mb4",
+    timezone: "Z",
 });

@@ -13,7 +13,7 @@ export class Tag extends BaseEntity {
     name: string;
 
     @Column({type: 'datetime', nullable: true})
-    lastTagged: Date;
+    lastTagged: string;
 
     @Column({type: 'varchar', length: 25, nullable: false, default: '0'})
     creatorId: number;

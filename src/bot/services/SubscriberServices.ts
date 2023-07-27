@@ -32,7 +32,6 @@ export default class SubscriberServices {
 				subscribersTags.tag = tag;
 				subscriber.subscribersTags = [subscribersTags];
 
-				//subscriber.tags = [tag];
 				subscriber = await subscriber.save();
 			}
 			else {
@@ -45,7 +44,6 @@ export default class SubscriberServices {
 				subscribersTags.tag = tag;
 
 				subscriber.subscribersTags.push(subscribersTags);
-				//subscriber.tags.push(tag);
 				await subscriber.save();
 			}
 	
@@ -71,7 +69,7 @@ export default class SubscriberServices {
 			//remove the tag from the subscriber
 			const subscriber = await Subscriber.findOne({relations: ["subscribersTags", "subscribersTags.tag"], where: {userId: userId}, });
 	
-			if(!subscriber || !subscriber.subscribersTags.find(n => n.tag.id == tag.id)) {
+			if(!subscriber?.subscribersTags.find(n => n.tag.id == tag.id)) {
 				return {state: "NOT_SUBSCRIBED", message: "You're not subscribed to this tag"};
 			}
 			else {

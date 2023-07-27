@@ -37,7 +37,7 @@ export class Group extends BaseEntity {
 	@OneToMany(() => Tag, tag => tag.group)
 	tags: Tag[];
 
-    @OneToMany(() => Admin, admin => admin.group)
+    @OneToMany(() => Admin, admin => admin.group, {cascade: true})
     admins: Admin[];
 
 }

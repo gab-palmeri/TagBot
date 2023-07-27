@@ -149,7 +149,7 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
                     break;
                 }
 
-                void TagServices.updateLastTagged(tagName.substring(1), groupId);
+                await TagServices.updateLastTagged(tagName.substring(1), groupId);
 
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 

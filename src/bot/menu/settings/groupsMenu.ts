@@ -4,10 +4,6 @@ import { MyContext } from '../../customTypes';
 
 import controlPanel from  "./controlPanel";
 
-import Create from "./createMenu";
-import Delete from "./deleteMenu";
-import Rename from "./renameMenu";
-
 
 //Menu that shows all the groups
 const groupsMenu = new Menu<MyContext>("groups-list");
@@ -24,8 +20,6 @@ groupsMenu.dynamic((ctx, range) => {
 .text("Close", (ctx) => ctx.deleteMessage());
 
 groupsMenu.register(controlPanel);
-controlPanel.register(Create);
-controlPanel.register(Delete);
-controlPanel.register(Rename);
+
 
 export default groupsMenu;

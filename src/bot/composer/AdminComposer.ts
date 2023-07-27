@@ -6,8 +6,8 @@ import menu from "../menu/ControlPanel";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
 import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
-import SubscriberServices from "../services/SubscriberServices";
 import { tagPrivately, tagPublicly } from "./helperFunctions";
+import TagServices from "../services/TagServices";
 
 const AdminComposer = new Composer<MyContext>();
 
@@ -85,7 +85,7 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
         const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,issuerUsername) , {parse_mode: "HTML"});
         
         //NOTIFY SUBSCRIBERS OF THE TAG RENAMING
-        const subs = await SubscriberServices.getSubscribers(newTagName, groupId);
+        const subs = await TagServices.getTagSubscribers(newTagName, groupId);
 
         if(subs.state === "ok") {
             //Remove the current user from the subscribers list

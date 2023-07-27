@@ -76,7 +76,7 @@ SubscriberComposer.command("leave", checkIfGroup, async ctx => {
 SubscriberComposer.command("list", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id;
-    const response = await SubscriberServices.getGroupTags(groupId);
+    const response = await TagServices.getGroupTags(groupId);
 
     if(response.state == "error") {
         await ctx.reply("⚠️ " + response.message);
@@ -132,7 +132,7 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
     for(const tagName of tagNames) {
         
 
-        const response = await SubscriberServices.getSubscribers(tagName.substring(1), groupId);
+        const response = await TagServices.getTagSubscribers(tagName.substring(1), groupId);
 
         if(response.state === "ok") {
 

@@ -4,6 +4,7 @@ import { MyContext } from '../../customTypes';
 
 import controlPanel from  "./controlPanel";
 
+import { controlPanelDescription } from "./descriptions";
 
 //Menu that shows all the groups
 const groupsMenu = new Menu<MyContext>("groups-list");
@@ -13,7 +14,7 @@ groupsMenu.dynamic((ctx, range) => {
         range 
             .submenu(group.groupName, "control-panel", async ctx => {
                 ctx.session.selectedGroup = group;
-                await ctx.editMessageText("🔑 <b>Group:</b> " + group.groupName + "\n<i><u>Select the command</u> you want to edit</i>", {parse_mode:"HTML"});
+                await ctx.editMessageText(controlPanelDescription(ctx.session.selectedGroup.groupName), {parse_mode:"HTML"});
             }).row();
     }
 })

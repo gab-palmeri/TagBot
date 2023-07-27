@@ -3,6 +3,8 @@ import {MyContext} from "../../customTypes";
 
 import AdminServices from "../../services/AdminServices";
 
+import { controlPanelDescription, errorDescription } from "./descriptions";
+
 const renameMenu = new Menu<MyContext>("rename-menu")
 
 .text(ctx => ctx.session.selectedGroup.canRename == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
@@ -13,7 +15,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
             ctx.menu.update();
         }
         else {
-            return ctx.reply("An error occured. Retry later");
+            return ctx.reply(errorDescription);
         }
     }
 })  
@@ -26,7 +28,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
             ctx.menu.update();
         }
         else {
-            return ctx.reply("An error occured. Retry later");
+            return ctx.reply(errorDescription);
         }
     }
 }).row()
@@ -39,13 +41,13 @@ const renameMenu = new Menu<MyContext>("rename-menu")
             ctx.menu.update();
         }
         else {
-            return ctx.reply("An error occured. Retry later");
+            return ctx.reply(errorDescription);
         }
     }
 }).row()
 
 .back("Go Back", async ctx => {
-    await ctx.editMessageText("🔑 <i><u>Select the command</u> you want to edit</i>", {parse_mode:"HTML"});
+    await ctx.editMessageText(controlPanelDescription(ctx.session.selectedGroup.groupName), {parse_mode:"HTML"});
 });
 
 export default renameMenu;

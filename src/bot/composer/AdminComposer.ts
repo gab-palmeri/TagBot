@@ -3,6 +3,7 @@ import {MyContext} from "../customTypes";
 import AdminServices from "../services/AdminServices";
 
 import groupsMenu from "../menu/settings/groupsMenu";
+import { groupsMenuDescription } from "../menu/settings/descriptions";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
 import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
@@ -134,7 +135,7 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
     if(groupsNamesAndIdsAndPermissions.length == 0)
         return await ctx.reply("You are not an admin of any group");
 
-    await ctx.reply("Select a group:", { reply_markup: groupsMenu });
+    await ctx.reply(groupsMenuDescription, { parse_mode: "HTML", reply_markup: groupsMenu });
 
 });
 

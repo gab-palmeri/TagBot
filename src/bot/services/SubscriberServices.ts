@@ -207,10 +207,10 @@ export default class SubscriberServices {
 			const subscriberTag = await SubscriberTag.find({relations: ["subscriber", "tag"], where: {subscriber: {userId: userId.toString()}, tag: {group: {groupId: groupId}}}});
 
 			if(subscriberTag && subscriberTag.length > 0)
-				subscriberTag.forEach(async st => {
+				subscriberTag.forEach(st => {
 
 					st.isActive = false;
-					await st.save();
+					st.save().catch(e => console.log(e));
 				});
 
 		}
@@ -225,9 +225,9 @@ export default class SubscriberServices {
 			const subscriberTag = await SubscriberTag.find({relations: ["subscriber", "tag"], where: {subscriber: {userId: userId.toString()}, tag: {group: {groupId: groupId}}}});
 
 			if(subscriberTag && subscriberTag.length > 0)
-				subscriberTag.forEach(async st => {
+				subscriberTag.forEach(st => {
 					st.isActive = true;
-					await st.save();
+					st.save().catch(e => console.log(e));
 				});
 
 		}

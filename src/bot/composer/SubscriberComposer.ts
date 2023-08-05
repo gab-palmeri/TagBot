@@ -107,7 +107,7 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
         return;
 
     //get ALL tag names mentioned 
-    const tagNames = ctx.entities().map(entity => entity.text);
+    const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
 
      //print a message that says "{username} tagged this tag: {tagname}"
      //add also the date in this format: "dd/mm/yyyy hh:mm:ss"

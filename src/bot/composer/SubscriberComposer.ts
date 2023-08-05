@@ -106,14 +106,8 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
     if(ctx.msg.forward_date !== undefined)
         return;
 
-    //Get the text message, wheter it's a normal text or a media caption
-    const messageContent = ctx.msg.text || ctx.msg.caption;
-	const entities = ctx.msg.entities || ctx.msg.caption_entities;
-
-    //get ALL tag names mentioned in the using the indexes contained in ctx.msg.entities
-    const tagNames = entities
-        .filter(entity => entity.type == 'hashtag')
-        .map(entity => messageContent.substring(entity.offset, entity.offset + entity.length));
+    //get ALL tag names mentioned 
+    const tagNames = ctx.entities().map(entity => entity.text);
 
      //print a message that says "{username} tagged this tag: {tagname}"
      //add also the date in this format: "dd/mm/yyyy hh:mm:ss"

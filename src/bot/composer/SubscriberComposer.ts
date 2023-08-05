@@ -127,6 +127,9 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
     const onlyOneInTags = [];
     let isFlooding = false;
 
+    //temp msg to signal the user that the bot is tagging
+    let loadingMsgId = (await ctx.reply("⏳ Tagging in progress...")).message_id;
+
     //for every tag name, get the subcribers and create a set of users preceded by "@"
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
@@ -153,10 +156,11 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 
-                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
+                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo, loadingMsgId);
                 else 
-                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo); 
-                    
+                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo, loadingMsgId); 
+            
+                loadingMsgId = null;
             }
             else {
                 onlyOneInTags.push(tagName);
@@ -166,6 +170,12 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
             nonExistentTags.push(tagName);
         else if(response.state === "TAG_EMPTY")
             emptyTags.push(tagName);
+    }
+
+    //If loadingMsgId is not null, because there were no valid tags, delete the msg
+    if(loadingMsgId !== null) {
+        await ctx.api.deleteMessage(ctx.chat.id, loadingMsgId);
+        loadingMsgId = null;
     }
 
     console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));

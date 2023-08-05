@@ -31,7 +31,7 @@ export async function join(ctx: MyContext, userId: string, groupId: number, user
 
 
 //This function tags the users directly in the group
-export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
+export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number, tagInProgressMessageId: number = null) {
 
     const mentions = await Promise.all(subscribers.map(async (subscriber: {[key: string]: string}) => {
 
@@ -50,13 +50,16 @@ export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: 
     })); 
 
     const message = mentions.join(" ");
-    await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" });
 
-    
+    //delete the loading message
+    if(tagInProgressMessageId !== null)
+        await ctx.api.deleteMessage(ctx.chat.id, tagInProgressMessageId);
+
+    await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" });
 }
 
 //This function sends a private message to each user subscribed to the tag
-export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
+export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number, tagInProgressMessageId: number = null) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
     const notContacted = [];
 
@@ -83,6 +86,9 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     if(notContacted.length > 0) 
         message += msgPrivateTagError(notContacted.join(", "));
 
+    //delete the loading message
+    if(tagInProgressMessageId !== null)
+        await ctx.api.deleteMessage(ctx.chat.id, tagInProgressMessageId);
 
     await ctx.reply(message, { 
         reply_to_message_id: ctx.msg.message_id,

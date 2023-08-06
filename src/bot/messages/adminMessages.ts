@@ -5,9 +5,8 @@ export const msgRenameSyntaxError = `⚠️ Syntax: /rename oldtagname newtagnam
 /* ******************************************* */
 
 
-//ADMIN COMMANDS
-export function msgCreateTagError(issuerUsername: string) {
-    return `⚠️ Tag must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@${issuerUsername})`;
+export function msgTagSyntaxError(issuerUsername: string) {
+    return `⚠️ Tags must be between 3 and 32 characters long, and they should only contain letters, numbers, and underscores. Tags cannot start with an underscore (_). (@${issuerUsername})`;
 }
 
 export function msgCreateTag(tagName: string, issuerUsername: string) {
@@ -21,8 +20,3 @@ export function msgDeleteTag(tagName: string, issuerUsername: string) {
 export function msgRenameTag(oldTagName: string,newTagName: string,issuerUsername: string) {
     return `✅ Renamed tag <b>${oldTagName}</b> to <b>${newTagName}</b> (@${issuerUsername})`;
 }
-
-export function msgRenameTagError(issuerUsername: string) {
-    return `⚠️ Tags must be at least 3 characters long, can contain only letters, numbers and underscores and it can't start with _ (@${issuerUsername})`;
-}
-/* ******************************************* */

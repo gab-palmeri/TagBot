@@ -6,7 +6,7 @@ import groupsMenu from "../menu/settings/groupsMenu";
 import { groupsMenuDescription } from "../menu/settings/descriptions";
 import { checkIfGroup, checkIfPrivate, canCreate, canUpdate } from "../middlewares";
 
-import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgCreateTagError, msgCreateTag, msgDeleteTag, msgRenameTag, msgRenameTagError } from "../messages/adminMessages";
+import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgTagSyntaxError, msgCreateTag, msgDeleteTag, msgRenameTag } from "../messages/adminMessages";
 import { tagPrivately, tagPublicly } from "./helperFunctions";
 import TagServices from "../services/TagServices";
 
@@ -23,13 +23,13 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     //regex
     //tagName must be at least 3 characters long and can contain only letters, numbers and underscores
     //tagName can't start with _
-    const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+    const regex = /^(?=[^A-Za-z]*[A-Za-z])[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(tagName.length == 0)
         return await ctx.reply(msgCreateSyntaxError);
 
     if(!regex.test(tagName)) 
-        return await ctx.reply(msgCreateTagError(issuerUsername));
+        return await ctx.reply(msgTagSyntaxError(issuerUsername));
     
     
     const groupId = ctx.msg.chat.id;
@@ -73,7 +73,7 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
     const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-        return await ctx.reply(msgRenameTagError(issuerUsername));
+        return await ctx.reply(msgTagSyntaxError(issuerUsername));
 
     const groupId = ctx.update.message.chat.id;
     const response = await AdminServices.renameTag(groupId, oldTagName, newTagName);

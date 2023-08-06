@@ -15,22 +15,23 @@ const AdminComposer = new Composer<MyContext>();
 
 AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const args = ctx.match.toString();
-    const tagName = args.trim();
+    let tagName = args.trim();
 
     //const tagName = ctx.match.toString();
     const issuerUsername = ctx.msg.from.username;
 
-    //regex
     //tagName must be at least 3 characters long and can contain only letters, numbers and underscores
     //tagName can't start with _
-    const regex = /^(?=[^A-Za-z]*[A-Za-z])[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+    //tagName can start with the hashtag symbol
+    const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(tagName.length == 0)
         return await ctx.reply(msgCreateSyntaxError);
 
     if(!regex.test(tagName)) 
         return await ctx.reply(msgTagSyntaxError(issuerUsername));
-    
+
+    tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
     
     const groupId = ctx.msg.chat.id;
     const response = await AdminServices.createTag(groupId, tagName, ctx.msg.from.id);
@@ -42,13 +43,15 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
 });
 
 AdminComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
-    const tagName = ctx.match.toString();
+    let tagName = ctx.match.toString();
     const issuerUsername = ctx.msg.from.username;
 
     if (tagName.length == 0)
         return await ctx.reply(msgDeleteSyntaxError);
 
     const groupId = ctx.update.message.chat.id;
+
+    tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
 
     const response = await AdminServices.deleteTag(groupId, tagName);
     response.state === "ok"
@@ -63,17 +66,16 @@ AdminComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
 
     if(oldTagName.length == 0 || newTagName.length == 0)
         return await ctx.reply(msgRenameSyntaxError);
-    
-    //if oldTagName or newTagName start with #, remove it
-    oldTagName = oldTagName.startsWith("#") ? oldTagName.slice(1) : oldTagName;
-    newTagName = newTagName.startsWith("#") ? newTagName.slice(1) : newTagName;
 
     const issuerUsername = ctx.msg.from.username;
-
-    const regex = /^[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+    const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
 
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
         return await ctx.reply(msgTagSyntaxError(issuerUsername));
+
+    //if oldTagName or newTagName start with #, remove it
+    oldTagName = oldTagName.startsWith("#") ? oldTagName.slice(1) : oldTagName;
+    newTagName = newTagName.startsWith("#") ? newTagName.slice(1) : newTagName;
 
     const groupId = ctx.update.message.chat.id;
     const response = await AdminServices.renameTag(groupId, oldTagName, newTagName);

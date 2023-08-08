@@ -20,11 +20,11 @@ GeneralComposer.command("start", async ctx => {
 
 	const joinArgs = ctx.match.split("_");
 
-	if(ctx.match.length > 0 && joinArgs.length === 3) {
+	if(ctx.match.length > 0 && joinArgs.length === 2) {
 		
-		const userId = joinArgs[0];
-		const groupId = joinArgs[1];
-		const tagName = joinArgs[2];
+		const userId = ctx.chat.id.toString();
+		const groupId = joinArgs[0];
+		const tagName = joinArgs[1];
 
 		const response = await SubscriberServices.joinTag(parseInt(groupId), tagName, userId);
 

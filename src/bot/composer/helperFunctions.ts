@@ -24,7 +24,7 @@ export async function join(ctx: MyContext, userId: string, groupId: number, user
     }
     else {
         const [msg, inlineKeyboardText] = msgJoinStartBot(tagName, username);
-        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, "https://t.me/" + ctx.me.username + "?start=" + userId + "_" + groupId + "_" + tagName);
+        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, "https://t.me/" + ctx.me.username + "?start=" + groupId + "_" + tagName);
         await ctx.reply(msg, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
     }
 }

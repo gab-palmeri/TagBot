@@ -110,21 +110,25 @@ GeneralComposer.on(":migrate_to_chat_id", async ctx => {
 
 
 GeneralComposer.on("chat_member", async ctx => {
-    ctx.chatMember.old_chat_member.status === "member" && ctx.chatMember.new_chat_member.status === "administrator"
-    && !ctx.chatMember.new_chat_member.user.is_bot && GeneralServices.addAdmin(ctx.chat.id, ctx.chatMember.new_chat_member.user.id);
+
+    const oldStatus = ctx.chatMember.old_chat_member.status;
+    const newStatus = ctx.chatMember.new_chat_member.status;
+
+    //Add admin
+    if(oldStatus === "member" && newStatus === "administrator" && !ctx.chatMember.new_chat_member.user.is_bot)
+        await GeneralServices.addAdmin(ctx.chat.id, ctx.chatMember.new_chat_member.user.id);
     
-    ctx.chatMember.old_chat_member.status === "administrator"
-    && (ctx.chatMember.new_chat_member.status === "member" || ctx.chatMember.new_chat_member.status === "left")
-    && !ctx.chatMember.new_chat_member.user.is_bot
-    && GeneralServices.removeAdmin(ctx.chat.id, ctx.chatMember.old_chat_member.user.id);
+    //Remove admin
+    if(oldStatus === "administrator" && ["member","left","kicked"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+        await GeneralServices.removeAdmin(ctx.chat.id, ctx.chatMember.old_chat_member.user.id);
 
-    //If the user is not a bot and left the group or was kicked:
-    ctx.chatMember.old_chat_member.status === "member" && (ctx.chatMember.new_chat_member.status === "left" || ctx.chatMember.new_chat_member.status === "kicked")
-    && !ctx.chatMember.new_chat_member.user.is_bot && SubscriberServices.setInactive(ctx.chatMember.chat.id, ctx.chatMember.old_chat_member.user.id);
 
-    //If the user is not a bot and joined the group, thus being a new member
-    ctx.chatMember.old_chat_member.status === "left" && ctx.chatMember.new_chat_member.status === "member"
-    && !ctx.chatMember.new_chat_member.user.is_bot && SubscriberServices.setActive(ctx.chatMember.chat.id, ctx.chatMember.new_chat_member.user.id);
+    if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+        await SubscriberServices.setInactive(ctx.chatMember.chat.id, ctx.chatMember.old_chat_member.user.id);
+
+    if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+        await SubscriberServices.setActive(ctx.chatMember.chat.id, ctx.chatMember.new_chat_member.user.id);
+
 });
 
 export default GeneralComposer;

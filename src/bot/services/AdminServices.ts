@@ -10,7 +10,7 @@ export default class AdminServices {
 			const group = await Group.findOne({where: {groupId: groupId}});
 	
 			let tag = new Tag();
-			tag.name = tagName;
+			tag.name = tagName.toLowerCase();
 			tag.group = group;
 			tag.creatorId = userId;
 			tag = await tag.save();

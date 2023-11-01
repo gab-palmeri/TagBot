@@ -83,7 +83,49 @@ SubscriberComposer.command("list", checkIfGroup, async ctx => {
         return;
     }
 
-    await ctx.reply(msgListTags(response.payload), {parse_mode: "HTML"});
+    /*
+    To facilitate the user, if there's more than 5 tags they are sorted by a score that takes into account the number 
+    of subscribers and the last time the tag was used. When building the output message they will be also sorted 
+    alphabetically
+    */
+
+    const tags = response.payload;
+    let message = "";
+
+    if(tags.length > 5) {
+        //Calculate the maximum number of subscribers among all the tags
+        const maxSubscribers = tags.reduce((max, tag) => tag.subscribersTags.length > max ? tag.subscribersTags.length : max, 0);
+
+        const tagsWithScores = tags.map(tag => {
+            
+            //Score based on the number of subscribers: the more subscribers, the higher the score
+            const subscribersScore = tag.subscribersTags.length / maxSubscribers;
+            
+            //Score based on the last time the tag was used: the more recent, the higher the score
+            const tagLastTagged = new Date(tag.lastTagged);
+
+            //calculate the distance between today and tagLastTagged in days
+            const diffTime = Math.abs(new Date().getTime() - tagLastTagged.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const dateScore = 1 / diffDays;
+
+            return { tag, score: subscribersScore + dateScore };
+        });
+
+        const tagsByScore = tagsWithScores.sort((a,b) => b.score - a.score).map(tag => tag.tag);
+
+        const mostActiveTags = tagsByScore.slice(0, 5).sort((a,b) => a.name.localeCompare(b.name));
+        const otherTags = tagsByScore.slice(mostActiveTags.length).sort((a,b) => a.name.localeCompare(b.name));
+
+        message = msgListTags(mostActiveTags, otherTags);
+    }
+    else {
+        const tagsByName = tags.sort((a,b) => a.name.localeCompare(b.name));
+
+        message = msgListTags(tagsByName);
+    }
+
+    await ctx.reply(message, {parse_mode: "HTML"});
 });
 
 //function that returns the tags the user is subcribed in
@@ -98,7 +140,9 @@ SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
     if(response.state == "error")
         return await ctx.reply("⚠️ " + response.message + ", @" + username);
 
-    await ctx.reply(msgMyTags(response.payload, username), { parse_mode: "HTML" });
+    const tags = response.payload.sort((a,b) => a.name.localeCompare(b.name));
+
+    await ctx.reply(msgMyTags(tags, username), { parse_mode: "HTML" });
 });
 
 SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {

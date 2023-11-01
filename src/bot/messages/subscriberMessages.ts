@@ -84,17 +84,37 @@ export const msgFloodingError = `🕑 You can only mention three tags every five
 
 
 //MISC MESSAGES
-export function msgListTags(tags: Tag[]) {
-    return `📄 <b>Here's a list of all the tags in this group:</b>\n\n${tags.map((tag) => {
+export function msgListTags(mainTags: Tag[], otherTags: Tag[] = null) {
+
+    let message = "<b>📄 Here's a list of all the tags in this group:</b>\n\n";
+
+    if(otherTags != null)
+        message +=  "<b>Main tags:</b>\n";
+
+    message += mainTags.map((tag) => {
         if(tag.subscribersTags.length == 1)
             return `- ` + tag.name + ` <i>(1/50 sub)</i>`;
         else
             return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + `/50 subs)</i>`;
-    }).join(`\n`)}`;
+    }).join(`\n`);
+
+
+    if(otherTags != null) {
+        message += `\n\n <b>Other tags:</b>\n`;
+
+        message += otherTags.map((tag) => {
+            if(tag.subscribersTags.length == 1)
+                return `- ` + tag.name + ` <i>(1/50 sub)</i>`;
+            else
+                return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + `/50 subs)</i>`;
+        }).join(`\n`);
+    }
+
+    return message;    
 }
 
 export function msgMyTags(tags: Tag[], username: string) {
-    return `📄 <b>Here's a list of the tags you're in, @${username}:</b>\n\n ${tags.map((tag) => {
+    return `📄 <b>Here's a list of the tags you're in, @${username}:</b>\n\n${tags.map((tag) => {
         return `- ` + tag.name;
     }).join(`\n`)}`;
 }

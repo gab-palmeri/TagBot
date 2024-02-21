@@ -19,8 +19,6 @@ export default class GeneralServices {
 		}
 		catch (error) {
 
-			console.log(error);
-	
 			if(error.code === "ER_DUP_ENTRY") {
 
 				await GeneralServices.createAdminList(groupId, adminList);

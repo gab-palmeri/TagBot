@@ -58,27 +58,6 @@ GeneralComposer.command("restart", checkIfGroup, checkIfAdmin, async ctx => {
     }
 });
 
-GeneralComposer.on(["message:new_chat_members:me", "message:group_chat_created", "message:supergroup_chat_created"], async ctx => {
-    if(ctx.chat.type !== "private") {
-        const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
-        const response = await GeneralServices.createGroup(ctx.chat.title, ctx.chat.id, adminList.map(admin => admin.user.id));
-
-
-        if(response.state === "ok") {
-            await ctx.reply(startMessage, { parse_mode: "HTML" });
-        }
-        else if(response.state === "ALREADY_EXISTS"){
-            await GeneralServices.toggleGroupActive(ctx.chat.id);
-            await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
-        }
-        else {
-            await ctx.reply(botJoinErrorMessage);
-            await ctx.leaveChat();
-        }
-    }
-        
-});
-
 GeneralComposer.on("my_chat_member", async ctx => {
 
     const chatType = ctx.chat.type;
@@ -87,6 +66,27 @@ GeneralComposer.on("my_chat_member", async ctx => {
 
 
     if(chatType !== "private") {
+
+        //Bot added to the group or supergroup
+        if(oldStatus === "left" && newStatus === "member") {
+            const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
+            const response = await GeneralServices.createGroup(ctx.chat.title, ctx.chat.id, adminList.map(admin => admin.user.id));
+
+
+            if(response.state === "ok") {
+                await ctx.reply(startMessage, { parse_mode: "HTML" });
+            }
+            else if(response.state === "ALREADY_EXISTS"){
+                await GeneralServices.toggleGroupActive(ctx.chat.id);
+                await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
+            }
+            else {
+                await ctx.reply(botJoinErrorMessage);
+                await ctx.leaveChat();
+            }
+        }
+
+        //Bot promoted to admin or kicked
         if(oldStatus === "member" && newStatus === "administrator")
             await ctx.reply(botPromotedMessage);
         else if(newStatus === "kicked" || newStatus === "left") {

@@ -8,6 +8,10 @@ export default class AdminServices {
 		try {
 			//get the group from the database using ctx.update.message.chat.id
 			const group = await Group.findOne({where: {groupId: groupId}});
+
+			if (!group) {
+				return { state: 'error', message: "This group has not been registered by the bot. Please re-add the bot to the group" };
+			}
 	
 			let tag = new Tag();
 			tag.name = tagName.toLowerCase();

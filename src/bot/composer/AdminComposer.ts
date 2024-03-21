@@ -36,9 +36,12 @@ AdminComposer.command("create", checkIfGroup, canCreate, async ctx => {
     const groupId = ctx.msg.chat.id;
     const response = await AdminServices.createTag(groupId, tagName, ctx.msg.from.id);
 
-    response.state === "ok"
-    ? await ctx.reply(msgCreateTag(tagName, issuerUsername))
-    : await ctx.reply('⚠️ ' + response.message + ', @' + issuerUsername);
+    if(response.state !== "ok") {
+        return await ctx.reply("⚠️ " + response.message + ', @' + issuerUsername);
+    }  
+    else {
+        return await ctx.reply(msgCreateTag(tagName, issuerUsername));
+    }
         
 });
 

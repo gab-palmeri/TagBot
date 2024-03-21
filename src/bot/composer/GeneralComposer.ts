@@ -68,7 +68,7 @@ GeneralComposer.on("my_chat_member", async ctx => {
     if(chatType !== "private") {
 
         //Bot added to the group or supergroup
-        if(oldStatus === "left" && (newStatus === "member" || newStatus === "administrator")) {
+        if((oldStatus === "left" || oldStatus == "kicked") && (newStatus === "member" || newStatus === "administrator")) {
             const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
             const response = await GeneralServices.createGroup(ctx.chat.title, ctx.chat.id, adminList.map(admin => admin.user.id));
 

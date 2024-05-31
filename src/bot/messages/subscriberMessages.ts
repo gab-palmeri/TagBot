@@ -21,7 +21,7 @@ export function msgJoinPublic(tagName: string, username: string) {
 
 export function msgJoinStartBot(tagName: string, username: string) {
     const message = `To join <b>tags</b>, @${username}, you need to start a <b>private chat</b> with the bot`;
-    const inlineKeyboardMessage = `Start the bot and join ${tagName}`;
+    const inlineKeyboardMessage = `Click here to join tag ${tagName}!`;
 
     return [message, inlineKeyboardMessage];
 }

@@ -14,10 +14,6 @@ export default class SubscriberServices {
 		}
 	
 		const tag = tagResponse.payload;
-	
-		if(tag.subscribersTags.length >= 50) {
-			return { state: "TAG_FULL", message: "This tag is full" };
-		}
 			
 		try {
 			//add the tag to the subscriber

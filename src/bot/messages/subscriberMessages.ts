@@ -93,9 +93,9 @@ export function msgListTags(mainTags: Tag[], otherTags: Tag[] = null) {
 
     message += mainTags.map((tag) => {
         if(tag.subscribersTags.length == 1)
-            return `- ` + tag.name + ` <i>(1/50 sub)</i>`;
+            return `- ` + tag.name + ` <i>(1 sub)</i>`;
         else
-            return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + `/50 subs)</i>`;
+            return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + ` subs)</i>`;
     }).join(`\n`);
 
 
@@ -104,9 +104,9 @@ export function msgListTags(mainTags: Tag[], otherTags: Tag[] = null) {
 
         message += otherTags.map((tag) => {
             if(tag.subscribersTags.length == 1)
-                return `- ` + tag.name + ` <i>(1/50 sub)</i>`;
+                return `- ` + tag.name + ` <i>(1 sub)</i>`;
             else
-                return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + `/50 subs)</i>`;
+                return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + ` subs)</i>`;
         }).join(`\n`);
     }
 

@@ -8,9 +8,9 @@ import { User } from './entity/User';
 import { SubscriberTag } from './entity/SubscriberTag';
 
 export const AppDataSource = new DataSource({
-    type: "mariadb",
+    type: "postgres",
     host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT) || 3306,
+    port: parseInt(process.env.DB_PORT) || 5432,
     username: process.env.DB_USER || "root",
     password: process.env.DB_PASS || "root",
     database: process.env.DB_NAME || "tagbot",
@@ -19,6 +19,6 @@ export const AppDataSource = new DataSource({
     entities: [Group,Tag,Subscriber,Admin,User,SubscriberTag],
     migrations: [],
     subscribers: [],
-	charset: "utf8mb4",
-    timezone: "Z",
+	//charset: "utf8mb4",
+    //timezone: "Z",
 });

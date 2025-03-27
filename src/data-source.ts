@@ -21,4 +21,7 @@ export const AppDataSource = new DataSource({
     subscribers: [],
 	charset: "utf8mb4",
     timezone: "Z",
+    extra: {
+        socketPath: process.env.DB_SOCKET_PATH // Per connessione Unix socket
+    }
 });

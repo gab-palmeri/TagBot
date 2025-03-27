@@ -10,17 +10,20 @@ AppDataSource.initialize().then(async () => {
 
 	const bot = new TagBot(process.env.BOT_TOKEN);
 
-	const app = express();
-	app.use(express.json());
-	app.use(webhookCallback(bot.getBot(), 'express'));
-	//await bot.start();
-
-	const port = process.env.PORT || 8080; // Google Cloud Function uses this environment variable
-	app.listen(port, () => {
-		console.log(`Server running on port ${port}`);
-	});
-
-	console.log("started");
-
+	if(process.env.ENVIRONMENT == "dev") {
+		await bot.start();
+		console.log("Starting on long polling");
+	}
+	else {
+		const app = express();
+		const port = process.env.PORT || 8080;
+		app.use(express.json());
+		app.use(webhookCallback(bot.getBot(), 'express'));
+		app.listen(port, () => {
+			console.log(`Starting on webhook at port ${port}`);
+		});
+	}
+	
+	
 
 }).catch(error => console.log(error));

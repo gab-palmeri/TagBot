@@ -168,4 +168,9 @@ export default class TagBot {
 		process.once("SIGINT", stopRunner);
 		process.once("SIGTERM", stopRunner);
 	}
+
+	//bot getter
+	public getBot() {
+		return this.bot;
+	}
 }

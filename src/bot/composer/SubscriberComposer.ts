@@ -147,15 +147,15 @@ SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
 
 SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
-    if(ctx.msg.forward_date !== undefined)
+    if(ctx.msg.forward_origin !== undefined)
         return;
 
     //get ALL tag names mentioned 
     const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
 
-     //print a message that says "{username} tagged this tag: {tagname}"
-     //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
-     console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
+    //print a message that says "{username} tagged this tag: {tagname}"
+    //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
+    console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
 
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;
@@ -165,9 +165,8 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
     const onlyOneInTags = [];
     let isFlooding = false;
 
-    //temp msg to signal the user that the bot is tagging
-    let loadingMsgId = (await ctx.reply("⏳ Tagging in progress...")).message_id;
-
+    ctx.react("👀");
+    
     //for every tag name, get the subcribers and create a set of users preceded by "@"
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
@@ -194,11 +193,10 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 
-                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo, loadingMsgId);
+                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
                 else 
-                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo, loadingMsgId); 
+                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo); 
             
-                loadingMsgId = null;
             }
             else {
                 onlyOneInTags.push(tagName);
@@ -210,11 +208,6 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
             emptyTags.push(tagName);
     }
 
-    //If loadingMsgId is not null, because there were no valid tags, delete the msg
-    if(loadingMsgId !== null) {
-        await ctx.api.deleteMessage(ctx.chat.id, loadingMsgId);
-        loadingMsgId = null;
-    }
 
     console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
 

@@ -7,6 +7,9 @@ import { Admin } from './entity/Admin';
 import { User } from './entity/User';
 import { SubscriberTag } from './entity/SubscriberTag';
 
+
+
+
 export const AppDataSource = new DataSource({
     type: "mysql",
     host: process.env.DB_HOST || "localhost",
@@ -22,6 +25,6 @@ export const AppDataSource = new DataSource({
 	charset: "utf8mb4",
     timezone: "Z",
     extra: {
-        socketPath: process.env.DB_HOST // Per connessione Unix socket
+        socketPath: process.env.ENVIRONMENT == "prod" && process.env.DB_HOST // Per connessione Unix socket
     }
 });

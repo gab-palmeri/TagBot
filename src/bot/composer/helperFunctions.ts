@@ -6,32 +6,30 @@ import UserServices from "../services/UserServices";
 import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "../messages/subscriberMessages";
 import { Subscriber } from "../../entity/Subscriber";
 
-export async function join(ctx: MyContext, userId: string, groupId: number, username: string, tagName: string) {
-    if(await UserServices.userExists(userId)) {
-
+export async function join(botId: string, userId: string, groupId: number, username: string, tagName: string) {
+    if (await UserServices.userExists(userId)) {
         const response = await SubscriberServices.joinTag(groupId, tagName, userId);
 
-        if(response.state === "ok") {
+        if (response.state === "ok") {
             const [msg, inlineKeyboardText] = msgJoinPublic(tagName, username);
-            const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, "join-tag");
+            const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, `join-tag_${tagName}`);
 
-            await ctx.reply(msg, { reply_markup: inlineKeyboard });
-        }
-        else {
+            return { msg, inlineKeyboard };
+        } else {
             const message = "⚠️ " + response.message + ', @' + username;
-            await ctx.reply(message);
+            return { msg: message, inlineKeyboard: null };
         }
-    }
-    else {
+    } else {
         const [msg, inlineKeyboardText] = msgJoinStartBot(tagName, username);
-        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, "https://t.me/" + ctx.me.username + "?start=" + groupId + "_" + tagName);
-        await ctx.reply(msg, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
+        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, `https://t.me/${botId}?start=` + groupId + "_" + tagName);
+        return { msg, inlineKeyboard };
     }
 }
 
 
+
 //This function tags the users directly in the group
-export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number, tagInProgressMessageId: number = null) {
+export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
 
     const mentions = await Promise.all(subscribers.map(async (subscriber: {[key: string]: string}) => {
 
@@ -51,15 +49,11 @@ export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: 
 
     const message = mentions.join(" ");
 
-    //delete the loading message
-    if(tagInProgressMessageId !== null)
-        await ctx.api.deleteMessage(ctx.chat.id, tagInProgressMessageId);
-
     await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" });
 }
 
 //This function sends a private message to each user subscribed to the tag
-export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number, tagInProgressMessageId: number = null) {
+export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
     const notContacted = [];
 
@@ -86,14 +80,10 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     if(notContacted.length > 0) 
         message += msgPrivateTagError(notContacted.join(", "));
 
-    //delete the loading message
-    if(tagInProgressMessageId !== null)
-        await ctx.api.deleteMessage(ctx.chat.id, tagInProgressMessageId);
-
     await ctx.reply(message, { 
         reply_to_message_id: ctx.msg.message_id,
         parse_mode: "HTML",
-        disable_web_page_preview: true
+        link_preview_options: { is_disabled: true }
     });
 }
 

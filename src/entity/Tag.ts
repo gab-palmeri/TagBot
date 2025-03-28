@@ -9,7 +9,7 @@ export class Tag extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar', length: 25, nullable: false })
+    @Column({ type: 'varchar', length: 32, nullable: false })
     name: string;
 
     @Column({type: 'datetime', nullable: true})

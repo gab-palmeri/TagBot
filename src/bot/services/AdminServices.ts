@@ -23,7 +23,7 @@ export default class AdminServices {
 		}
 		catch(error) {
 			const response =
-				error.code == '23505'
+				error.code == 'ER_DUP_ENTRY'
 					? { state: 'error', message: 'This tag already exists' }
 					: { state: 'error', message: 'An error occured' };
 			return response;
@@ -69,7 +69,7 @@ export default class AdminServices {
 			return {state: "ok", message: null};
 		}
 		catch(error) {
-			if(error.code == "23505")
+			if(error.code == "ER_DUP_ENTRY")
 				return {state: "error", message:"A tag with this name already exists"};
 
 			return {state: "error", message: "An error occured"};

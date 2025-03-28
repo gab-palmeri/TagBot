@@ -19,7 +19,7 @@ export default class GeneralServices {
 		}
 		catch (error) {
 
-			if(error.code === "23505") {
+			if(error.code === "ER_DUP_ENTRY") {
 
 				await GeneralServices.createAdminList(groupId, adminList);
 

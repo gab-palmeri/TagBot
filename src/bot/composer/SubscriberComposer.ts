@@ -25,16 +25,23 @@ SubscriberComposer.command("join", checkIfGroup, async ctx => {
     const username = ctx.update.message.from.username;
     const userId = ctx.update.message.from.id.toString();
 
-    await join(ctx, userId, groupId, username, tagName);
+    // Ora chiamiamo join e otteniamo i messaggi da inviare
+    const { msg, inlineKeyboard } = await join(ctx.me.username, userId, groupId, username, tagName);
+
+    if (inlineKeyboard) {
+        await ctx.reply(msg, { reply_markup: inlineKeyboard });
+    } else {
+        await ctx.reply(msg);
+    }
 });
 
-SubscriberComposer.callbackQuery("join-tag", async (ctx) => {
+SubscriberComposer.callbackQuery(/^join-tag_/, async (ctx) => {
 
     if(ctx.callbackQuery.message.chat.type !== "private") {
         //debug console log mentioning the user, the group and the tag
         console.log(ctx.callbackQuery.from.username + " joined " + ctx.callbackQuery.message.chat.title + " " + ctx.callbackQuery.message.text);
 
-        let tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
+        let tagName = ctx.callbackQuery.data.split("_")[1];
 
         if(tagName.length == 0) 
             return await ctx.reply(msgJoinSyntaxError);
@@ -46,8 +53,26 @@ SubscriberComposer.callbackQuery("join-tag", async (ctx) => {
         const username = ctx.callbackQuery.from.username;
         const userId = ctx.callbackQuery.from.id.toString();
 
-        await join(ctx, userId, groupId, username, tagName);
-        await ctx.answerCallbackQuery();
+        // Chiamiamo join per ottenere i dati da inviare
+        const { msg, inlineKeyboard } = await join(ctx.me.username, userId, groupId, username, tagName);
+
+        if (inlineKeyboard) {
+    
+            if (ctx.callbackQuery.message.text.includes(username)) {
+                return;
+            }
+            
+            //Add the user to the callback query original message to signal that he joined the tag
+            const updatedMessage = ctx.callbackQuery.message.text
+                .replace(" and", ",")
+                .replace(` joined tag ${tagName}`, ` and @${username} joined tag ${tagName}`);
+
+            await ctx.editMessageText(updatedMessage, { reply_markup: inlineKeyboard });
+        } else {
+            await ctx.reply(msg);
+        }
+
+        await ctx.answerCallbackQuery("Done!");
     }
     
 });
@@ -147,15 +172,15 @@ SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
 
 SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
-    if(ctx.msg.forward_date !== undefined)
+    if(ctx.msg.forward_origin !== undefined)
         return;
 
     //get ALL tag names mentioned 
     const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
 
-     //print a message that says "{username} tagged this tag: {tagname}"
-     //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
-     console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
+    //print a message that says "{username} tagged this tag: {tagname}"
+    //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
+    console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
 
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id;
@@ -165,9 +190,8 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
     const onlyOneInTags = [];
     let isFlooding = false;
 
-    //temp msg to signal the user that the bot is tagging
-    let loadingMsgId = (await ctx.reply("⏳ Tagging in progress...")).message_id;
-
+    ctx.react("👀");
+    
     //for every tag name, get the subcribers and create a set of users preceded by "@"
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
@@ -194,11 +218,10 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
                 if(response.payload.length > 10) 
-                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo, loadingMsgId);
+                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
                 else 
-                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo, loadingMsgId); 
+                    await tagPublicly(ctx, groupId, response.payload, messageToReplyTo); 
             
-                loadingMsgId = null;
             }
             else {
                 onlyOneInTags.push(tagName);
@@ -210,11 +233,6 @@ SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
             emptyTags.push(tagName);
     }
 
-    //If loadingMsgId is not null, because there were no valid tags, delete the msg
-    if(loadingMsgId !== null) {
-        await ctx.api.deleteMessage(ctx.chat.id, loadingMsgId);
-        loadingMsgId = null;
-    }
 
     console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
 

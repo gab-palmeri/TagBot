@@ -13,7 +13,10 @@ GeneralComposer.command("start", async ctx => {
 
     await ctx.reply(
         startMessage,
-        { parse_mode: "HTML", disable_web_page_preview: true }
+        { 
+            parse_mode: "HTML",
+            link_preview_options: { is_disabled: true }
+        }
     );
 
 	if(ctx.chat.type === "private") {

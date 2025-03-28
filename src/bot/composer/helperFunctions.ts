@@ -6,28 +6,26 @@ import UserServices from "../services/UserServices";
 import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "../messages/subscriberMessages";
 import { Subscriber } from "../../entity/Subscriber";
 
-export async function join(ctx: MyContext, userId: string, groupId: number, username: string, tagName: string) {
-    if(await UserServices.userExists(userId)) {
-
+export async function join(botId: string, userId: string, groupId: number, username: string, tagName: string) {
+    if (await UserServices.userExists(userId)) {
         const response = await SubscriberServices.joinTag(groupId, tagName, userId);
 
-        if(response.state === "ok") {
+        if (response.state === "ok") {
             const [msg, inlineKeyboardText] = msgJoinPublic(tagName, username);
-            const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, "join-tag");
+            const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, `join-tag_${tagName}`);
 
-            await ctx.reply(msg, { reply_markup: inlineKeyboard });
-        }
-        else {
+            return { msg, inlineKeyboard };
+        } else {
             const message = "⚠️ " + response.message + ', @' + username;
-            await ctx.reply(message);
+            return { msg: message, inlineKeyboard: null };
         }
-    }
-    else {
+    } else {
         const [msg, inlineKeyboardText] = msgJoinStartBot(tagName, username);
-        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, "https://t.me/" + ctx.me.username + "?start=" + groupId + "_" + tagName);
-        await ctx.reply(msg, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
+        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, `https://t.me/${botId}?start=` + groupId + "_" + tagName);
+        return { msg, inlineKeyboard };
     }
 }
+
 
 
 //This function tags the users directly in the group

@@ -25,16 +25,23 @@ SubscriberComposer.command("join", checkIfGroup, async ctx => {
     const username = ctx.update.message.from.username;
     const userId = ctx.update.message.from.id.toString();
 
-    await join(ctx, userId, groupId, username, tagName);
+    // Ora chiamiamo join e otteniamo i messaggi da inviare
+    const { msg, inlineKeyboard } = await join(ctx.me.username, userId, groupId, username, tagName);
+
+    if (inlineKeyboard) {
+        await ctx.reply(msg, { reply_markup: inlineKeyboard });
+    } else {
+        await ctx.reply(msg);
+    }
 });
 
-SubscriberComposer.callbackQuery("join-tag", async (ctx) => {
+SubscriberComposer.callbackQuery(/^join-tag_/, async (ctx) => {
 
     if(ctx.callbackQuery.message.chat.type !== "private") {
         //debug console log mentioning the user, the group and the tag
         console.log(ctx.callbackQuery.from.username + " joined " + ctx.callbackQuery.message.chat.title + " " + ctx.callbackQuery.message.text);
 
-        let tagName = ctx.callbackQuery.message.text.split(" ")[3].slice(0, -1);
+        let tagName = ctx.callbackQuery.data.split("_")[1];
 
         if(tagName.length == 0) 
             return await ctx.reply(msgJoinSyntaxError);
@@ -46,8 +53,26 @@ SubscriberComposer.callbackQuery("join-tag", async (ctx) => {
         const username = ctx.callbackQuery.from.username;
         const userId = ctx.callbackQuery.from.id.toString();
 
-        await join(ctx, userId, groupId, username, tagName);
-        await ctx.answerCallbackQuery();
+        // Chiamiamo join per ottenere i dati da inviare
+        const { msg, inlineKeyboard } = await join(ctx.me.username, userId, groupId, username, tagName);
+
+        if (inlineKeyboard) {
+    
+            if (ctx.callbackQuery.message.text.includes(username)) {
+                return;
+            }
+            
+            //Add the user to the callback query original message to signal that he joined the tag
+            const updatedMessage = ctx.callbackQuery.message.text
+                .replace(" and", ",")
+                .replace(` joined tag ${tagName}`, ` and @${username} joined tag ${tagName}`);
+
+            await ctx.editMessageText(updatedMessage, { reply_markup: inlineKeyboard });
+        } else {
+            await ctx.reply(msg);
+        }
+
+        await ctx.answerCallbackQuery("Done!");
     }
     
 });

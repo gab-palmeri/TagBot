@@ -25,6 +25,6 @@ export const AppDataSource = new DataSource({
 	charset: "utf8mb4",
     timezone: "Z",
     extra: {
-        socketPath: process.env.ENVIRONMENT === "prod" ? process.env.DB_HOST : undefined
+        socketPath: process.env.ENVIRONMENT == "prod" ? process.env.DB_HOST : undefined
     }
 });

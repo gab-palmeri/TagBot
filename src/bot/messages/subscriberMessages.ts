@@ -1,4 +1,4 @@
-import { Tag } from "../../entity/Tag";
+import { TagDTO } from "../dtos/TagDTO";
 
 //SYNTAX MESSAGES
 export const msgJoinSyntaxError = `⚠️ Syntax: /join tagname`;
@@ -84,7 +84,7 @@ export const msgFloodingError = `🕑 You can only mention three tags every five
 
 
 //MISC MESSAGES
-export function msgListTags(mainTags: Tag[], otherTags: Tag[] = null) {
+export function msgListTags(mainTags: TagDTO[], otherTags: TagDTO[] = null) {
 
     let message = "<b>📄 Here's a list of all the tags in this group:</b>\n\n";
 
@@ -92,10 +92,10 @@ export function msgListTags(mainTags: Tag[], otherTags: Tag[] = null) {
         message +=  "<b>Main tags:</b>\n";
 
     message += mainTags.map((tag) => {
-        if(tag.subscribersTags.length == 1)
+        if(tag.subscribersNum == 1)
             return `- ` + tag.name + ` <i>(1 sub)</i>`;
         else
-            return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + ` subs)</i>`;
+            return `- ` + tag.name + ` <i>(` + tag.subscribersNum + ` subs)</i>`;
     }).join(`\n`);
 
 
@@ -103,17 +103,17 @@ export function msgListTags(mainTags: Tag[], otherTags: Tag[] = null) {
         message += `\n\n <b>Other tags:</b>\n`;
 
         message += otherTags.map((tag) => {
-            if(tag.subscribersTags.length == 1)
+            if(tag.subscribersNum == 1)
                 return `- ` + tag.name + ` <i>(1 sub)</i>`;
             else
-                return `- ` + tag.name + ` <i>(` + tag.subscribersTags.length + ` subs)</i>`;
+                return `- ` + tag.name + ` <i>(` + tag.subscribersNum + ` subs)</i>`;
         }).join(`\n`);
     }
 
     return message;    
 }
 
-export function msgMyTags(tags: Tag[], username: string) {
+export function msgMyTags(tags: TagDTO[], username: string) {
     return `📄 <b>Here's a list of the tags you're in, @${username}:</b>\n\n${tags.map((tag) => {
         return `- ` + tag.name;
     }).join(`\n`)}`;

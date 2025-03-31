@@ -8,9 +8,12 @@ import { controlPanelDescription, errorDescription } from "./descriptions";
 const renameMenu = new Menu<MyContext>("rename-menu")
 
 .text(ctx => ctx.session.selectedGroup.canRename == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canRename !== 1) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canRename: 1});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canRename: 1});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canRename = 1;
             ctx.menu.update();
         }
@@ -21,9 +24,12 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 })  
 
 .text(ctx => ctx.session.selectedGroup.canRename == 0 ? "👉🏻 Only admins" : "Only admins", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canRename !== 0) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canRename: 0});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canRename: 0});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canRename = 0;
             ctx.menu.update();
         }
@@ -34,9 +40,12 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 }).row()
 
 .text(ctx => ctx.session.selectedGroup.canRename == 2 ? "👉🏻 Tag creators and admins" : "Tag creators and admins", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canRename !== 2) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canRename: 2});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canRename: 2});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canRename = 2;
             ctx.menu.update();
         }

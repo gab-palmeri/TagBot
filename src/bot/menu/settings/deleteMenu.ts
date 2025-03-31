@@ -9,9 +9,12 @@ import { controlPanelDescription, errorDescription } from "./descriptions";
 const deleteMenu = new Menu<MyContext>("delete-menu")
 
 .text(ctx => ctx.session.selectedGroup.canDelete == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canDelete !== 1) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canDelete: 1});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canDelete: 1});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canDelete = 1;
             ctx.menu.update();
         }
@@ -22,9 +25,12 @@ const deleteMenu = new Menu<MyContext>("delete-menu")
 })  
 
 .text(ctx => ctx.session.selectedGroup.canDelete == 0 ? "👉🏻 Only admins" : "Only admins", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canDelete !== 0) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canDelete: 0});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canDelete: 0});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canDelete = 0;
             ctx.menu.update();
         }
@@ -35,9 +41,12 @@ const deleteMenu = new Menu<MyContext>("delete-menu")
 }).row()
 
 .text(ctx => ctx.session.selectedGroup.canDelete == 2 ? "👉🏻 Tag creators and admins" : "Tag creators and admins", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canDelete !== 2) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canDelete: 2});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canDelete: 2});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canDelete = 2;
             ctx.menu.update();
         }

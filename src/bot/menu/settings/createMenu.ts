@@ -7,9 +7,12 @@ import { controlPanelDescription, errorDescription } from "./descriptions";
 const createMenu = new Menu<MyContext>("create-menu")
 
 .text(ctx => ctx.session.selectedGroup.canCreate == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canCreate !== 1) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canCreate: 1});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canCreate: 1});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canCreate = 1;
             ctx.menu.update();
         }
@@ -20,9 +23,12 @@ const createMenu = new Menu<MyContext>("create-menu")
 })  
 
 .text(ctx => ctx.session.selectedGroup.canCreate == 0 ? "👉🏻 Only admins" : "Only admins", async (ctx) => {
+
+    const groupId = ctx.msg.chat.id.toString();
+
     if(ctx.session.selectedGroup.canCreate !== 0) {
-        const response = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, ctx.msg.chat.id, {canCreate: 0});
-        if(response.state == "ok") {
+        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canCreate: 0});
+        if(result.isSuccess()) {
             ctx.session.selectedGroup.canCreate = 0;
             ctx.menu.update();
         }

@@ -1,27 +1,22 @@
-import { User } from "../../entity/User";
+import UserRepository from "../db/UserRepository";
+import { UserDTO } from "../dtos/UserDTO";
 
 export default class UserServices {
     //given an userid, save it to the db
     static async saveUser(userId: string) {
-        //note: userId is unique, so saving might crash
-        try {
-            const user = new User();
-            user.userId = userId;
-            await user.save();
-        }
-        catch(e) {
-            console.log("tried to add user with id: " + userId + " but it already exists (it can happen)");
-        }
+        const userDTO = new UserDTO(userId);
+        return await UserRepository.saveUser(userDTO);
     }
 
     //given an userid, remove it from the db
     static async deleteUser(userId: string) {
-        await User.delete({userId: userId});
+        const userDTO = new UserDTO(userId);
+        return await UserRepository.deleteUser(userDTO);
     }
 
     //given an userid, check if it's in the db
     static async userExists(userId: string) {
-        const user = await User.findOne({where: {userId: userId}});
-        return user != null;
+        const userDTO = new UserDTO(userId);
+        return await UserRepository.userExists(userDTO);
     }
 }

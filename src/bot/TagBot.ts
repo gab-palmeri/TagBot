@@ -8,6 +8,7 @@ import { apiThrottler } from "@grammyjs/transformer-throttler";
 import GeneralComposer from "./composer/GeneralComposer";
 import AdminComposer from "./composer/AdminComposer";
 import SubscriberComposer from "./composer/SubscriberComposer";
+import TagComposer from "./composer/TagComposer";
 
 
 import {MyContext} from './customTypes';
@@ -76,6 +77,9 @@ export default class TagBot {
 		
 		//SUBSCRIBER COMMANDS
 		this.bot.use(SubscriberComposer);
+
+		//TAG COMMANDS
+		this.bot.use(TagComposer);
 
 		
 	}

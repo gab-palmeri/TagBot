@@ -13,7 +13,7 @@ export class Group extends BaseEntity {
     groupName: string;
 
     @Column({type: "varchar", length: 25, nullable: false, unique: true})
-    groupId: number;
+    groupId: string;
 
     @Column({type: "smallint", nullable: false, default: 0})
     canCreate: number;
@@ -23,12 +23,6 @@ export class Group extends BaseEntity {
 
     @Column({type: "smallint", nullable: false, default: 0})
     canRename: number;
-
-    @Column({type: "smallint", nullable: false, default: 0})
-    canAddUsers: number;
-
-    @Column({type: "smallint", nullable: false, default: 0})
-    canRemUsers: number;
 
 	@Column({type: "boolean", nullable: false, default: true})
     isActive: boolean;

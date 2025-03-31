@@ -16,7 +16,7 @@ export class Tag extends BaseEntity {
     lastTagged: string;
 
     @Column({type: 'varchar', length: 25, nullable: false, default: '0'})
-    creatorId: number;
+    creatorId: string;
 
     @ManyToOne(() => Group, (group) => group.tags, { onDelete: 'CASCADE' })
     group: Group;

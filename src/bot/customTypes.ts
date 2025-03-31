@@ -1,4 +1,5 @@
 import { Context, SessionFlavor } from "grammy";
+import { GroupDTO } from "./dtos/GroupDTO";
 
 export type MyContext = Context & SessionFlavor<{
     groups: Groups, 
@@ -6,25 +7,9 @@ export type MyContext = Context & SessionFlavor<{
     lastUsedTags: LastUsedTags
 }>;
 
-type Groups = {
-    groupName:string, 
-    groupId:number,
-    canCreate:number,
-    canDelete:number,
-    canRename:number,
-    canAddUsers:number,
-    canRemUsers:number,
-}[]
+type Groups = GroupDTO[]
 
-type SelectedGroup = {
-    groupName:string, 
-    groupId:number,
-    canCreate:number,
-    canDelete:number,
-    canRename:number,
-    canAddUsers:number,
-    canRemUsers:number,
-}
+type SelectedGroup = GroupDTO
 
 
 export type LastUsedTags = {

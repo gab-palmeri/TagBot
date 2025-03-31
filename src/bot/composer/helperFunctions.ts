@@ -6,17 +6,17 @@ import UserServices from "../services/UserServices";
 import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "../messages/subscriberMessages";
 import { Subscriber } from "../../entity/Subscriber";
 
-export async function join(botId: string, userId: string, groupId: number, username: string, tagName: string) {
+export async function join(botId: string, userId: string, groupId: string, username: string, tagName: string) {
     if (await UserServices.userExists(userId)) {
-        const response = await SubscriberServices.joinTag(groupId, tagName, userId);
+        const result = await SubscriberServices.joinTag(groupId, tagName, userId);
 
-        if (response.state === "ok") {
+        if (result.isSuccess()) {
             const [msg, inlineKeyboardText] = msgJoinPublic(tagName, username);
             const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, `join-tag_${tagName}`);
 
             return { msg, inlineKeyboard };
         } else {
-            const message = "⚠️ " + response.message + ', @' + username;
+            const message = "⚠️ " + result.error.message + ', @' + username;
             return { msg: message, inlineKeyboard: null };
         }
     } else {
@@ -29,7 +29,7 @@ export async function join(botId: string, userId: string, groupId: number, usern
 
 
 //This function tags the users directly in the group
-export async function tagPublicly(ctx: MyContext, groupId: number, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
+export async function tagPublicly(ctx: MyContext, groupId: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
 
     const mentions = await Promise.all(subscribers.map(async (subscriber: {[key: string]: string}) => {
 

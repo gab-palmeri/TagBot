@@ -23,7 +23,7 @@
          "@repository/*": ["layers/repository/*"],
          "@utils/*": ["utils/*"],
          "@menu/*": ["utils/menu/*"],
-         "@messages/*": ["utils/messages/*"],
+         "@messages/*": ["utils/messages/*"]
       }
    },
    "exclude": [

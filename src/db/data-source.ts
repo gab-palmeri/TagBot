@@ -8,8 +8,6 @@ import { User } from '@db/entity/User';
 import { SubscriberTag } from '@db/entity/SubscriberTag';
 
 
-const socketPath = process.env.ENVIRONMENT == "prod" ? { socketPath: process.env.DB_HOST } : undefined;
-
 export const AppDataSource = new DataSource({
     type: "mysql",
     host: process.env.DB_HOST || "localhost",
@@ -24,5 +22,7 @@ export const AppDataSource = new DataSource({
     subscribers: [],
 	charset: "utf8mb4",
     timezone: "Z",
-    extra: socketPath
+    extra: {
+        socketPath: process.env.ENVIRONMENT == "prod" ? process.env.DB_HOST : undefined,
+    }
 });

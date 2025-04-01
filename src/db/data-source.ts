@@ -8,7 +8,7 @@ import { User } from '@db/entity/User';
 import { SubscriberTag } from '@db/entity/SubscriberTag';
 
 
-const socketPath = process.env.ENVIRONMENT == "prod" ? { socketPath: process.env.DB_HOST } : {};
+const socketPath = process.env.ENVIRONMENT == "prod" ? { socketPath: process.env.DB_HOST } : undefined;
 
 export const AppDataSource = new DataSource({
     type: "mysql",

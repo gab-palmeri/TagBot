@@ -3,8 +3,8 @@ import express from 'express';
 import { webhookCallback } from 'grammy';
 dotenv.config();
 
-import { AppDataSource } from "./data-source";
-import TagBot from "./bot/TagBot";
+import { AppDataSource } from "@db/data-source";
+import TagBot from "./TagBot";
 
 AppDataSource.initialize().then(async () => {
 

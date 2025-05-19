@@ -4,7 +4,7 @@ import { Tag } from "@db/entity/Tag";
 
 export async function checkIfGroup(ctx: Context, next: NextFunction) {
 
-	if(['group','supergroup','channel'].includes(ctx.msg.chat.type) == false) {
+	if(ctx.hasChatType('private')) {
 		await ctx.reply("This command can only be used in a group");
 		return;
 	}
@@ -13,7 +13,7 @@ export async function checkIfGroup(ctx: Context, next: NextFunction) {
 
 export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
-	if(ctx.update.message.chat.type != 'private') {
+	if(!ctx.hasChatType("private")) {
 		const inlineKeyboard = new InlineKeyboard().url("..press here!", "https://t.me/grouptags_bot?start");
 		await ctx.reply("To use this command...", { reply_markup: inlineKeyboard});
 		return;
@@ -25,7 +25,7 @@ export async function checkIfAdmin(ctx: Context, next: NextFunction) {
 
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 
-	if(["creator", "administrator"].includes(user.status) == false) {
+	if(user.status == "creator" || user.status == "administrator") {
 		await ctx.reply("You must be an admin to use this command");
 		return;
 	}

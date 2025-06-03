@@ -143,13 +143,13 @@ export default class TagBot {
 
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
-				setTimeout(async (groupInfo) => {
-					try {
-						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
-					} catch (error) {
-						console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
-					}
-				}, 3000);
+                                setTimeout(async () => {
+                                        try {
+                                                await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
+                                        } catch (error) {
+                                                console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
+                                        }
+                                }, 3000);
 			},
 			
 			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),

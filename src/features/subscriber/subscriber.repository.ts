@@ -2,9 +2,9 @@ import { Tag } from '@db/entity/Tag';
 import { Subscriber } from '@db/entity/Subscriber';
 import { SubscriberTag } from '@db/entity/SubscriberTag';
 import { Result } from '@utils/Result';
-import { SubscriberDTO } from '@dto/SubscriberDTO';
-import { GroupDTO } from '@dto/GroupDTO';
-import { TagDTO } from '@dto/TagDTO';
+import { SubscriberDTO } from 'features/subscriber/subscriber.dto';
+import { GroupDTO } from '../group/group.dto';
+import { TagDTO } from '../tag/tag.dto';
 
 export default class SubscriberRepository {
    

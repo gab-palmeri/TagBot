@@ -10,11 +10,11 @@ AppDataSource.initialize().then(async () => {
 
 	const bot = new TagBot(process.env.BOT_TOKEN);
 
-	if(process.env.ENVIRONMENT == "dev") {
+	if(process.env.MODE == "polling") {
 		await bot.start();
 		console.log("Starting on long polling");
 	}
-	else {
+	else if (process.env.MODE == "webhook") {
 		const app = express();
 		const port = process.env.PORT || 8080;
 		app.use(express.json());

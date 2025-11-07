@@ -1,6 +1,6 @@
 import { InlineKeyboard } from "grammy";
 import { MyContext, LastUsedTags } from "@utils/customTypes";
-import SubscriberServices from "@service/SubscriberServices";
+import SubscriberServices from "features/subscriber/subscriber.services";
 import UserServices from "@service/UserServices";
 
 import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "@messages/subscriberMessages";

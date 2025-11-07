@@ -1,14 +1,15 @@
 import { Bot, GrammyError, HttpError, session } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
-import { getSessionKey } from "./utils/middlewares";
+import { getSessionKey } from "./shared/middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
 
-import GeneralComposer from "@composer/GeneralComposer";
-import AdminComposer from "@composer/AdminComposer";
-import SubscriberComposer from "@composer/SubscriberComposer";
-import TagComposer from "@composer/TagComposer";
+import GroupComposer from "features/group/group.composer";
+import AdminComposer from "features/admin/admin.composer";
+import SubscriberComposer from "features/subscriber/subscriber.composer";
+import TagComposer from "features/tag/tag.composer";
+import UserComposer from "features/user/user.composer";
 
 
 import {MyContext} from '@utils/customTypes';
@@ -72,13 +73,16 @@ export default class TagBot {
 		this.bot.use(AdminComposer);
 
 		//GENERAL COMMANDS
-		this.bot.use(GeneralComposer);
+		this.bot.use(GroupComposer);
 
 		//TAG COMMANDS
 		this.bot.use(TagComposer);
 		
 		//SUBSCRIBER COMMANDS
 		this.bot.use(SubscriberComposer);
+
+		//USER COMMANDS
+		this.bot.use(UserComposer);
 	
 	}
 

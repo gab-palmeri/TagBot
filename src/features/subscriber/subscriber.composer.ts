@@ -1,11 +1,11 @@
 import { Composer, InlineKeyboard } from "grammy";
-import { checkIfGroup } from "@utils/middlewares";
+import { checkIfGroup } from "shared/middlewares";
 import { MyContext } from "@utils/customTypes";
 
-import SubscriberServices from "@service/SubscriberServices";
-import TagServices from "@service/TagServices";
+import SubscriberServices from "features/subscriber/subscriber.services";
+import TagServices from "features/tag/tag.services";
 
-import { isUserFlooding, join, tagPrivately, tagPublicly } from "@composer/helperFunctions";
+import { isUserFlooding, join, tagPrivately, tagPublicly } from "shared/helperFunctions";
 import { msgJoinSyntaxError, msgLeaveSyntaxError, msgLeaveTag, msgListTags, msgMyTags, msgTagsErrors, msgFloodingError } from "@messages/subscriberMessages";
 
 const SubscriberComposer = new Composer<MyContext>();
@@ -98,6 +98,8 @@ SubscriberComposer.command("leave", checkIfGroup, async ctx => {
     : await ctx.reply("⚠️ " + result.error.message);
 });
 
+
+// TODO: SPOSTARE QUESTO IN TAG COMPOSER
 SubscriberComposer.command("list", checkIfGroup, async ctx => {
 
     const groupId = ctx.update.message.chat.id.toString();
@@ -169,6 +171,7 @@ SubscriberComposer.command("list", checkIfGroup, async ctx => {
     }
 });
 
+
 SubscriberComposer.callbackQuery("show-all-tags", async (ctx) => {
 
     const userId = ctx.update.callback_query.from.id.toString();
@@ -199,94 +202,24 @@ SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
     await ctx.reply(msgMyTags(tags, username), { parse_mode: "HTML" });
 });
 
-SubscriberComposer.on("::hashtag", checkIfGroup, async ctx => {
 
-    if(ctx.msg.forward_origin !== undefined)
-        return;
+SubscriberComposer.on("chat_member", async ctx => {
 
-    //get ALL tag names mentioned 
-    const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
+    const oldStatus = ctx.chatMember.old_chat_member.status;
+    const newStatus = ctx.chatMember.new_chat_member.status;
+    const groupId = ctx.chat.id.toString();
 
-    //print a message that says "{username} tagged this tag: {tagname}"
-    //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
-    console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
+    const isBot = !ctx.chatMember.new_chat_member.user.is_bot;
 
-    const messageToReplyTo = ctx.msg.message_id;
-    const groupId = ctx.update.message.chat.id.toString();
+    if(!isBot) {
+        if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+            await SubscriberServices.setInactive(groupId, ctx.chatMember.old_chat_member.user.id);
 
-    const emptyTags = [];
-    const nonExistentTags = [];
-    const onlyOneInTags = [];
-    let isFlooding = false;
-
-    await ctx.react("👀");
-    
-    //for every tag name, get the subcribers and create a set of users preceded by "@"
-    //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
-    for(const tagName of tagNames) {
-        
-
-        const result = await TagServices.getTagSubscribers(tagName.substring(1), groupId);
-
-        if(result.isSuccess()) {
-
-            //Remove the current user from the subscribers list
-            const subscribersWithoutMe = result.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
-
-            if(subscribersWithoutMe.length > 0) {
-
-                //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
-                const userId = ctx.update.message.from.id.toString();
-                const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
-                if(iuf) {
-                    isFlooding = true;
-                    break;
-                }
-
-                await TagServices.updateLastTagged(tagName.substring(1), groupId);
-
-                //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(result.value.length > 10) 
-                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
-                else 
-                    await tagPublicly(ctx, groupId, result.value, messageToReplyTo); 
-            
-            }
-            else {
-                onlyOneInTags.push(tagName);
-            } 
-        }
-        else if(result.error.message === "This tag doesn't exist")
-            nonExistentTags.push(tagName);
-        else if(result.error.message === "No one is subscribed to this tag")
-            emptyTags.push(tagName);
+        if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+            await SubscriberServices.setActive(groupId, ctx.chatMember.new_chat_member.user.id);
     }
-
-
-    console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
-
-    //ERROR MESSAGES PHASE
-    const errorMessages = msgTagsErrors(emptyTags, nonExistentTags, onlyOneInTags);
-    
-    //This message will be deleted shortly after
-    if(errorMessages.length > 0) {
-        const errorMessage = await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
-
-        setTimeout(async () => {
-            await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
-        }, 5000);
-    }
-
-    //ANTI FLOOD MESSAGE PHASE
-    if(isFlooding) {
-        const antiFloodMessage = await ctx.reply(msgFloodingError, { reply_to_message_id: messageToReplyTo });
-
-        setTimeout(async () => {
-            await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);
-        }, 8000);
-    }
-        
 });
+
 
 
 SubscriberComposer.on("message", checkIfGroup, async ctx => {
@@ -301,6 +234,8 @@ SubscriberComposer.on("message", checkIfGroup, async ctx => {
         }
     }
 });
+
+
 
 
 export default SubscriberComposer;

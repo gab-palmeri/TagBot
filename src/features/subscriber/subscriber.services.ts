@@ -1,7 +1,7 @@
-import SubscriberRepository from '@repository/SubscriberRepository';
-import { GroupDTO } from '@dto/GroupDTO';
-import { SubscriberDTO } from '@dto/SubscriberDTO';
-import { TagDTO } from '@dto/TagDTO';
+import SubscriberRepository from 'features/subscriber/subscriber.repository';
+import { GroupDTO } from '../group/group.dto';
+import { SubscriberDTO } from 'features/subscriber/subscriber.dto';
+import { TagDTO } from '../tag/tag.dto';
 
 export default class SubscriberServices {
    

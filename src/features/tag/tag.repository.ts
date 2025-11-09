@@ -4,60 +4,59 @@ import { TagDTO } from "./tag.dto";
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { SubscriberDTO } from "features/subscriber/subscriber.dto";
+import { ITagRepository } from "./tag.interfaces";
+import { err, ok } from "shared/result";
 
 dayjs.extend(utc);
 
-export default class TagRepository {
+export default class TagRepository implements ITagRepository {
 
-    static async createTag(groupId: string, tagName: string, userId: string): Promise<string | true> {
+    //TODO: controllo se il gruppo esiste farlo a monte
+    public async createTag(groupId: string, tagName: string, userId: string) {
         try {
             const group = await Group.findOne({where: {groupId: groupId}});
-
-            if (!group) {
-                return "Group not found. Re-add the bot to the group.";
-            }
     
             let tag = new Tag();
             tag.name = tagName.toLowerCase();
             tag.creatorId = userId;
             tag.group = group;
             tag = await tag.save();    
-            return true;
+            return ok(null);
         }
-        catch(error) {
-            const response =
-                error.code == 'ER_DUP_ENTRY'
-                    ? "This tag already exists"
-                    : "Internal error. Please try again later.";
-            return response;
+        catch(e) {
+            if(e.code == 'ER_DUP_ENTRY') {
+                return err("ALREADY_EXISTS");
+            }
+            else {
+                return err("DB_ERROR");
+            }
         }
     }
     
-    static async deleteTag(groupId: string, tagName: string): Promise<string | true> {
+    public async deleteTag(groupId: string, tagName: string) {
         try {
-
-            const noHashtagTagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
             const tag = await Tag.findOne({
                 where: {
-                    name: noHashtagTagName, 
+                    name: tagName, 
                     group: {groupId: groupId}
                 }
             });
     
             if(!tag) {
-                return "This tag doesn't exist";
+                return err("NOT_FOUND");
             }
     
             await tag.remove();
-            return true;
+            return ok(null);
         }
-        catch(error) {
-            console.log(error);
-            return "An error occurred";
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
         }
     }
     
-    static async renameTag(groupId: string, oldTagName: string, newTagName: string) {
+    public async renameTag(groupId: string, oldTagName: string, newTagName: string) {
         try {
 
 
@@ -69,23 +68,24 @@ export default class TagRepository {
             });
     
             if(!tag) {
-                return "This tag doesn't exist";
+                return err("NOT_FOUND");
             }
     
             tag.name = newTagName;
             await tag.save();
             
-            return true;
+            return ok(null);
         }
-        catch(error) {
-            if(error.code == "ER_DUP_ENTRY")
-                return "A tag with this name already exists";
-
-            return 'An error occurred';
+        catch(e) {
+            if(e.code == "ER_DUP_ENTRY")
+                return err("ALREADY_EXISTS");
+            else {
+                return err("DB_ERROR");
+            }
         }
     }
 
-    static async updateLastTagged(groupId: string, tagName: string) {
+    public async updateLastTagged(groupId: string, tagName: string) {
         try {
             const tag = await Tag.findOne({ 
                 relations: ["group"], 
@@ -96,21 +96,21 @@ export default class TagRepository {
             });
             
             if (!tag) {
-                return "Tag not found";
+                return err("NOT_FOUND");
             }
 
             tag.lastTagged = dayjs.utc().format();
             await tag.save();
 
-            return true;
+            return ok(null);
         }
-        catch(error) {
-            console.log(error);
-            return 'An error occurred';
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
         }
     }
 
-    static async getTag(groupId: string, tagName: string) {
+    public async getTag(groupId: string, tagName: string) {
         try {
 
             const tag = await Tag.findOne({
@@ -122,7 +122,7 @@ export default class TagRepository {
             });
     
             if(!tag) {
-                return "This tag doesn't exist";
+                return err("NOT_FOUND");
             }
             
             const foundTagDTO = new TagDTO(
@@ -131,15 +131,15 @@ export default class TagRepository {
                 tag.lastTagged
             );
             
-            return foundTagDTO;
+            return ok(foundTagDTO);
         }
         catch(e) {
             console.log(e);
-            return "Service not available";
+            return err("DB_ERROR");
         }
     }
 
-    static async getSubscribersByTag(tagName: string, groupId: string) {
+    public async getSubscribersByTag(tagName: string, groupId: string) {
         try {
             const tag = await Tag.findOne({
                 relations: ["group", "subscribersTags", "subscribersTags.subscriber"], 
@@ -150,31 +150,31 @@ export default class TagRepository {
             });
     
             if(!tag) {
-                return "This tag doesn't exist";
+                return err("NOT_FOUND");
             }
     
             if(tag.subscribersTags.length == 0) {
-                return "No one is subscribed to this tag";
+                return err("NO_CONTENT");
             }
     
-            const payload = tag.subscribersTags
+            const subscribers = tag.subscribersTags
                 .filter(st => st.isActive)
                 .map(st => { 
-                    return {
-                        userId: st.subscriber.userId,
-                        username: st.subscriber.username
-                    };
+                    return new SubscriberDTO(
+                        st.subscriber.userId,
+                        st.subscriber.username
+                    );
                 });
 
-            return payload;
+            return ok(subscribers);
         }
         catch(e) {
             console.log(e);
-            return "Service not available";
+            return err("DB_ERROR");
         }
     }
 
-    static async getTagsByGroup(groupId: string) {
+    public async getTagsByGroup(groupId: string) {
         try {
             const group = await Group.findOne({
                 where: {groupId: groupId}, 
@@ -182,7 +182,7 @@ export default class TagRepository {
             });
             
             if(!group || group.tags.length == 0) {
-                return "No tags found";
+                return err("NOT_FOUND");
             }
             
             const tagsDto = group.tags.map(tag => new TagDTO(
@@ -192,11 +192,11 @@ export default class TagRepository {
                 tag.subscribersTags.length,
             ));
             
-            return tagsDto;
+            return ok(tagsDto);
         }
         catch(e) {
             console.log(e);
-            return "Service not available";
+            return err("DB_ERROR");
         }
     }
 }

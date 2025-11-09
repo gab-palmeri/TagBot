@@ -1,4 +1,4 @@
-import { Composer } from "grammy";
+import { Composer, InlineKeyboard } from "grammy";
 import {MyContext} from "@utils/customTypes";
 import { checkIfGroup, canCreate, canUpdate } from "shared/middlewares";
 
@@ -6,7 +6,12 @@ import TagServices from "./tag.services";
 import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgTagSyntaxError, msgCreateTag, msgDeleteTag, msgRenameTag } from "@messages/tagMessages";
 import { isUserFlooding, tagPrivately, tagPublicly } from "shared/helperFunctions";
 
+import { msgListTags, msgTagsErrors, msgFloodingError } from "@messages/subscriberMessages";
+import TagRepository from "./tag.repository";
+
+
 const TagComposer = new Composer<MyContext>();
+const tagService = new TagServices(new TagRepository());
 
 TagComposer.command("create", checkIfGroup, canCreate, async ctx => {
     
@@ -21,9 +26,9 @@ TagComposer.command("create", checkIfGroup, canCreate, async ctx => {
         return await ctx.reply(msgCreateSyntaxError);
     
         
-    const result = await TagServices.createTag(groupId, tagName, userId);
+    const result = await tagService.createTag(groupId, tagName, userId);
 
-    if(result === true) {
+    if(result.ok === true) {
         return await ctx.reply(msgCreateTag(tagName, issuerUsername));
     }
     else {
@@ -40,13 +45,18 @@ TagComposer.command("delete", checkIfGroup, canUpdate, async ctx => {
     if (tagName.length == 0)
         return await ctx.reply(msgDeleteSyntaxError);
 
-    const result = await TagServices.deleteTag(groupId, tagName);
+    const result = await tagService.deleteTag(groupId, tagName);
 
-    if(result === true) {
+    if(result.ok === true) {
         return await ctx.reply(msgDeleteTag(tagName, issuerUsername));
     }
     else {
-        return await ctx.reply(`⚠️ ${result} (@${issuerUsername})`);
+        switch(result.error) {
+            case "NOT_FOUND":
+                return await ctx.reply(`⚠️ Tag <b>#${tagName}</b> not found (@${issuerUsername})`, {parse_mode: "HTML"});
+            case "INTERNAL_ERROR":
+                return await ctx.reply(`⚠️ An internal error occurred while deleting the tag (@${issuerUsername})`, {parse_mode: "HTML"});
+        }
     }
         
 });
@@ -66,13 +76,13 @@ TagComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
         return await ctx.reply(msgTagSyntaxError(issuerUsername));
 
 
-    const result = await TagServices.renameTag(groupId, oldTagName, newTagName);
+    const result = await tagService.renameTag(groupId, oldTagName, newTagName);
         
-    if(result === true) {
+    if(result.ok === true) {
         const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,issuerUsername) , {parse_mode: "HTML"});
         
         //NOTIFY SUBSCRIBERS OF THE TAG RENAMING
-        const result = await TagServices.getTagSubscribers(newTagName, groupId);
+        const result = await tagService.getTagSubscribers(newTagName, groupId);
 
         if(result instanceof Array) {
             //Remove the current user from the subscribers list
@@ -87,9 +97,41 @@ TagComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
         }
     }
     else {
-        return await ctx.reply(`⚠️ ${result} (@${issuerUsername})`, {parse_mode: "HTML"});
+        switch(result.error) {
+            case "NOT_FOUND":
+                return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${issuerUsername})`, {parse_mode: "HTML"});
+            case "ALREADY_EXISTS":
+                return await ctx.reply(`⚠️ Tag <b>#${newTagName}</b> already exists (@${issuerUsername})`, {parse_mode: "HTML"});
+            case "INTERNAL_ERROR":
+                return await ctx.reply(`⚠️ An internal error occurred while renaming the tag (@${issuerUsername})`, {parse_mode: "HTML"});
+        }
     }
 });
+
+TagComposer.command("list", checkIfGroup, async ctx => {
+
+    const groupId = ctx.update.message.chat.id.toString();
+    const tagsByGroupResponse = await tagService.getTagsByGroup(groupId);
+
+    if(tagsByGroupResponse.ok === true) {
+        const mostActiveTags = tagsByGroupResponse.value.mainTags;
+        const nextTags = tagsByGroupResponse.value.secondaryTags;
+        
+        // Create the message to send
+        const message = msgListTags(mostActiveTags, nextTags);
+        const inlineKeyboard = new InlineKeyboard().text("See all tags", `show-all-tags`);
+        await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
+    }
+    else {
+        switch(tagsByGroupResponse.error) {
+            case "NOT_FOUND":
+                return await ctx.reply("⚠️ No tags found in this group.");
+            case "INTERNAL_ERROR":
+                return await ctx.reply("⚠️ An internal error occurred while retrieving the tags.");
+        }
+    }
+});
+
 
 TagComposer.on("::hashtag", checkIfGroup, async ctx => {
 
@@ -99,9 +141,7 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
     //get ALL tag names mentioned 
     const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
 
-    //print a message that says "{username} tagged this tag: {tagname}"
-    //add also the date in this format: "dd/mm/yyyy hh:mm:ss"
-    console.log(ctx.from.username + "used this tag(s): " + tagNames + " at " + new Date().toLocaleString("it-IT"));
+    console.log(tagNames);
 
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id.toString();
@@ -117,13 +157,15 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
         
+        console.log(tagName.substring(1));
+        const tagSubResult = await tagService.getTagSubscribers(tagName.substring(1), groupId);
 
-        const result = await TagServices.getTagSubscribers(tagName.substring(1), groupId);
+        console.log(tagSubResult);
 
-        if(result instanceof Array) {
+        if(tagSubResult.ok === true) {
 
             //Remove the current user from the subscribers list
-            const subscribersWithoutMe = result.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
+            const subscribersWithoutMe = tagSubResult.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
 
             if(subscribersWithoutMe.length > 0) {
 
@@ -135,23 +177,32 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
                     break;
                 }
 
-                await TagServices.updateLastTagged(tagName.substring(1), groupId);
+                await tagService.updateLastTagged(tagName.substring(1), groupId);
 
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(result.length > 10) 
+                if(subscribersWithoutMe.length > 10) 
                     await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
                 else 
-                    await tagPublicly(ctx, groupId, result, messageToReplyTo); 
+                    await tagPublicly(ctx, groupId, subscribersWithoutMe, messageToReplyTo); 
             
             }
             else {
                 onlyOneInTags.push(tagName);
             } 
         }
-        else if(result..message === "This tag doesn't exist")
-            nonExistentTags.push(tagName);
-        else if(result.error.message === "No one is subscribed to this tag")
-            emptyTags.push(tagName);
+        else {
+            switch(tagSubResult.error) {
+                case "NOT_FOUND":
+                    nonExistentTags.push(tagName);
+                    break;
+                case "NO_CONTENT":
+                    emptyTags.push(tagName);
+                    break;
+                case "INTERNAL_ERROR":
+                    console.log(`An internal error occurred while retrieving subscribers for tag ${tagName} in group ${groupId}`);
+                    break;
+            }
+        }
     }
 
 

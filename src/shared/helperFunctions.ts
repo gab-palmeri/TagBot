@@ -1,37 +1,15 @@
-import { InlineKeyboard } from "grammy";
 import { MyContext, LastUsedTags } from "@utils/customTypes";
-import SubscriberServices from "features/subscriber/subscriber.services";
-import UserServices from "@service/UserServices";
 
-import { msgJoinPublic, msgJoinStartBot, msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "@messages/subscriberMessages";
+
+import { msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "@messages/subscriberMessages";
 import { Subscriber } from "@db/entity/Subscriber";
-
-export async function join(botId: string, userId: string, groupId: string, username: string, tagName: string) {
-    if (await UserServices.userExists(userId)) {
-        const result = await SubscriberServices.joinTag(groupId, tagName, userId);
-
-        if (result.isSuccess()) {
-            const [msg, inlineKeyboardText] = msgJoinPublic(tagName, username);
-            const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, `join-tag_${tagName}`);
-
-            return { msg, inlineKeyboard };
-        } else {
-            const message = "⚠️ " + result.error.message + ', @' + username;
-            return { msg: message, inlineKeyboard: null };
-        }
-    } else {
-        const [msg, inlineKeyboardText] = msgJoinStartBot(tagName, username);
-        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardText, `https://t.me/${botId}?start=` + groupId + "_" + tagName);
-        return { msg, inlineKeyboard };
-    }
-}
-
+import { SubscriberDTO } from "features/subscriber/subscriber.dto";
 
 
 //This function tags the users directly in the group
-export async function tagPublicly(ctx: MyContext, groupId: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
+export async function tagPublicly(ctx: MyContext, groupId: string, subscribers: SubscriberDTO[], messageToReplyTo: number) {
 
-    const mentions = await Promise.all(subscribers.map(async (subscriber: {[key: string]: string}) => {
+    const mentions = await Promise.all(subscribers.map(async (subscriber) => {
 
         let username: string = subscriber.username;
 
@@ -53,7 +31,7 @@ export async function tagPublicly(ctx: MyContext, groupId: string, subscribers: 
 }
 
 //This function sends a private message to each user subscribed to the tag
-export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: Array<{[key: string]: string}>, messageToReplyTo: number) {
+export async function tagPrivately(ctx: MyContext, tagName: string, subscribers: SubscriberDTO[], messageToReplyTo: number) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
     const notContacted = [];
 
@@ -63,7 +41,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, subscribers:
     for(const subscriber of subscribers) {
         try {
             await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "HTML" });
-        } catch(error) {
+        } catch(e) {
 
             //TODO: Introduce a local storage of the user's first name, also.
             notContacted.push((await ctx.getChatMember(parseInt(subscriber.userId))).user.first_name);

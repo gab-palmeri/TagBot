@@ -1,55 +1,54 @@
-import GroupRepository from "./group.repository";
+import { IGroupRepository, IGroupService } from "./group.interfaces";
+import { err, ok } from "shared/result";
 
-import { AdminDTO } from "../admin/admin.dto";
-import { RepoResponseStatus, ServiceResponseStatus } from "../../shared/enums";
+export default class GroupServices implements IGroupService {
 
-export default class GroupServices {
-    static async createGroup(groupName: string, groupId: string, adminList: number[]): Promise<ServiceResponseStatus> {
+    constructor(private readonly groupRepository: IGroupRepository) {}
+
+    public async createGroup(groupName: string, groupId: string, adminIDs: string[]) {
 
         try {
+            const response = await this.groupRepository.createGroup(groupId, groupName, adminIDs);
 
-            const adminsDTOS = adminList.map((userId) => {
-                const admin = new AdminDTO(userId.toString());
-                return admin;
-            });
-
-            //Create group with admins
-            const response = await GroupRepository.createGroup(groupId, groupName, adminsDTOS);
-
-            switch(response) {
-                case RepoResponseStatus.SUCCESS:
-                    return ServiceResponseStatus.OK;
-                case RepoResponseStatus.ALREADY_EXISTS:
-                    return ServiceResponseStatus.ALREADY_EXISTS;
-                case RepoResponseStatus.ERROR:
-                    return ServiceResponseStatus.ERROR;
+            if(response.ok === true) {
+                return ok(null);
+            }
+            else {
+                switch(response.error) {
+                    case "ALREADY_EXISTS":
+                        return err("ALREADY_EXISTS");
+                    case "DB_ERROR":
+                        return err("INTERNAL_ERROR");
+                }
             }
 
         }
-        catch(error) {
-            return ServiceResponseStatus.ERROR;
+        catch(e) {
+            return err("INTERNAL_ERROR");
         }
     }
 
-    static async handleBotChange(oldStatus: string, newStatus: string): Promise<ServiceResponseStatus> {
+    public async handleBotChange(oldStatus: string, newStatus: string) {
         
         const isOldLeftOrKicked = oldStatus === "left" || oldStatus === "kicked";
         const isNewMemberOrAdmin = newStatus === "member" || newStatus === "administrator";
 
         //Bot added to the group or supergroup
         if(isOldLeftOrKicked && isNewMemberOrAdmin) {
-            return ServiceResponseStatus.BOT_ADDED;
+            return ok("BOT_ADDED" as const);
         }
 
         //Bot promoted to admin or kicked
         if(oldStatus === "member" && newStatus === "administrator")
-            return ServiceResponseStatus.BOT_PROMOTED;
+            return ok("BOT_PROMOTED" as const);
         else if(newStatus === "kicked" || newStatus === "left") {
-            return ServiceResponseStatus.BOT_KICKED;
+            return ok("BOT_KICKED" as const);
         }
+
+        return err("UNKNOWN_EVENT");
     }
 
-    static async handleMemberChange(oldStatus: string, newStatus: string): Promise<ServiceResponseStatus> {
+    public async handleMemberChange(oldStatus: string, newStatus: string) {
         
         const isOldMember = oldStatus === "member";
         const isOldAdmin = oldStatus === "administrator";
@@ -59,117 +58,124 @@ export default class GroupServices {
         //TODO: handle exceptions
         //Add admin
         if(isOldMember && isNewAdmin)
-            return ServiceResponseStatus.ADD_ADMIN;
+            return ok("ADD_ADMIN" as const);
         
         //Remove admin
         if(isOldAdmin && isNewMemberOrLeftOrKicked)
-            return ServiceResponseStatus.REMOVE_ADMIN;
+            return ok("REMOVE_ADMIN" as const);
 
-        return ServiceResponseStatus.OK;
+        return ok("NO_EVENT" as const);
     }
     
-    static async migrateGroup(oldGroupId: string, newGroupId: string) {
+    public async migrateGroup(oldGroupId: string, newGroupId: string) {
 
-        const result = await GroupRepository.migrateGroup(oldGroupId, newGroupId);
-        switch(result) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
+        const result = await this.groupRepository.migrateGroup(oldGroupId, newGroupId);
+
+        if(result.ok === true) {
+            return ok(null);
         }
+        else {
+            switch(result.error) {
+                case "NOT_FOUND":
+                    return err("NOT_FOUND");
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
+        } 
     }
 
-    static async toggleGroupActive(groupId: string): Promise<ServiceResponseStatus> {
+    public async toggleGroupActive(groupId: string) {
         
-        const response = await GroupRepository.toggleGroupActive(groupId);
-        switch(response) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
+        const response = await this.groupRepository.toggleGroupActive(groupId);
+
+        if(response.ok === true) {
+            return ok(null);
+        }
+        else {
+            switch(response.error) {
+                case "NOT_FOUND":
+                    return err("NOT_FOUND");
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
         }
     }
 
     
-    static async createAdminList(groupId: string, adminList: number[]): Promise<ServiceResponseStatus> {
-
-        const adminsDTOS = adminList.map((userId) => {
-            const admin = new AdminDTO(userId.toString());
-            return admin;
-        });
+    public async createAdminList(groupId: string, adminIDs: string[]) {
         
-        const response = await GroupRepository.createAdminList(groupId, adminsDTOS);
-        switch(response) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
+        const response = await this.groupRepository.createAdminList(groupId, adminIDs);
+
+        if(response.ok === true) {
+            return ok(null);
+        }
+        else {
+            switch(response.error) {
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
         }
         
     }
 
-    static async deleteAdminList(groupId: string): Promise<ServiceResponseStatus> {
+    public async deleteAdminList(groupId: string) {
         
-        const response = await GroupRepository.deleteAdminList(groupId);
-        switch(response) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
+        const response = await this.groupRepository.deleteAdminList(groupId);
+
+        if(response.ok === true) {
+            return ok(null);
+        }
+        else {
+            switch(response.error) {
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
         }
     }
 
-    static async reloadAdminList(groupId: string, adminList: number[]): Promise<ServiceResponseStatus> {
-        const adminsDTOS = adminList.map((userId) => {
-            const admin = new AdminDTO(userId.toString());
-            return admin;
-        });
+    //TODO: aggiungere controllo se il gruppo esiste, così come in createAdminList e deleteAdminList
+    public async reloadAdminList(groupId: string, adminIDs: string[]) {
         
-        const response = await GroupRepository.reloadAdminList(groupId, adminsDTOS);
-        switch(response) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
-        }
-    }
-    
-    static async addAdmin(groupId: string, userId: number): Promise<ServiceResponseStatus> {
+        const response = await this.groupRepository.reloadAdminList(groupId, adminIDs);
 
-        const adminDTO = new AdminDTO(userId.toString());
-        
-        const response = await GroupRepository.addAdmin(groupId, adminDTO);
-        switch(response) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
+        if(response.ok === true) {
+            return ok(null);
+        }
+        else {
+            switch(response.error) {
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
         }
     }
     
-    static async removeAdmin(groupId: string, userId: number): Promise<ServiceResponseStatus> {
-        const adminDTO = new AdminDTO(userId.toString());
+    public async addAdmin(groupId: string, userID: string) {
+
+        const response = await this.groupRepository.addAdmin(groupId, userID);
+
+        if(response.ok === true) {
+            return ok(null);
+        }
+        else {
+            switch(response.error) {
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
+        }
+    }
+    
+    public async removeAdmin(groupId: string, userId: string) {
         
-        const response = await GroupRepository.removeAdmin(groupId, adminDTO);
-        switch(response) {
-            case RepoResponseStatus.SUCCESS:
-                return ServiceResponseStatus.OK;
-            case RepoResponseStatus.NOT_FOUND:
-                return ServiceResponseStatus.NOT_FOUND;
-            case RepoResponseStatus.ERROR:
-                return ServiceResponseStatus.ERROR;
+        const response = await this.groupRepository.removeAdmin(groupId, userId);
+
+        if(response.ok === true) {
+            return ok(null);
+        }
+        else {
+            switch(response.error) {
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
         }
     }
 }

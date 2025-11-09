@@ -1,37 +1,34 @@
 import { Tag } from '@db/entity/Tag';
 import { Subscriber } from '@db/entity/Subscriber';
 import { SubscriberTag } from '@db/entity/SubscriberTag';
-import { Result } from '@utils/Result';
 import { SubscriberDTO } from 'features/subscriber/subscriber.dto';
-import { GroupDTO } from '../group/group.dto';
 import { TagDTO } from '../tag/tag.dto';
+import { ISubscriberRepository } from './subscriber.interfaces';
+import { err, ok } from 'shared/result';
 
-export default class SubscriberRepository {
+export default class SubscriberRepository implements ISubscriberRepository {
    
-    static async joinTag(groupDTO: GroupDTO, tagDTO: TagDTO, subscriberDTO: SubscriberDTO) {
+    //TODO: rimosso il controllo se il tag esiste, bisogna metterlo altrove a monte
+    public async joinTag(groupId: string, tagName: string, userId: string, username: string) {
         
         const tag = await Tag.findOne({
             where: {
-                name: tagDTO.name, 
-                group: {groupId: groupDTO.groupId}
+                name: tagName, 
+                group: {groupId: groupId}
             }, 
             relations: ["group", "subscribersTags"]
         });
-
-        if(!tag) {
-            return Result.failure(new Error("This tag doesn't exist"));
-        }
             
         try {
             let subscriber = await Subscriber.findOne({
-                where: { userId: subscriberDTO.userId.toString() },
+                where: { userId: userId },
                 relations: ["subscribersTags", "subscribersTags.tag"]
             });
     
             if(!subscriber) {
                 subscriber = new Subscriber();
-                subscriber.userId = subscriberDTO.userId.toString();
-                subscriber.username = subscriberDTO.username;
+                subscriber.userId = userId;
+                subscriber.username = username;
 
                 const subscribersTags = new SubscriberTag();
                 subscribersTags.subscriber = subscriber;
@@ -42,7 +39,7 @@ export default class SubscriberRepository {
             }
             else {
                 if(subscriber.subscribersTags.find(n => n.tag.id == tag.id))
-                    return Result.failure(new Error("Already subscribed to this tag"));
+                    return err("ALREADY_EXISTS");
     
                 const subscribersTags = new SubscriberTag();
                 subscribersTags.subscriber = subscriber;
@@ -52,168 +49,163 @@ export default class SubscriberRepository {
                 await subscriber.save();
             }
     
-            return Result.success();
+            return ok(null);
         }
-        catch(err) {
+        catch(e) {
             console.log(err);
-            return Result.failure(new Error("Subscription failed"));
+            return err("DB_ERROR");
         }
     }
     
-    static async leaveTag(groupDTO: GroupDTO, tagDTO: TagDTO, subscriberDTO: SubscriberDTO) {
+    public async leaveTag(groupId: string, tagName: string, userId: string) {
         
         const tag = await Tag.findOne({
             where: {
-                name: tagDTO.name, 
-                group: {groupId: groupDTO.groupId}
+                name: tagName, 
+                group: {groupId: groupId}
             }, 
             relations: ["group", "subscribersTags"]
         });
 
         if(!tag) {
-            return Result.failure(new Error("This tag doesn't exist"));
+            return err("NOT_FOUND");
         }
     
         try {
             const subscriber = await Subscriber.findOne({
                 relations: ["subscribersTags", "subscribersTags.tag"], 
-                where: { userId: subscriberDTO.userId.toString() }
+                where: { userId: userId }
             });
     
             if(!subscriber?.subscribersTags.find(n => n.tag.id == tag.id)) {
-                return Result.failure(new Error("Not subscribed to this tag"));
+                return err("NOT_FOUND");
             }
 
             await subscriber.subscribersTags.find(n => n.tag.id == tag.id).remove();
             subscriber.subscribersTags = subscriber.subscribersTags.filter(n => n.tag.id != tag.id);
             await subscriber.save();
     
-            return Result.success();
+            return ok(null);
         }
-        catch(err) {
+        catch(e) {
             console.log(err);
-            return Result.failure(new Error("Unsubscription failed"));
+            return err("DB_ERROR");
         }
     }
     
-    static async getSubscriberTags(subscriberDTO: SubscriberDTO, groupDTO: GroupDTO) {
+    public async getSubscriberTags(userId: string, groupId: string) {
         try {
             const tags = await Tag.find({
                 relations: ["group", "subscribersTags", "subscribersTags.subscriber"], 
                 where: {
-                    group: { groupId: groupDTO.groupId },
-                    subscribersTags: { subscriber: { userId: subscriberDTO.userId.toString() } }
+                    group: { groupId: groupId },
+                    subscribersTags: { subscriber: { userId: userId } }
                 }
             });
-    
-            if(!tags || tags.length == 0) {
-                return Result.failure(new Error("No subscribed tags found"));
-            } 
             
-            return Result.success(tags.map(tag => new TagDTO(
+            const tagsDTOS = tags.map(tag => new TagDTO(
                 tag.name,
                 tag.creatorId,
                 tag.lastTagged
-            )));
+            ));
+
+            return ok(tagsDTOS);
         }
         catch(e) {
             console.log(e);
-            return Result.failure(new Error("Failed to get tags"));
+            return err("DB_ERROR");
         }
     }
     
-    static async getSubscriber(subscriberDTO: SubscriberDTO) {
+    public async getSubscriber(userId: string) {
         try {
             const subscriber = await Subscriber.findOne({
-                where: { userId: subscriberDTO.userId.toString() }
+                where: { userId: userId }
             });
     
             if(!subscriber) {
-                return Result.failure(new Error("Subscriber not found"));
+                return err("NOT_FOUND");
             }
             
-            return Result.success(new SubscriberDTO(
+            const subscriberDTO = new SubscriberDTO(
                 subscriber.userId,
                 subscriber.username
-            ));
+            );
+
+            return ok(subscriberDTO);
         }
         catch(e) {
             console.log(e);
-            return Result.failure(new Error("Failed to get subscriber"));
+            return err("DB_ERROR");
         }
     }
 
-    static async updateSubscriberUsername(subscriberDTO: SubscriberDTO) {
+    //TODO: rimosso il controllo se il subscriber esiste, inserirlo a monte
+    public async updateSubscriberUsername(userId: string, username: string) {
         try {
             const subscriber = await Subscriber.findOne({
-                where: { userId: subscriberDTO.userId.toString() }
+                where: { userId: userId }
             });
-    
-            if(!subscriber) {
-                return Result.failure(new Error("Subscriber not found"));
-            }
             
-            subscriber.username = subscriberDTO.username;
+            subscriber.username = username;
             await subscriber.save();
             
-            return Result.success(new SubscriberDTO(
+            const subscriberDTO = new SubscriberDTO(
                 subscriber.userId,
                 subscriber.username
-            ));
+            );
+
+            return ok(subscriberDTO);
         }
         catch(e) {
             console.log(e);
-            return Result.failure(new Error("Failed to update username"));
+            return err("DB_ERROR");
         }
     }
 
-    static async setInactive(groupDTO: GroupDTO, subscriberDTO: SubscriberDTO) {
+    public async setInactive(groupId: string, userId: string) {
         try {
             const subscriberTags = await SubscriberTag.find({
                 relations: ["subscriber", "tag"], 
                 where: {
-                    subscriber: { userId: subscriberDTO.userId.toString() },
-                    tag: { group: { groupId: groupDTO.groupId } }
+                    subscriber: { userId: userId },
+                    tag: { group: { groupId: groupId } }
                 }
             });
 
-            if(subscriberTags?.length > 0) {
-                await Promise.all(subscriberTags.map(st => {
-                    st.isActive = false;
-                    return st.save();
-                }));
-            }
+            await Promise.all(subscriberTags.map(st => {
+                st.isActive = false;
+                return st.save();
+            }));
 
-            return Result.success();
+            return ok(null);
         }
         catch(e) {
             console.log(e);
-            return Result.failure(new Error("Failed to deactivate subscriptions"));
+            return err("DB_ERROR");
         }
     }
 
-    static async setActive(groupDTO: GroupDTO, subscriberDTO: SubscriberDTO) {
+    public async setActive(groupId: string, userId: string) {
         try {
             const subscriberTags = await SubscriberTag.find({
                 relations: ["subscriber", "tag"], 
                 where: {
-                    subscriber: { userId: subscriberDTO.userId.toString() },
-                    tag: { group: { groupId: groupDTO.groupId } }
+                    subscriber: { userId: userId },
+                    tag: { group: { groupId: groupId } }
                 }
             });
 
-            if(subscriberTags?.length > 0) {
-                await Promise.all(subscriberTags.map(st => {
-                    st.isActive = true;
-                    return st.save();
-                }));
-            }
+            await Promise.all(subscriberTags.map(st => {
+                st.isActive = true;
+                return st.save();
+            }));
 
-            return Result.success();
+            return ok(null);
         }
         catch(e) {
             console.log(e);
-            return Result.failure(new Error("Failed to activate subscriptions"));
+            return err("DB_ERROR");
         }
     }
 }

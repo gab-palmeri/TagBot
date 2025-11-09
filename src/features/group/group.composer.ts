@@ -3,14 +3,14 @@ import { checkIfAdmin, checkIfGroup } from "shared/middlewares";
 import GroupServices from "./group.services";
 
 import { startMessage, helpMessage, restartSuccessMessage, restartErrorMessage, botRejoinedMessage, botJoinErrorMessage, botPromotedMessage, migrateSuccessMessage, migrateErrorMessage } from "@messages/generalMessages";
-import { ServiceResponseStatus } from "../../shared/enums";
+import GroupRepository from "./group.repository";
 
 const GroupComposer = new Composer();
+const groupService = new GroupServices(new GroupRepository());
 
 
 /**************************** */
-GroupComposer.command("start", checkIfGroup, async ctx => {
-
+GroupComposer.command("start", async ctx => {
     await ctx.reply(
         startMessage,
         { 
@@ -29,20 +29,20 @@ GroupComposer.command("help", async ctx => {
 GroupComposer.command("restart", checkIfGroup, checkIfAdmin, async ctx => {
 
     const groupId = ctx.chat.id.toString();
-    //reload the admin list of the group
+    
+    //Get the admins list from Telegram API and convert them to strings
     const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
-    const result = await GroupServices.reloadAdminList(groupId, adminList.map(admin => admin.user.id));
+    const adminIDs = adminList.map(admin => admin.user.id.toString());
+    const result = await groupService.reloadAdminList(groupId, adminIDs);
 
-    switch(result) {
-        case ServiceResponseStatus.OK:
-            await ctx.reply(restartSuccessMessage);
-            break;
-        case ServiceResponseStatus.NOT_FOUND:
-            await ctx.reply(restartErrorMessage);
-            break;
-        case ServiceResponseStatus.ERROR:
-            await ctx.reply(restartErrorMessage);
-            break;
+    if(result.ok === true) {
+        return await ctx.reply(restartSuccessMessage);
+    }
+    else {
+        switch(result.error) {
+            case "INTERNAL_ERROR":
+                return await ctx.reply(restartErrorMessage);
+        }
     }
 });
 
@@ -55,35 +55,42 @@ GroupComposer.on("my_chat_member", checkIfGroup, async ctx => {
     const groupId = ctx.chat.id.toString();
     const groupName = ctx.chat.title;
 
-    const adminList = (await ctx.api.getChatAdministrators(ctx.chat.id)).map(admin => admin.user.id);
+    const adminList = (await ctx.api.getChatAdministrators(ctx.chat.id));
+    const adminIDs = adminList.map(admin => admin.user.id.toString());
 
-    const response = await GroupServices.handleBotChange(oldStatus, newStatus);
+    const response = await groupService.handleBotChange(oldStatus, newStatus);
     
     //If the bot is added to the group, try to add it to the DB
     //TODO: better name since it's not actually added yet
-    if(response === ServiceResponseStatus.BOT_ADDED) {
-        const result = await GroupServices.createGroup(groupName, groupId, adminList);
+    if(response.ok === true) {
+        if(response.value === "BOT_ADDED") {
+            const result = await groupService.createGroup(groupName, groupId, adminIDs);
 
-        if(result === ServiceResponseStatus.OK){
-            await ctx.reply(startMessage, { parse_mode: "HTML" });
+            if(result.ok === true) {
+                await ctx.reply(startMessage, { parse_mode: "HTML" });
+            }
+            else{
+                switch(result.error) {
+                    case "ALREADY_EXISTS":
+                        console.log("group already exists");
+                        await groupService.createAdminList(groupId, adminIDs);
+                        await groupService.toggleGroupActive(groupId);
+                        await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
+                        break;
+                    case "INTERNAL_ERROR":
+                        await ctx.reply(botJoinErrorMessage);
+                        await ctx.leaveChat();
+                        break;
+                }
+            }
         }
-        else if(result === ServiceResponseStatus.ALREADY_EXISTS){
-            console.log("group already exists");
-            await GroupServices.createAdminList(groupId, adminList);
-            await GroupServices.toggleGroupActive(groupId);
-            await ctx.reply(botRejoinedMessage, {parse_mode: "HTML"});
+        else if(response.value === "BOT_PROMOTED") {
+            await ctx.reply(botPromotedMessage, {parse_mode: "HTML"});
         }
-        else {
-            await ctx.reply(botJoinErrorMessage);
-            await ctx.leaveChat();
+        else if(response.value === "BOT_KICKED") {
+            await groupService.deleteAdminList(groupId);
+            await groupService.toggleGroupActive(groupId);
         }
-    }
-    else if(response === ServiceResponseStatus.BOT_PROMOTED) {
-        await ctx.reply(botPromotedMessage, {parse_mode: "HTML"});
-    }
-    else if(response === ServiceResponseStatus.BOT_KICKED) {
-        await GroupServices.deleteAdminList(groupId);
-        await GroupServices.toggleGroupActive(groupId);
     }
 });
 
@@ -92,19 +99,20 @@ GroupComposer.on(":migrate_to_chat_id", async ctx => {
     const oldGroupId = ctx.chat.id.toString();
     const newGroupId = ctx.msg.migrate_to_chat_id.toString();
 
-    const response = await GroupServices.migrateGroup(oldGroupId, newGroupId);
+    const response = await groupService.migrateGroup(oldGroupId, newGroupId);
 
-    switch(response) {
-        case ServiceResponseStatus.OK:
-            await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateSuccessMessage);
-            break;
-        case ServiceResponseStatus.NOT_FOUND:
-            await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
-            break;
-        case ServiceResponseStatus.ERROR:
-            await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
-            break;
+    if(response.ok === true) {
+        await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateSuccessMessage);
+        return;
     }
+    else {
+        switch(response.error) {
+            case "NOT_FOUND":
+                return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
+            case "INTERNAL_ERROR":
+                return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
+        }
+    }   
 });
 
 
@@ -117,22 +125,17 @@ GroupComposer.on("chat_member", async ctx => {
     const isBot = !ctx.chatMember.new_chat_member.user.is_bot;
 
     if(!isBot) {
-        const response = await GroupServices.handleMemberChange(oldStatus, newStatus);
-        if(response === ServiceResponseStatus.ADD_ADMIN) {
-            await GroupServices.addAdmin(groupId, ctx.chatMember.new_chat_member.user.id);
-        }
-        else if(response === ServiceResponseStatus.REMOVE_ADMIN) {
-            await GroupServices.removeAdmin(groupId, ctx.chatMember.new_chat_member.user.id);
+        const response = await groupService.handleMemberChange(oldStatus, newStatus);
+
+        if(response.ok === true) {
+            if(response.value === "ADD_ADMIN") {
+                await groupService.addAdmin(groupId, ctx.chatMember.new_chat_member.user.id.toString());
+            }
+            else if(response.value === "REMOVE_ADMIN") {
+                await groupService.removeAdmin(groupId, ctx.chatMember.new_chat_member.user.id.toString());
+            }
         }
     }
-
-    //AGGIUNGERE A SUBSCRIBER 
-    // if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
-    //     await SubscriberServices.setInactive(groupId, ctx.chatMember.old_chat_member.user.id);
-
-    // if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
-    //     await SubscriberServices.setActive(groupId, ctx.chatMember.new_chat_member.user.id);
-
 });
 
 export default GroupComposer;

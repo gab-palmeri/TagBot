@@ -1,61 +1,62 @@
 import { User } from "@db/entity/User";
-import { RepoResponseStatus } from "shared/enums";
+import { IUserRepository } from "./user.interfaces";
+import { ok, err } from "shared/result";
 
-export default class UserRepository {
+export default class UserRepository implements IUserRepository {
     
-    static async saveUser(userId: string): Promise<RepoResponseStatus>{
+    public async saveUser(userId: string) {
         try {
             const user = new User();
             user.userId = userId.toString();
             await user.save();
 
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
         catch(e) {
             console.log(`User with id: ${userId} already exists (expected in normal operation)`);
-            return RepoResponseStatus.ALREADY_EXISTS;
+            return err("ALREADY_EXISTS");
         }
     }
 
-    static async deleteUser(userId: string): Promise<RepoResponseStatus> {
+    public async deleteUser(userId: string)  {
         try {
             await User.delete({ userId: userId.toString() });
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
         catch(e) {
             console.log(`Failed to delete user with id: ${userId}`, e);
-            return RepoResponseStatus.ERROR;
+            return err("DB_ERROR");
         }
     }
 
-    static async userExists(userId: string): Promise<RepoResponseStatus | boolean> {
+    public async userExists(userId: string) {
         try {
             const user = await User.findOne({ 
                 where: { userId: userId.toString() } 
             });
-            return user != null;
+            return ok(user != null);
         }
         catch(e) {
             console.log(`Error checking user existence for id: ${userId}`, e);
-            return RepoResponseStatus.ERROR;
+            return err("DB_ERROR");
         }
     }
 
-    static async getUser(userId: string): Promise<RepoResponseStatus | number> {
+    public async getUserId(userId: string) {
         try {
             const user = await User.findOne({ 
                 where: { userId: userId.toString() } 
             });
             
             if (!user) {
-                return RepoResponseStatus.NOT_FOUND;
+                return err("NOT_FOUND");
             }
 
-            return user.id;
+            return ok(user.id);
         }
         catch(e) {
             console.log(`Error fetching user with id: ${userId}`, e);
-            return RepoResponseStatus.ERROR;
+            return err("DB_ERROR");
         }
     }
 }

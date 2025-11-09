@@ -101,7 +101,7 @@ export default class TagBot {
 					if(commandName.startsWith("/")) {
 						try {
 							await ctx.deleteMessage();
-						} catch (error) {
+						} catch(e) {
 							console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
 						}
 					}
@@ -117,7 +117,7 @@ export default class TagBot {
 						setTimeout(async () => {
 							try {
 								await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
-							} catch(error) {
+							} catch(e) {
 								console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat["title"]} (${ctx.chat.id})`);
 							}
 						}, timeToWait);
@@ -137,7 +137,7 @@ export default class TagBot {
 			onLimitExceeded: async (ctx) => {
 				try {
 					await ctx.deleteMessage();
-				} catch (error) {
+				} catch(e) {
 					let groupInfo: string | number;
 					if(ctx.chat.type !== "private")
 						groupInfo = `${ctx.chat.title} (${ctx.chat.id})`;
@@ -152,7 +152,7 @@ export default class TagBot {
 				setTimeout(async (groupInfo) => {
 					try {
 						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
-					} catch (error) {
+					} catch(e) {
 						console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
 					}
 				}, 3000);

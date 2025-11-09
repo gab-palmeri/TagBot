@@ -1,4 +1,4 @@
-import { TagDTO } from "@dto/TagDTO";
+import { TagDTO } from "features/tag/tag.dto";
 
 //SYNTAX MESSAGES
 export const msgJoinSyntaxError = `⚠️ Syntax: /join tagname`;

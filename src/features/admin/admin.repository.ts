@@ -1,16 +1,45 @@
-import { Group } from '@db/entity/Group';
 import { GroupDTO } from '../group/group.dto';
+import { ok, err } from 'shared/result';
+import { AdminDTO } from './admin.dto';
+import { IAdminRepository } from './admin.interfaces';
+import { Group } from '@db/entity/Group';
 
-export default class AdminRepository {
+export default class AdminRepository implements IAdminRepository {
     
-    static async getGroupsByAdmin(userId: string) {
+    public async getAdminWithGroups(userId: string) {
+        try {
+
+            const groups = await Group.find({
+                relations: ["admins"], 
+                where: { admins: { userId: userId } } 
+            });
+            
+            return ok(new AdminDTO(
+                userId,
+                groups.map(group => new GroupDTO(
+                    group.groupId,
+                    group.groupName,
+                    group.canCreate,
+                    group.canDelete,
+                    group.canRename,
+                    group.isActive
+                ))
+            ));
+        }
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
+        }
+    }
+
+    public async getGroupsByAdmin(userId: string) {
         try {
             const groups = await Group.find({ 
                 relations: ["admins"], 
                 where: { admins: { userId: userId } } 
             });
 
-            return groups.map(group => new GroupDTO(
+            const adminGroups = groups.map(group => new GroupDTO(
                 group.groupId,
                 group.groupName,
                 group.canCreate,
@@ -18,30 +47,22 @@ export default class AdminRepository {
                 group.canRename,
                 group.isActive
             ));
+
+            return ok(adminGroups);
         }
-        catch(error) {
-            console.log(error);
-            return null;
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
         }
     }
     
-    static async editGroupPermissions(groupId: string, userId: string, permissions: Partial<GroupDTO>) {
+    public async editGroupPermissions(groupId: string, userId: string, permissions: Partial<GroupDTO>) {
         try {
             // Select the group from the database
             const group = await Group.findOne({
                 relations: ["admins"], 
                 where: { groupId: groupId }
             });
-
-            if(!group) {
-                return "This group doesn't exist";
-            }
-
-            // Check if the user is an admin of the group
-            const isAdmin = group.admins.find(admin => admin.userId === userId);
-            if(!isAdmin) {
-                return "You are not an admin of this group";
-            }
 
             // Update permissions
             for (const [key, value] of Object.entries(permissions)) {
@@ -62,11 +83,11 @@ export default class AdminRepository {
                 group.isActive
             );
 
-            return updatedGroupDto;
+            return ok(updatedGroupDto);
         }
-        catch(error) {
-            console.log(error);
-            return "An error occurred";
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
         }
     }
 }

@@ -1,18 +1,21 @@
 import { Menu } from "@grammyjs/menu";
 import {MyContext} from "@utils/customTypes";
 
-import AdminServices from "@service/AdminServices";
+import AdminServices from "../../features/admin/admin.services";
 import { controlPanelDescription, errorDescription } from "./descriptions";
+import { GroupDTO } from "features/group/group.dto";
+import AdminRepository from "features/admin/admin.repository";
+
+const adminService = new AdminServices(new AdminRepository());
 
 const createMenu = new Menu<MyContext>("create-menu")
-
 .text(ctx => ctx.session.selectedGroup.canCreate == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
 
     const groupId = ctx.msg.chat.id.toString();
 
     if(ctx.session.selectedGroup.canCreate !== 1) {
-        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canCreate: 1});
-        if(result.isSuccess()) {
+        const result = await adminService.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canCreate: 1});
+        if(result instanceof GroupDTO) {
             ctx.session.selectedGroup.canCreate = 1;
             ctx.menu.update();
         }
@@ -27,8 +30,8 @@ const createMenu = new Menu<MyContext>("create-menu")
     const groupId = ctx.msg.chat.id.toString();
 
     if(ctx.session.selectedGroup.canCreate !== 0) {
-        const result = await AdminServices.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canCreate: 0});
-        if(result.isSuccess()) {
+        const result = await adminService.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canCreate: 0});
+        if(result instanceof GroupDTO) {
             ctx.session.selectedGroup.canCreate = 0;
             ctx.menu.update();
         }

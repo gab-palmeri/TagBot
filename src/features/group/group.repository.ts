@@ -1,166 +1,152 @@
 import { Group } from "@db/entity/Group";
 import { Admin } from "@db/entity/Admin";
-import { AdminDTO } from "../admin/admin.dto";
-import { RepoResponseStatus } from "../../shared/enums";
+import { IGroupRepository } from "./group.interfaces";
+import { err, ok } from "shared/result";
 
-export default class GroupRepository {
-    static async createGroup(groupId: string, groupName: string, adminsDTOS: AdminDTO[]): Promise<RepoResponseStatus> {
+export default class GroupRepository implements IGroupRepository {
+    public async createGroup(groupId: string, groupName: string, adminsIDs: string[]) {
         try {
             let group = new Group();
             group.groupName = groupName;
             group.groupId = groupId;
     
-            group.admins = adminsDTOS.map((adminDTO) => {
+            group.admins = adminsIDs.map((adminID) => {
                 const admin = new Admin();
-                admin.userId = adminDTO.userId;
+                admin.userId = adminID;
                 return admin;
             });
     
             group = await group.save();
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (error) {
-            if(error.code === "ER_DUP_ENTRY") {
-                return RepoResponseStatus.ALREADY_EXISTS;
+        catch(e) {
+            if(e.code === "ER_DUP_ENTRY") {
+                return err("ALREADY_EXISTS");
             }
             else {
-                return RepoResponseStatus.ERROR;
+                return err("DB_ERROR");
             }
         }
     }
     
-    static async migrateGroup(oldGroupId: string, newGroupId: string): Promise<RepoResponseStatus> {
+    public async migrateGroup(oldGroupId: string, newGroupId: string) {
         try {
             const group = await Group.findOne({where: {groupId: oldGroupId}});
             if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
+                return err("NOT_FOUND");
             }
             group.groupId = newGroupId;
             await group.save();
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
+        catch(e) {
             console.log(err);
-            return RepoResponseStatus.ERROR;
+            return err("DB_ERROR");
         }
+
     }
 
-    static async toggleGroupActive(groupId: string): Promise<RepoResponseStatus> {
+    public async toggleGroupActive(groupId: string) {
         try {
             const group = await Group.findOne({where: {groupId: groupId}});
             if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
+                return err("NOT_FOUND");
             }
             group.isActive = !group.isActive;
             await group.save();
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
-            return RepoResponseStatus.ERROR;
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
 
     
-    static async createAdminList(groupId: string, adminsDTOS: AdminDTO[]): Promise<RepoResponseStatus> {
+    public async createAdminList(groupId: string, adminsIDs: string[]) {
         try {
             const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
-            if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
-            }
     
             group.admins = group.admins.concat(
-                adminsDTOS.map((adminDTO) => {
+                adminsIDs.map((adminID) => {
                     const admin = new Admin();
-                    admin.userId = adminDTO.userId;
+                    admin.userId = adminID;
                     return admin;
                 })
             );
     
             await group.save();
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
-            return RepoResponseStatus.ERROR;
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
 
-    static async deleteAdminList(groupId: string): Promise<RepoResponseStatus> {
+    public async deleteAdminList(groupId: string) {
         try {
             const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
-            if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
-            }
             
             await Admin.remove(group.admins);
 
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
-            return RepoResponseStatus.ERROR;
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
 
-    static async reloadAdminList(groupId: string, adminsDTOS: AdminDTO[]): Promise<RepoResponseStatus> {
+    public async reloadAdminList(groupId: string, adminsIDs: string[]) {
         try {
             const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
-            if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
-            }
     
             //add all the new admins
-            const newAdminsDTOS = adminsDTOS.filter((adminDTO) => {
-                return !group.admins.find((admin) => admin.userId == adminDTO.userId);
+            const newAdminsIDs = adminsIDs.filter((adminID) => {
+                return !group.admins.find((admin) => admin.userId == adminID);
             });
     
             group.admins = group.admins.concat(
-                newAdminsDTOS.map((adminDTO) => {
+                newAdminsIDs.map((adminID) => {
                     const admin = new Admin();
-                    admin.userId = adminDTO.userId;
+                    admin.userId = adminID;
                     return admin;
                 })
             );
     
             await group.save();
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
-            return RepoResponseStatus.ERROR;
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
     
-    static async addAdmin(groupId: string, adminDTO: AdminDTO): Promise<RepoResponseStatus> {
+    public async addAdmin(groupId: string, adminID: string) {
         try {
             const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
-            if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
-            }
     
             const admin = new Admin();
-            admin.userId = adminDTO.userId;
+            admin.userId = adminID;
             group.admins.push(admin);
             await group.save();
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
-            return RepoResponseStatus.ERROR;
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
     
-    static async removeAdmin(groupId: string, adminDTO: AdminDTO): Promise<RepoResponseStatus> {
+    public async removeAdmin(groupId: string, adminID: string) {
         try {
             const group = await Group.findOne({ where: { groupId: groupId }, relations: ["admins"] });
-            if (!group) {
-                return RepoResponseStatus.NOT_FOUND;
-            }
     
-            const toDeleteAdmin = group.admins.find((admin) => admin.userId == adminDTO.userId);
+            const toDeleteAdmin = group.admins.find((admin) => admin.userId == adminID);
             if (toDeleteAdmin !== null) {
                 await toDeleteAdmin.remove();
             }
-            return RepoResponseStatus.SUCCESS;
+            return ok(null);
         }
-        catch (err) {
-            return RepoResponseStatus.ERROR;
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
 }

@@ -1,5 +1,6 @@
 // group.repository.interface.ts
 import { Result } from "shared/result";
+import { GroupDTO } from "./group.dto";
 
 export interface IGroupRepository {
   createGroup(
@@ -7,6 +8,10 @@ export interface IGroupRepository {
     groupName: string,
     adminsIDs: string[]
   ): Promise<Result<null, "ALREADY_EXISTS" | "DB_ERROR">>;
+
+  getGroup(
+    groupID: string
+  ): Promise<Result<GroupDTO, "NOT_FOUND" | "DB_ERROR">>;
 
   migrateGroup(
     oldGroupID: string,
@@ -48,6 +53,10 @@ export interface IGroupService {
     groupID: string,
     adminIDs: string[]
   ): Promise<Result<null, "ALREADY_EXISTS" | "INTERNAL_ERROR">>;
+
+  getGroup(
+    groupID: string
+  ): Promise<Result<GroupDTO, "NOT_FOUND" | "INTERNAL_ERROR">>;
 
   handleBotChange(
     oldStatus: string,

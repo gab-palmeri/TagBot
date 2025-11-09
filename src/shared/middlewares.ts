@@ -1,6 +1,10 @@
 import { Context, InlineKeyboard, NextFunction } from "grammy";
-import { Group } from "@db/entity/Group";
-import { Tag } from "@db/entity/Tag";
+
+//TODO: DELETE THESE
+import GroupServices from "features/group/group.services";
+import GroupRepository from "features/group/group.repository";
+import TagServices from "features/tag/tag.services";
+import TagRepository from "features/tag/tag.repository";
 
 export async function checkIfGroup(ctx: Context, next: NextFunction) {
 
@@ -49,7 +53,23 @@ export async function canCreate(ctx: Context, next: NextFunction) {
 
 		//inserire metodo servizio
 
-		const group = await Group.findOne({where: {groupId: groupId}});
+		const groupService = new GroupServices(new GroupRepository());
+
+
+		const groupResult = await groupService.getGroup(groupId);
+
+		if(groupResult.ok === false) {
+			switch(groupResult.error) {
+				case "NOT_FOUND":
+					await ctx.reply("Group not found");
+					return;
+				case "INTERNAL_ERROR":
+					await ctx.reply("Internal error occurred");
+					return;
+			}
+		}
+
+		const group = groupResult.value;
 
 		if(group.canCreate == 1) {
 			await next();
@@ -74,10 +94,35 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 		const tagName = ctx.match.toString();
 		const userId = ctx.msg.from.id.toString();
 
-		const group = await Group.findOne({where: {groupId: groupId}});
-		const tag = await Tag.findOne({relations: ["group"], where: {name: tagName, group: {groupId: groupId}}});
+		const tagService = new TagServices(new TagRepository());
+		const groupService = new GroupServices(new GroupRepository());
 
-		//print the name of the command
+		const groupResult = await groupService.getGroup(groupId);
+		if(groupResult.ok === false) {
+			switch(groupResult.error) {
+				case "NOT_FOUND":
+					await ctx.reply("Group not found");
+					return;
+				case "INTERNAL_ERROR":
+					await ctx.reply("Internal error occurred");
+					return;
+			}
+		}
+
+		const tagResult = await tagService.getTag(tagName, groupId);
+		if(tagResult.ok === false) {
+			switch(tagResult.error) {
+				case "NOT_FOUND":
+					await ctx.reply("Tag not found");
+					return;
+				case "INTERNAL_ERROR":
+					await ctx.reply("Internal error occurred");
+					return;
+			}
+		}
+
+		const group = groupResult.value;
+		const tag = tagResult.value;
 		const commandName = ctx.msg.text.split(/\s+/)[0].substring(1);
 
 		switch(commandName) {

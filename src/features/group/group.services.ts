@@ -28,6 +28,23 @@ export default class GroupServices implements IGroupService {
         }
     }
 
+    public async getGroup(groupID: string) {
+        
+        const response = await this.groupRepository.getGroup(groupID);
+
+        if(response.ok === true) {
+            return ok(response.value);
+        }
+        else {
+            switch(response.error) {
+                case "NOT_FOUND":
+                    return err("NOT_FOUND");
+                case "DB_ERROR":
+                    return err("INTERNAL_ERROR");
+            }
+        }
+    }
+
     public async handleBotChange(oldStatus: string, newStatus: string) {
         
         const isOldLeftOrKicked = oldStatus === "left" || oldStatus === "kicked";

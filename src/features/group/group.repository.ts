@@ -1,7 +1,8 @@
 import { Group } from "@db/entity/Group";
 import { Admin } from "@db/entity/Admin";
 import { IGroupRepository } from "./group.interfaces";
-import { err, ok } from "shared/result";
+import { err, ok, Result } from "shared/result";
+import { GroupDTO } from "./group.dto";
 
 export default class GroupRepository implements IGroupRepository {
     public async createGroup(groupId: string, groupName: string, adminsIDs: string[]) {
@@ -26,6 +27,27 @@ export default class GroupRepository implements IGroupRepository {
             else {
                 return err("DB_ERROR");
             }
+        }
+    }
+
+    public async getGroup(groupID: string) {
+        try {
+            const group = await Group.findOne({ where: { groupId: groupID }, relations: ["admins"] });
+            if (!group) {
+                return err("NOT_FOUND");
+            }
+            const groupDTO: GroupDTO = {
+                groupId: group.groupId,
+                groupName: group.groupName,
+                canCreate: group.canCreate,
+                canDelete: group.canDelete,
+                canRename: group.canRename,
+                isActive: group.isActive,
+            };
+            return ok(groupDTO);
+        }
+        catch(e) {
+            return err("DB_ERROR");
         }
     }
     

@@ -72,18 +72,7 @@ export default class AdminRepository implements IAdminRepository {
             }
 
             await group.save();
-
-            // Return the updated group as DTO
-            const updatedGroupDto = new GroupDTO(
-                group.groupId,
-                group.groupName,
-                group.canCreate,
-                group.canDelete,
-                group.canRename,
-                group.isActive
-            );
-
-            return ok(updatedGroupDto);
+            return ok(null);
         }
         catch(e) {
             console.log(e);

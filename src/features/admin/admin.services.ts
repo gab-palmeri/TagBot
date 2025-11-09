@@ -50,7 +50,7 @@ export default class AdminServices implements IAdminServices {
                 }
             }
             else {
-                return ok(groupResult.value);
+                return ok(null);
             }
         }
     }

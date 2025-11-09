@@ -47,7 +47,7 @@ export interface ITagService {
     groupId: string,
     tagName: string,
     userId: string
-  ): Promise<Result<null, "NOT_FOUND" | "ALREADY_EXISTS" | "INTERNAL_ERROR">>;
+  ): Promise<Result<null, "INVALID_SYNTAX" | "NOT_FOUND" | "ALREADY_EXISTS" | "INTERNAL_ERROR">>;
 
   deleteTag(
     groupId: string,
@@ -58,7 +58,7 @@ export interface ITagService {
     groupId: string,
     oldTagName: string,
     newTagName: string
-  ): Promise<Result<null, "NOT_FOUND" | "ALREADY_EXISTS" | "INTERNAL_ERROR">>;
+  ): Promise<Result<null, "INVALID_SYNTAX" | "NOT_FOUND" | "ALREADY_EXISTS" | "INTERNAL_ERROR">>;
 
   updateLastTagged(
     groupId: string,

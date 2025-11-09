@@ -12,7 +12,7 @@ export interface IAdminRepository {
         groupId: string, 
         userId: string, 
         permissions: Partial<GroupDTO>
-    ): Promise<Result<GroupDTO, "DB_ERROR">>;
+    ): Promise<Result<null, "DB_ERROR">>;
 }
 
 export interface IAdminServices {
@@ -23,5 +23,5 @@ export interface IAdminServices {
         groupId: string, 
         userId: string, 
         permissions: object
-    ): Promise<Result<GroupDTO, "NOT_FOUND" | "FORBIDDEN" | "INTERNAL_ERROR">>;
+    ): Promise<Result<null, "NOT_FOUND" | "FORBIDDEN" | "INTERNAL_ERROR">>;
 }

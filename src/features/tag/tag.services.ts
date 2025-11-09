@@ -13,6 +13,10 @@ export default class TagServices implements ITagService {
 	public async createTag(groupId: string, tagName: string, userId: string) {
 
 		tagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
+		const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+		if(!regex.test(tagName)) 
+			return err("INVALID_SYNTAX");
+
 		const createResult = await this.tagRepository.createTag(groupId, tagName, userId);
 
 		if(createResult.ok === true) {
@@ -49,6 +53,10 @@ export default class TagServices implements ITagService {
         
         oldTagName = oldTagName.startsWith("#") ? oldTagName.slice(1) : oldTagName;
         newTagName = newTagName.startsWith("#") ? newTagName.slice(1) : newTagName;
+
+		const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+		if(!regex.test(oldTagName) || !regex.test(newTagName)) 
+			return err("INVALID_SYNTAX");
 
 		const renameResult = await this.tagRepository.renameTag(groupId, oldTagName, newTagName);
 

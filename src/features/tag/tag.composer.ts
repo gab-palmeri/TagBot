@@ -32,7 +32,14 @@ TagComposer.command("create", checkIfGroup, canCreate, async ctx => {
         return await ctx.reply(msgCreateTag(tagName, issuerUsername));
     }
     else {
-        return await ctx.reply(`⚠️ ${result} (@${issuerUsername})`);
+        switch(result.error) {
+            case "INVALID_SYNTAX":
+                return await ctx.reply(msgTagSyntaxError(issuerUsername));
+            case "ALREADY_EXISTS":
+                return await ctx.reply(`⚠️ Tag <b>#${tagName}</b> already exists (@${issuerUsername})`, {parse_mode: "HTML"});
+            case "INTERNAL_ERROR":
+                return await ctx.reply(`⚠️ An internal error occurred while creating the tag (@${issuerUsername})`, {parse_mode: "HTML"});
+        }
     }
         
 });
@@ -71,11 +78,6 @@ TagComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
 
     const issuerUsername = ctx.msg.from.username;
 
-    const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
-    if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-        return await ctx.reply(msgTagSyntaxError(issuerUsername));
-
-
     const result = await tagService.renameTag(groupId, oldTagName, newTagName);
         
     if(result.ok === true) {
@@ -89,15 +91,26 @@ TagComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
             const subscribersWithoutMe = result.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
             if(subscribersWithoutMe.length > 0) {
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(result.length > 10) 
-                    await tagPrivately(ctx, oldTagName, subscribersWithoutMe, sentMessage.message_id);
-                else 
-                    await tagPublicly(ctx, groupId, subscribersWithoutMe, sentMessage.message_id);
+                if(result.length > 10) {
+                    const groupName = ctx.msg.chat.title;
+                    const message = await tagPrivately(ctx, newTagName, groupName, subscribersWithoutMe, sentMessage.message_id);
+                    await ctx.reply(message, { 
+                        reply_to_message_id: sentMessage.message_id,
+                        parse_mode: "HTML",
+                        link_preview_options: { is_disabled: true }
+                    });
+                }
+                else {
+                    const message = await tagPublicly(subscribersWithoutMe);
+                    await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
+                }
             }
         }
     }
     else {
         switch(result.error) {
+            case "INVALID_SYNTAX":
+                return await ctx.reply(msgTagSyntaxError(issuerUsername));
             case "NOT_FOUND":
                 return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${issuerUsername})`, {parse_mode: "HTML"});
             case "ALREADY_EXISTS":
@@ -140,9 +153,6 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
 
     //get ALL tag names mentioned 
     const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
-
-    console.log(tagNames);
-
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id.toString();
 
@@ -157,10 +167,7 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
     //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
         
-        console.log(tagName.substring(1));
         const tagSubResult = await tagService.getTagSubscribers(tagName.substring(1), groupId);
-
-        console.log(tagSubResult);
 
         if(tagSubResult.ok === true) {
 
@@ -177,13 +184,25 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
                     break;
                 }
 
-                await tagService.updateLastTagged(tagName.substring(1), groupId);
-
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(subscribersWithoutMe.length > 10) 
-                    await tagPrivately(ctx, tagName, subscribersWithoutMe, messageToReplyTo);
-                else 
-                    await tagPublicly(ctx, groupId, subscribersWithoutMe, messageToReplyTo); 
+                if(subscribersWithoutMe.length > 10) {
+
+                    const groupName = ctx.msg.chat.title;
+
+                    const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
+                    await ctx.reply(message, { 
+                        reply_to_message_id: ctx.msg.message_id,
+                        parse_mode: "HTML",
+                        link_preview_options: { is_disabled: true }
+                    });
+                }
+                else {
+                    const message = await tagPublicly(subscribersWithoutMe);
+                    await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
+                }
+
+
+                await tagService.updateLastTagged(tagName.substring(1), groupId);
             
             }
             else {
@@ -204,9 +223,6 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
             }
         }
     }
-
-
-    console.log(ctx.from.username + " tagged " + tagNames + ", procedure ended at: " + new Date().toLocaleString("it-IT"));
 
     //ERROR MESSAGES PHASE
     const errorMessages = msgTagsErrors(emptyTags, nonExistentTags, onlyOneInTags);

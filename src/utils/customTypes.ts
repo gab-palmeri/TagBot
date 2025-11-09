@@ -1,5 +1,5 @@
 import { Context, SessionFlavor } from "grammy";
-import { GroupDTO } from "@dto/GroupDTO";
+import { GroupDTO } from "features/group/group.dto";
 
 export type MyContext = Context & SessionFlavor<{
     groups: Groups, 

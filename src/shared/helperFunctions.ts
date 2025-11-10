@@ -30,7 +30,6 @@ export async function tagPrivately(ctx: MyContext, tagName: string, groupName: s
         try {
             await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "HTML" });
         } catch(e) {
-            //TODO: Introduce a local storage of the user's first name, also.
             notContacted.push((await ctx.getChatMember(parseInt(subscriber.userId))).user.first_name);
         }
     }

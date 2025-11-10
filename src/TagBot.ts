@@ -86,49 +86,6 @@ export default class TagBot {
 	
 	}
 
-	public setTransformers() {
-		//This code setups auto-deletion of bot messages after 5 seconds
-		this.bot.on(["message::bot_command", "callback_query"], async (ctx, next) => {
-			ctx.api.config.use(async (prev, method, payload, signal) => {
-
-				const res = await prev(method, payload, signal);
-				if(ctx.chat.type !== "private" && method === "sendMessage" && "result" in res) {
-
-					//get the command name
-					const commandName = ctx.msg.text.split(/\s+/)[0];
-
-					//If we are in the JOIN CALLBACK QUERY edge case, don't delete the user message. (there isn't any! it's a callback query)
-					if(commandName.startsWith("/")) {
-						try {
-							await ctx.deleteMessage();
-						} catch(e) {
-							console.log(`[T] Could not delete user message "${ctx.msg.text}" from the group ${ctx.chat.title} (${ctx.chat.id}) because the bot is not an admin`);
-						}
-					}
-
-					//The rename command is a special case -> do not delete it
-					if(commandName !== "/rename") {
-						//the /list or /help commands need more time to be deleted
-						let timeToWait = 5000;
-						if(commandName.startsWith("/list") || commandName.startsWith("/help") || commandName.startsWith("/join")) {
-							timeToWait = 10000;
-						}
-
-						setTimeout(async () => {
-							try {
-								await ctx.api.deleteMessage(ctx.chat.id, res.result["message_id"]);
-							} catch(e) {
-								console.log(`[T] Could not delete bot message "${ctx.msg.text}" from the group ${ctx.chat["title"]} (${ctx.chat.id})`);
-							}
-						}, timeToWait);
-					}
-				}
-				return res;
-			});
-			await next();
-		});
-	}
-
 	public setRateLimits() {
 		//Set up the user-side rate limiter, only for commands
 		this.bot.filter(ctx => ctx.has("::bot_command")).use(limit({

@@ -21,7 +21,7 @@ export default class SubscriberServices implements ISubscriberService {
 		const joinResult = await this.subscriberRepository.joinTag(groupId, cleanTagName, userId, "");
 
 		if(joinResult.ok === true) {
-			ok(null);
+			return ok(null);
 		}
 		else {
 			switch(joinResult.error) {
@@ -31,19 +31,18 @@ export default class SubscriberServices implements ISubscriberService {
 					return err("INTERNAL_ERROR");
 			}
 		}
-
-
-
 	}
 	
 	public async leaveTag(groupId: string, tagName: string, userId: string) {
 
 		const cleanTagName = tagName.startsWith("#") ? tagName.slice(1) : tagName;
 
-		const leaveResult = await this.subscriberRepository.leaveTag(groupId, cleanTagName, userId);	
+		console.log("calling repository for leaveTag", groupId, cleanTagName, userId);
 
+		const leaveResult = await this.subscriberRepository.leaveTag(groupId, cleanTagName, userId);
+		
 		if(leaveResult.ok === true) {
-			ok(null);
+			return ok(null);
 		}
 		else {
 			switch(leaveResult.error) {
@@ -64,7 +63,7 @@ export default class SubscriberServices implements ISubscriberService {
 				return err("NOT_FOUND");
 			}
 
-			return ok(getSubsTagsResult.value);
+			return ok(getSubsTagsResult.value.sort((a,b) => a.name.localeCompare(b.name)));
 		}
 		else {
 			switch(getSubsTagsResult.error) {

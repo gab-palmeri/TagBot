@@ -72,7 +72,6 @@ export default class GroupServices implements IGroupService {
         const isNewMemberOrLeftOrKicked = newStatus === "member" || newStatus === "left" || newStatus === "kicked";
         const isNewAdmin = newStatus === "administrator";
 
-        //TODO: handle exceptions
         //Add admin
         if(isOldMember && isNewAdmin)
             return ok("ADD_ADMIN" as const);

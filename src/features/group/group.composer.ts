@@ -61,7 +61,6 @@ GroupComposer.on("my_chat_member", checkIfGroup, async ctx => {
     const response = await groupService.handleBotChange(oldStatus, newStatus);
     
     //If the bot is added to the group, try to add it to the DB
-    //TODO: better name since it's not actually added yet
     if(response.ok === true) {
         if(response.value === "BOT_ADDED") {
             const result = await groupService.createGroup(groupName, groupId, adminIDs);

@@ -1,6 +1,5 @@
 import { Context, InlineKeyboard, NextFunction } from "grammy";
 
-//TODO: DELETE THESE
 import GroupServices from "features/group/group.services";
 import GroupRepository from "features/group/group.repository";
 import TagServices from "features/tag/tag.services";

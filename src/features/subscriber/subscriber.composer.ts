@@ -31,7 +31,7 @@ SubscriberComposer.command("join", checkIfGroup, async ctx => {
     }
     else {
 
-        const [msg, inlineKeyboardUrlText] = msgJoinStartBot(tagName, username);
+        const [msg, inlineKeyboardUrlText] = msgJoinStartBot(username);
         const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardUrlText, `https://t.me/${ctx.me.username}?start=${groupId}_${tagName}`);
 
         switch(joinResult.error) {
@@ -71,8 +71,8 @@ SubscriberComposer.callbackQuery(/^join-tag_/, async (ctx) => {
             await ctx.reply(msg, { reply_markup: inlineKeyboard });
         }
         else {
-            const [msg, inlineKeyboardUrlText] = msgJoinStartBot(tagName, username);
-            const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardUrlText, `https://t.me/${ctx.me.username}?start=${groupId}_${tagName}`);
+            const [msg, inlineKeyboardUrlText] = msgJoinStartBot(username);
+            const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardUrlText, `https://t.me/${ctx.me.username}?start`);
 
             switch(joinResult.error) {
                 case "BOT_NOT_STARTED":
@@ -94,6 +94,7 @@ SubscriberComposer.callbackQuery(/^join-tag_/, async (ctx) => {
     }
     
 });
+
 
 SubscriberComposer.command("leave", checkIfGroup, async ctx => {
 
@@ -122,7 +123,7 @@ SubscriberComposer.command("leave", checkIfGroup, async ctx => {
     }
 });
 
-
+//TODO: FIX
 SubscriberComposer.callbackQuery("show-all-tags", async (ctx) => {
 
     const userId = ctx.update.callback_query.from.id.toString();
@@ -146,7 +147,7 @@ SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
     const result = await subscriberService.getSubscriberTags(userId, groupId);
 
     if(result.ok === true) {
-        const tags = result.value.sort((a,b) => a.name.localeCompare(b.name));
+        const tags = result.value;
 
         await ctx.reply(msgMyTags(tags, username), { parse_mode: "HTML" });
     }

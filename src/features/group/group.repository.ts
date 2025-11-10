@@ -1,7 +1,7 @@
 import { Group } from "@db/entity/Group";
 import { Admin } from "@db/entity/Admin";
 import { IGroupRepository } from "./group.interfaces";
-import { err, ok, Result } from "shared/result";
+import { err, ok } from "shared/result";
 import { GroupDTO } from "./group.dto";
 
 export default class GroupRepository implements IGroupRepository {

@@ -59,19 +59,19 @@ export default class SubscriberRepository implements ISubscriberRepository {
     
     public async leaveTag(groupId: string, tagName: string, userId: string) {
         
-        const tag = await Tag.findOne({
-            where: {
-                name: tagName, 
-                group: {groupId: groupId}
-            }, 
-            relations: ["group", "subscribersTags"]
-        });
-
-        if(!tag) {
-            return err("NOT_FOUND");
-        }
-    
         try {
+            const tag = await Tag.findOne({
+                where: {
+                    name: tagName, 
+                    group: {groupId: groupId}
+                }, 
+                relations: ["group", "subscribersTags"]
+            });
+
+            if(!tag) {
+                return err("NOT_FOUND");
+            }
+
             const subscriber = await Subscriber.findOne({
                 relations: ["subscribersTags", "subscribersTags.tag"], 
                 where: { userId: userId }
@@ -84,7 +84,9 @@ export default class SubscriberRepository implements ISubscriberRepository {
             await subscriber.subscribersTags.find(n => n.tag.id == tag.id).remove();
             subscriber.subscribersTags = subscriber.subscribersTags.filter(n => n.tag.id != tag.id);
             await subscriber.save();
-    
+
+            console.log("all good");
+
             return ok(null);
         }
         catch(e) {

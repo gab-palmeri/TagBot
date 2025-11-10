@@ -12,7 +12,7 @@ import TagComposer from "features/tag/tag.composer";
 import UserComposer from "features/user/user.composer";
 
 
-import {MyContext} from '@utils/customTypes';
+import {Groups, LastUsedTags, MyContext} from '@utils/customTypes';
 import controlPanel from "@utils/menu/controlPanel";
 
 export default class TagBot {
@@ -52,7 +52,14 @@ export default class TagBot {
 
 		//Set the session middleware and initialize session data
 		this.bot.use(sequentialize(getSessionKey));
-		this.bot.use(session({getSessionKey, initial: () => ({groups: [], selectedGroup: null, lastUsedTags: []})}));
+		this.bot.use(session({
+			getSessionKey,
+			initial: (): MyContext["session"] => ({
+				groups: [] as Groups,
+				selectedGroup: null,
+				lastUsedTags: [] as LastUsedTags,
+			}),
+		}));
 
 		//Set the auto-retry middleware
 		this.bot.api.config.use(autoRetry());
@@ -91,13 +98,16 @@ export default class TagBot {
 		this.bot.filter(ctx => ctx.has("::bot_command")).use(limit({
 			timeFrame: 5000,
 			limit: 3,
-			onLimitExceeded: async (ctx) => {
+			onLimitExceeded: async (ctx: MyContext) => {
+
+				if(ctx.chat == undefined || !ctx.msg || !ctx.from) return;
+
 				try {
 					await ctx.deleteMessage();
 				} catch(e) {
 					let groupInfo: string | number;
 					if(ctx.chat.type !== "private")
-						groupInfo = `${ctx.chat.title} (${ctx.chat.id})`;
+						groupInfo = `${ctx.chat.title} (${ctx.chat?.id})`;
 					else 
 						groupInfo = ctx.chat.id;
 
@@ -106,16 +116,19 @@ export default class TagBot {
 
 				const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
 				const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
+				const chatId = ctx.chat.id.toString();
+
+				const receivedMsg = ctx.msg.text;
 				setTimeout(async (groupInfo) => {
 					try {
-						await ctx.api.deleteMessage(ctx.chat.id, msg.message_id);
+						await ctx.api.deleteMessage(chatId, msg.message_id);
 					} catch(e) {
-						console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo}`);
+						console.log(`[R] Could not delete the message "${receivedMsg}" from the group ${groupInfo}`);
 					}
 				}, 3000);
 			},
 			
-			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat.id.toString(),
+			keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat?.id.toString(),
 		}));
 	}
 

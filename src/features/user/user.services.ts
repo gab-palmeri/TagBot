@@ -4,8 +4,8 @@ import { ok, err } from "shared/result";
 export default class UserServices implements IUserService {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  public async saveUser(userId: string) {
-    const result = await this.userRepository.saveUser(userId);
+  public async saveUser(userId: string, username: string) {
+    const result = await this.userRepository.saveUser(userId, username);
 
     if (result.ok === false) {
       switch (result.error) {

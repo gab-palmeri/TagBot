@@ -2,7 +2,8 @@ import { Composer } from "grammy";
 import { checkIfPrivate } from "shared/middlewares";
 import UserServices from "./user.services";
 import UserRepository from "./user.repository";
-//import { msgJoinPrivate } from "@utils/messages/subscriberMessages";
+import {  } from "@utils/messages/subscriberMessages";
+import { startMessage } from "@utils/messages/generalMessages";
 
 
 
@@ -11,30 +12,11 @@ const userService = new UserServices(new UserRepository());
 
 
 /**************************** */
-// UserComposer.command("start", checkIfPrivate, async ctx => {
-//     if(ctx.chat.type === "private") {
-//         await UserServices.saveUser(ctx.chat.id.toString());
-
-//         const joinArgs = ctx.match.split("_");
-
-//         if(ctx.match.length > 0 && joinArgs.length === 2) {
-            
-//             const userId = ctx.chat.id.toString();
-//             const groupId = joinArgs[0];
-//             const tagName = joinArgs[1];
-
-//             const result = await SubscriberServices.joinTag(groupId, tagName, userId);
-
-//             if(result.isSuccess()) {
-//                 await ctx.reply(msgJoinPrivate(tagName), { parse_mode: "HTML" });
-//             }
-//             else {
-//                 const message = "⚠️ " + result.error.message;
-//                 await ctx.reply(message);
-//             }
-//         }
-//     }
-// });
+//TODO: Unificare il comand start per privato e gruppo
+UserComposer.command("start", checkIfPrivate, async ctx => {
+    await userService.saveUser(ctx.chat.id.toString(), ctx.chat.username || "");
+    return await ctx.reply(startMessage, { parse_mode: "HTML" });
+});
 
 UserComposer.on("my_chat_member", checkIfPrivate, async ctx => {
 

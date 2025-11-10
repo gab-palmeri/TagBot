@@ -26,6 +26,8 @@ export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
 export async function checkIfAdmin(ctx: Context, next: NextFunction) {
 
+	if(!ctx.update.message || !ctx.msg || !ctx.msg.from) return;
+
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 
 	if(user.status == "creator" || user.status == "administrator") {
@@ -41,6 +43,8 @@ export function getSessionKey(ctx: Context) {
 
 
 export async function canCreate(ctx: Context, next: NextFunction) {
+
+	if(!ctx.update.message || !ctx.msg || !ctx.msg.from) return;
 
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 	const groupId = ctx.msg.chat.id.toString();
@@ -81,6 +85,8 @@ export async function canCreate(ctx: Context, next: NextFunction) {
 
 
 export async function canUpdate(ctx: Context, next: NextFunction) {
+
+	if(!ctx.update.message || !ctx.msg || !ctx.msg.from || !ctx.match || !ctx.msg.text) return;
 
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 

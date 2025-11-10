@@ -1,18 +1,23 @@
-import { GroupDTO } from '../group/group.dto';
+import { IAdminRepository } from './admin.interfaces';
+
 import { ok, err } from 'shared/result';
 import { AdminDTO } from './admin.dto';
-import { IAdminRepository } from './admin.interfaces';
-import { Group } from '@db/entity/Group';
+import { GroupDTO } from '../group/group.dto';
+
+import { db } from '@db/database';
 
 export default class AdminRepository implements IAdminRepository {
     
+    //TODO: sono due funzioni identiche, tenere solo una
     public async getAdminWithGroups(userId: string) {
         try {
 
-            const groups = await Group.find({
-                relations: ["admins"], 
-                where: { admins: { userId: userId } } 
-            });
+            const groups = await db
+                .selectFrom('admin')
+                .innerJoin('group', 'group.groupId', 'admin.groupId')
+                .selectAll('group')
+                .where('admin.userId', '=', userId)
+                .execute();
             
             return ok(new AdminDTO(
                 userId,
@@ -34,10 +39,12 @@ export default class AdminRepository implements IAdminRepository {
 
     public async getGroupsByAdmin(userId: string) {
         try {
-            const groups = await Group.find({ 
-                relations: ["admins"], 
-                where: { admins: { userId: userId } } 
-            });
+            const groups = await db
+                .selectFrom('admin')
+                .innerJoin('group', 'group.groupId', 'admin.groupId')
+                .selectAll('group')
+                .where('admin.userId', '=', userId)
+                .execute();
 
             const adminGroups = groups.map(group => new GroupDTO(
                 group.groupId,
@@ -58,20 +65,12 @@ export default class AdminRepository implements IAdminRepository {
     
     public async editGroupPermissions(groupId: string, userId: string, permissions: Partial<GroupDTO>) {
         try {
-            // Select the group from the database
-            const group = await Group.findOne({
-                relations: ["admins"], 
-                where: { groupId: groupId }
-            });
-
-            // Update permissions
-            for (const [key, value] of Object.entries(permissions)) {
-                if (key in group) {
-                    group[key] = value;
-                }
-            }
-
-            await group.save();
+            // Update the group permissions
+            await db
+                .updateTable('group')
+                .set(permissions)
+                .where('groupId', '=', groupId)
+                .execute();
             return ok(null);
         }
         catch(e) {

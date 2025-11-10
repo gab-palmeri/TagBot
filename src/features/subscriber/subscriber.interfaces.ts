@@ -28,7 +28,7 @@ export interface ISubscriberRepository {
     updateSubscriberUsername(
         userId: string,
         username: string
-    ): Promise<Result<SubscriberDTO, "NOT_FOUND" | "DB_ERROR">>;
+    ): Promise<Result<null, "NOT_FOUND" | "DB_ERROR">>;
 
     setInactive(
         groupId: string,
@@ -66,7 +66,7 @@ export interface ISubscriberService {
     updateSubscriberUsername(
         userId: string,
         username: string
-    ): Promise<Result<SubscriberDTO, "NOT_FOUND" | "INTERNAL_ERROR">>;
+    ): Promise<Result<null, "NOT_FOUND" | "INTERNAL_ERROR">>;
 
     setInactive(
         groupId: string,

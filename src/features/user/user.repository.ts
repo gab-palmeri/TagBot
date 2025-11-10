@@ -1,15 +1,15 @@
-import { User } from "@db/entity/User";
 import { IUserRepository } from "./user.interfaces";
 import { ok, err } from "shared/result";
 
+import { db } from "@db/database";
+
 export default class UserRepository implements IUserRepository {
     
-    public async saveUser(userId: string) {
+    public async saveUser(userId: string, username: string) {
         try {
-            const user = new User();
-            user.userId = userId.toString();
-            await user.save();
-
+            
+            //save user with kysely and db
+            await db.insertInto('user').values({ userId: userId.toString(), username: username }).execute();
             return ok(null);
         }
         catch(e) {
@@ -20,7 +20,7 @@ export default class UserRepository implements IUserRepository {
 
     public async deleteUser(userId: string)  {
         try {
-            await User.delete({ userId: userId.toString() });
+            await db.deleteFrom('user').where('userId', '=', userId).execute();
             return ok(null);
         }
         catch(e) {
@@ -31,9 +31,7 @@ export default class UserRepository implements IUserRepository {
 
     public async userExists(userId: string) {
         try {
-            const user = await User.findOne({ 
-                where: { userId: userId.toString() } 
-            });
+            const user = await db.selectFrom('user').selectAll().where('userId', '=', userId).executeTakeFirst();
             return ok(user != null);
         }
         catch(e) {
@@ -44,15 +42,17 @@ export default class UserRepository implements IUserRepository {
 
     public async getUserId(userId: string) {
         try {
-            const user = await User.findOne({ 
-                where: { userId: userId.toString() } 
-            });
+            const user = await db
+                .selectFrom('user')
+                .selectAll()
+                .where('userId', '=', userId)
+                .executeTakeFirst();
             
             if (!user) {
                 return err("NOT_FOUND");
             }
 
-            return ok(user.id);
+            return ok(user.userId);
         }
         catch(e) {
             console.log(`Error fetching user with id: ${userId}`, e);

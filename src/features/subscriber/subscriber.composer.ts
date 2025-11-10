@@ -170,13 +170,13 @@ SubscriberComposer.on("chat_member", async ctx => {
     const newStatus = ctx.chatMember.new_chat_member.status;
     const groupId = ctx.chat.id.toString();
 
-    const isBot = !ctx.chatMember.new_chat_member.user.is_bot;
+    const isBot = ctx.chatMember.new_chat_member.user.is_bot;
 
     if(!isBot) {
-        if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+        if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus))
             await subscriberService.setInactive(groupId, ctx.chatMember.old_chat_member.user.id);
 
-        if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus) && !ctx.chatMember.new_chat_member.user.is_bot)
+        if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus))
             await subscriberService.setActive(groupId, ctx.chatMember.new_chat_member.user.id);
     }
 });

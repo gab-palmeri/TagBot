@@ -134,6 +134,7 @@ export default class TagServices implements ITagService {
 
 	//TODO: better typing of the response
     public async getTagsByGroup(groupId: string) {
+
 		const getTagsByGroupResult = await this.tagRepository.getTagsByGroup(groupId);
 
 		//check if response is of type RepoResponseStatus

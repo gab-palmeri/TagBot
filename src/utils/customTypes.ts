@@ -3,14 +3,11 @@ import { GroupDTO } from "features/group/group.dto";
 
 export type MyContext = Context & SessionFlavor<{
     groups: Groups, 
-    selectedGroup: SelectedGroup,
+    selectedGroup: GroupDTO | null,
     lastUsedTags: LastUsedTags
 }>;
 
-type Groups = GroupDTO[]
-
-type SelectedGroup = GroupDTO
-
+export type Groups = GroupDTO[]
 
 export type LastUsedTags = {
     userId: string,

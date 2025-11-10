@@ -1,58 +1,47 @@
-import { Tag } from '@db/entity/Tag';
-import { Subscriber } from '@db/entity/Subscriber';
-import { SubscriberTag } from '@db/entity/SubscriberTag';
 import { SubscriberDTO } from 'features/subscriber/subscriber.dto';
 import { TagDTO } from '../tag/tag.dto';
 import { ISubscriberRepository } from './subscriber.interfaces';
 import { err, ok } from 'shared/result';
 
+import { db } from '@db/database';
+
 export default class SubscriberRepository implements ISubscriberRepository {
    
     //TODO: rimosso il controllo se il tag esiste, bisogna metterlo altrove a monte
-    public async joinTag(groupId: string, tagName: string, userId: string, username: string) {
-        
-        const tag = await Tag.findOne({
-            where: {
-                name: tagName, 
-                group: {groupId: groupId}
-            }, 
-            relations: ["group", "subscribersTags"]
-        });
-            
+    public async joinTag(groupId: string, tagName: string, userId: string) {
         try {
-            let subscriber = await Subscriber.findOne({
-                where: { userId: userId },
-                relations: ["subscribersTags", "subscribersTags.tag"]
-            });
-    
-            if(!subscriber) {
-                subscriber = new Subscriber();
-                subscriber.userId = userId;
-                subscriber.username = username;
 
-                const subscribersTags = new SubscriberTag();
-                subscribersTags.subscriber = subscriber;
-                subscribersTags.tag = tag;
-                subscriber.subscribersTags = [subscribersTags];
+            const tag = await db.
+                selectFrom('tag')
+                .selectAll()
+                .where('name', '=', tagName)
+                .where('groupId', '=', groupId)
+                .select('id')
+                .executeTakeFirst();
+            
+            // Check if the user is already subscribed to the tag
+            const existingSubscriber = await db
+                .selectFrom('subscriber')
+                .selectAll()
+                .where('userId', '=', userId)
+                .where('tagId', '=', tag.id)
+                .executeTakeFirst();
 
-                subscriber = await subscriber.save();
+            if (!existingSubscriber) {
+                await db.insertInto('subscriber')
+                    .values({
+                        userId: userId,
+                        tagId: tag.id,
+                        isActive: true
+                    })
+                    .execute();
+                return ok(null);
+            } else {
+                return err("ALREADY_EXISTS");
             }
-            else {
-                if(subscriber.subscribersTags.find(n => n.tag.id == tag.id))
-                    return err("ALREADY_EXISTS");
-    
-                const subscribersTags = new SubscriberTag();
-                subscribersTags.subscriber = subscriber;
-                subscribersTags.tag = tag;
 
-                subscriber.subscribersTags.push(subscribersTags);
-                await subscriber.save();
-            }
-    
-            return ok(null);
-        }
-        catch(e) {
-            console.log(err);
+        } catch (e) {
+            console.log(e);
             return err("DB_ERROR");
         }
     }
@@ -60,32 +49,34 @@ export default class SubscriberRepository implements ISubscriberRepository {
     public async leaveTag(groupId: string, tagName: string, userId: string) {
         
         try {
-            const tag = await Tag.findOne({
-                where: {
-                    name: tagName, 
-                    group: {groupId: groupId}
-                }, 
-                relations: ["group", "subscribersTags"]
-            });
+            const tag = await db
+                .selectFrom('tag')
+                .selectAll()
+                .where('name', '=', tagName)
+                .where('groupId', '=', groupId)
+                .select('id')
+                .executeTakeFirst();
 
             if(!tag) {
                 return err("NOT_FOUND");
             }
 
-            const subscriber = await Subscriber.findOne({
-                relations: ["subscribersTags", "subscribersTags.tag"], 
-                where: { userId: userId }
-            });
+            const subscriber = await db
+                .selectFrom('subscriber')
+                .selectAll()
+                .where('userId', '=', userId)
+                .where('tagId', '=', tag.id)
+                .executeTakeFirst();
     
-            if(!subscriber?.subscribersTags.find(n => n.tag.id == tag.id)) {
+            if(!subscriber) {
                 return err("NOT_FOUND");
             }
 
-            await subscriber.subscribersTags.find(n => n.tag.id == tag.id).remove();
-            subscriber.subscribersTags = subscriber.subscribersTags.filter(n => n.tag.id != tag.id);
-            await subscriber.save();
-
-            console.log("all good");
+            await db
+                .deleteFrom('subscriber')
+                .where('userId', '=', userId)
+                .where('tagId', '=', tag.id)
+                .execute();
 
             return ok(null);
         }
@@ -97,13 +88,17 @@ export default class SubscriberRepository implements ISubscriberRepository {
     
     public async getSubscriberTags(userId: string, groupId: string) {
         try {
-            const tags = await Tag.find({
-                relations: ["group", "subscribersTags", "subscribersTags.subscriber"], 
-                where: {
-                    group: { groupId: groupId },
-                    subscribersTags: { subscriber: { userId: userId } }
-                }
-            });
+            const tags = await db
+                .selectFrom('subscriber')
+                .innerJoin('tag', 'subscriber.tagId', 'tag.id')
+                .select([
+                    'tag.name',
+                    'tag.creatorId',
+                    'tag.lastTagged'
+                ])
+                .where('subscriber.userId', '=', userId)
+                .where('tag.groupId', '=', groupId)
+                .execute();
             
             const tagsDTOS = tags.map(tag => new TagDTO(
                 tag.name,
@@ -121,14 +116,17 @@ export default class SubscriberRepository implements ISubscriberRepository {
     
     public async getSubscriber(userId: string) {
         try {
-            const subscriber = await Subscriber.findOne({
-                where: { userId: userId }
-            });
+            const subscriber = await db
+                .selectFrom('user')
+                .selectAll()
+                .where('userId', '=', userId)
+                .executeTakeFirst();
     
             if(!subscriber) {
                 return err("NOT_FOUND");
             }
             
+            //TODO: Subscriber DTO no more necessary, can return user directly
             const subscriberDTO = new SubscriberDTO(
                 subscriber.userId,
                 subscriber.username
@@ -145,19 +143,23 @@ export default class SubscriberRepository implements ISubscriberRepository {
     //TODO: rimosso il controllo se il subscriber esiste, inserirlo a monte
     public async updateSubscriberUsername(userId: string, username: string) {
         try {
-            const subscriber = await Subscriber.findOne({
-                where: { userId: userId }
-            });
+            const subscriber = await db
+                .selectFrom('user')
+                .selectAll()
+                .where('userId', '=', userId)
+                .executeTakeFirst();
             
-            subscriber.username = username;
-            await subscriber.save();
-            
-            const subscriberDTO = new SubscriberDTO(
-                subscriber.userId,
-                subscriber.username
-            );
+            if(!subscriber) {
+                return err("NOT_FOUND");
+            }
 
-            return ok(subscriberDTO);
+            await db
+                .updateTable('user')
+                .set({ username: username })
+                .where('userId', '=', userId)
+                .execute();
+
+            return ok(null);
         }
         catch(e) {
             console.log(e);
@@ -165,20 +167,22 @@ export default class SubscriberRepository implements ISubscriberRepository {
         }
     }
 
+    //TODO: le due funzioni sotto possono essere ottimizzate evitando di fare due query distinte
     public async setInactive(groupId: string, userId: string) {
         try {
-            const subscriberTags = await SubscriberTag.find({
-                relations: ["subscriber", "tag"], 
-                where: {
-                    subscriber: { userId: userId },
-                    tag: { group: { groupId: groupId } }
-                }
-            });
 
-            await Promise.all(subscriberTags.map(st => {
-                st.isActive = false;
-                return st.save();
-            }));
+            const groupTags = await db
+                .selectFrom('tag')
+                .selectAll()
+                .where('groupId', '=', groupId)
+                .execute();
+
+            await db
+                .updateTable('subscriber')
+                .set({ isActive: false })
+                .where('userId', '=', userId)
+                .where('tagId', 'in', groupTags.map(t => t.id))
+                .execute();
 
             return ok(null);
         }
@@ -190,18 +194,18 @@ export default class SubscriberRepository implements ISubscriberRepository {
 
     public async setActive(groupId: string, userId: string) {
         try {
-            const subscriberTags = await SubscriberTag.find({
-                relations: ["subscriber", "tag"], 
-                where: {
-                    subscriber: { userId: userId },
-                    tag: { group: { groupId: groupId } }
-                }
-            });
+            const groupTags = await db
+                .selectFrom('tag')
+                .selectAll()
+                .where('groupId', '=', groupId)
+                .execute();
 
-            await Promise.all(subscriberTags.map(st => {
-                st.isActive = true;
-                return st.save();
-            }));
+            await db
+                .updateTable('subscriber')
+                .set({ isActive: true })
+                .where('userId', '=', userId)
+                .where('tagId', 'in', groupTags.map(t => t.id))
+                .execute();
 
             return ok(null);
         }

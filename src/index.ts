@@ -3,18 +3,21 @@ import express from 'express';
 import { webhookCallback } from 'grammy';
 dotenv.config();
 
-import { AppDataSource } from "./data-source";
-import TagBot from "./bot/TagBot";
+import TagBot from "./TagBot";
 
-AppDataSource.initialize().then(async () => {
+
+	if (!process.env.BOT_TOKEN) {
+		throw new Error("BOT_TOKEN is not defined in environment variables");
+	}
 
 	const bot = new TagBot(process.env.BOT_TOKEN);
 
-	if(process.env.ENVIRONMENT == "dev") {
-		await bot.start();
-		console.log("Starting on long polling");
+	if(process.env.MODE == "polling") {
+		void bot.start().then(() => {
+			console.log("Bot started in long polling mode");
+		});
 	}
-	else {
+	else if (process.env.MODE == "webhook") {
 		const app = express();
 		const port = process.env.PORT || 8080;
 		app.use(express.json());
@@ -24,6 +27,3 @@ AppDataSource.initialize().then(async () => {
 		});
 	}
 	
-	
-
-}).catch(error => console.log(error));

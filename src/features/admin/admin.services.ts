@@ -8,10 +8,10 @@ export default class AdminServices implements IAdminServices {
     
     public async getAdminGroups(userId: string) {		
         
-        const response = await this.adminRepository.getGroupsByAdmin(userId);
+        const response = await this.adminRepository.getAdminWithGroups(userId);
 
         if(response.ok === true) {
-            const groups = response.value;
+            const groups = response.value.groups;
             if(groups.length == 0) {
                 return err("NO_CONTENT");
             }

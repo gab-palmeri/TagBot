@@ -1,4 +1,3 @@
-import { SubscriberDTO } from 'features/subscriber/subscriber.dto';
 import { TagDTO } from '../tag/tag.dto';
 import { ISubscriberRepository } from './subscriber.interfaces';
 import { err, ok } from 'shared/result';
@@ -113,62 +112,8 @@ export default class SubscriberRepository implements ISubscriberRepository {
             return err("DB_ERROR");
         }
     }
-    
-    public async getSubscriber(userId: string) {
-        try {
-            const subscriber = await db
-                .selectFrom('user')
-                .selectAll()
-                .where('userId', '=', userId)
-                .executeTakeFirst();
-    
-            if(!subscriber) {
-                return err("NOT_FOUND");
-            }
-            
-            //TODO: Subscriber DTO no more necessary, can return user directly
-            const subscriberDTO = new SubscriberDTO(
-                subscriber.userId,
-                subscriber.username
-            );
 
-            return ok(subscriberDTO);
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
-    }
-
-    //TODO: rimosso il controllo se il subscriber esiste, inserirlo a monte
-    public async updateSubscriberUsername(userId: string, username: string) {
-        try {
-            const subscriber = await db
-                .selectFrom('user')
-                .selectAll()
-                .where('userId', '=', userId)
-                .executeTakeFirst();
-            
-            if(!subscriber) {
-                return err("NOT_FOUND");
-            }
-
-            await db
-                .updateTable('user')
-                .set({ username: username })
-                .where('userId', '=', userId)
-                .execute();
-
-            return ok(null);
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
-    }
-
-    //TODO: le due funzioni sotto possono essere ottimizzate evitando di fare due query distinte
-    public async setInactive(groupId: string, userId: string) {
+    public async setActiveFlag(groupId: string, userId: string, isActive: boolean) {
         try {
 
             const groupTags = await db
@@ -179,30 +124,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
 
             await db
                 .updateTable('subscriber')
-                .set({ isActive: false })
-                .where('userId', '=', userId)
-                .where('tagId', 'in', groupTags.map(t => t.id))
-                .execute();
-
-            return ok(null);
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
-    }
-
-    public async setActive(groupId: string, userId: string) {
-        try {
-            const groupTags = await db
-                .selectFrom('tag')
-                .selectAll()
-                .where('groupId', '=', groupId)
-                .execute();
-
-            await db
-                .updateTable('subscriber')
-                .set({ isActive: true })
+                .set({ isActive: isActive })
                 .where('userId', '=', userId)
                 .where('tagId', 'in', groupTags.map(t => t.id))
                 .execute();

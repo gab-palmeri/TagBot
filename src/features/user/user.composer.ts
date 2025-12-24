@@ -1,22 +1,10 @@
 import { Composer } from "grammy";
-import { checkIfPrivate } from "shared/middlewares";
+import { checkIfGroup, checkIfPrivate } from "shared/middlewares";
 import UserServices from "./user.services";
 import UserRepository from "./user.repository";
-import {  } from "@utils/messages/subscriberMessages";
-import { startMessage } from "@utils/messages/generalMessages";
-
-
 
 const UserComposer = new Composer();
 const userService = new UserServices(new UserRepository());
-
-
-/**************************** */
-//TODO: Unificare il comand start per privato e gruppo
-UserComposer.command("start", checkIfPrivate, async ctx => {
-    await userService.saveUser(ctx.chat.id.toString(), ctx.chat.username || "");
-    return await ctx.reply(startMessage, { parse_mode: "HTML" });
-});
 
 UserComposer.on("my_chat_member", checkIfPrivate, async ctx => {
 
@@ -25,6 +13,22 @@ UserComposer.on("my_chat_member", checkIfPrivate, async ctx => {
 
     if(newStatus !== "member") {
         await userService.deleteUser(groupId.toString());
+    }
+    else {
+        await userService.saveUser(groupId.toString(), ctx.chat.username || "");
+    }
+});
+
+UserComposer.on("message", checkIfGroup, async ctx => {
+
+    const result = await userService.getUser(ctx.from.id.toString());
+
+    //Check that the user.username is equal to the ctx.from.username
+    if(result.ok === true) {
+        if(result.value.username !== ctx.from.username) {
+            //If not, update the user
+            await userService.updateUserUsername(ctx.from.id.toString(), ctx.from.username);
+        }
     }
 });
 

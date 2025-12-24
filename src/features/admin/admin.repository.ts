@@ -8,7 +8,6 @@ import { db } from '@db/database';
 
 export default class AdminRepository implements IAdminRepository {
     
-    //TODO: sono due funzioni identiche, tenere solo una
     public async getAdminWithGroups(userId: string) {
         try {
 
@@ -30,32 +29,6 @@ export default class AdminRepository implements IAdminRepository {
                     group.isActive
                 ))
             ));
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
-    }
-
-    public async getGroupsByAdmin(userId: string) {
-        try {
-            const groups = await db
-                .selectFrom('admin')
-                .innerJoin('group', 'group.groupId', 'admin.groupId')
-                .selectAll('group')
-                .where('admin.userId', '=', userId)
-                .execute();
-
-            const adminGroups = groups.map(group => new GroupDTO(
-                group.groupId,
-                group.groupName,
-                group.canCreate,
-                group.canDelete,
-                group.canRename,
-                group.isActive
-            ));
-
-            return ok(adminGroups);
         }
         catch(e) {
             console.log(e);

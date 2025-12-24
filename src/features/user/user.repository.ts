@@ -2,6 +2,7 @@ import { IUserRepository } from "./user.interfaces";
 import { ok, err } from "shared/result";
 
 import { db } from "@db/database";
+import { UserDTO } from "./user.dto";
 
 export default class UserRepository implements IUserRepository {
     
@@ -40,7 +41,7 @@ export default class UserRepository implements IUserRepository {
         }
     }
 
-    public async getUserId(userId: string) {
+    public async getUser(userId: string) {
         try {
             const user = await db
                 .selectFrom('user')
@@ -52,10 +53,25 @@ export default class UserRepository implements IUserRepository {
                 return err("NOT_FOUND");
             }
 
-            return ok(user.userId);
+            return ok(new UserDTO(user.userId, user.username));
         }
         catch(e) {
             console.log(`Error fetching user with id: ${userId}`, e);
+            return err("DB_ERROR");
+        }
+    }
+
+    public async updateUserUsername(userId: string, newUsername: string) {
+        try {
+            await db
+                .updateTable('user')
+                .set({ username: newUsername })
+                .where('userId', '=', userId)
+                .execute();
+            return ok(null);
+        }
+        catch(e) {
+            console.log(`Error updating username for user with id: ${userId}`, e);
             return err("DB_ERROR");
         }
     }

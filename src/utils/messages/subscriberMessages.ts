@@ -1,3 +1,4 @@
+import { SubscriberDTO } from "features/subscriber/subscriber.dto";
 import { TagDTO } from "features/tag/tag.dto";
 
 //SYNTAX MESSAGES
@@ -33,6 +34,14 @@ export function msgLeaveTag(username: string, tagName: string) {
 
 
 //TAGS MESSAGES
+
+export function msgPublicTag(subscribers: SubscriberDTO[]) {
+    return subscribers.map((subscriber) => {
+        const username: string = subscriber.username;
+        return `<a href="tg://user?id=${subscriber.userId}">@${username}</a>`;
+    }).join(" ");
+}
+
 export function msgPrivateTag(tagName: string, groupTitle: string, messageLink: string) {
     return `You have been tagged in <b>${groupTitle}</b> through the ${tagName} tag. Click <a href='${messageLink}'>here</a> to see the message`;
 }

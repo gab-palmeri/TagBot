@@ -53,9 +53,6 @@ export async function canCreate(ctx: Context, next: NextFunction) {
 		await next();
 	}
 	else {
-
-		//inserire metodo servizio
-
 		const groupService = new GroupServices(new GroupRepository());
 
 

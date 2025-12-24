@@ -4,9 +4,9 @@ import { checkIfGroup, canCreate, canUpdate } from "shared/middlewares";
 
 import TagServices from "./tag.services";
 import { msgCreateSyntaxError, msgDeleteSyntaxError, msgRenameSyntaxError, msgTagSyntaxError, msgCreateTag, msgDeleteTag, msgRenameTag } from "@messages/tagMessages";
-import { isUserFlooding, tagPrivately, tagPublicly } from "shared/helperFunctions";
+import { isUserFlooding, tagPrivately } from "shared/helperFunctions";
 
-import { msgListTags, msgTagsErrors, msgFloodingError } from "@messages/subscriberMessages";
+import { msgListTags, msgTagsErrors, msgFloodingError, msgPublicTag } from "@messages/subscriberMessages";
 import TagRepository from "./tag.repository";
 
 
@@ -101,7 +101,7 @@ TagComposer.command("rename", checkIfGroup, canUpdate, async ctx => {
                     });
                 }
                 else {
-                    const message = await tagPublicly(subscribersWithoutMe);
+                    const message = await msgPublicTag(subscribersWithoutMe);
                     await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
                 }
             }
@@ -197,7 +197,7 @@ TagComposer.on("::hashtag", checkIfGroup, async ctx => {
                     });
                 }
                 else {
-                    const message = await tagPublicly(subscribersWithoutMe);
+                    const message = await msgPublicTag(subscribersWithoutMe);
                     await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
                 }
 

@@ -123,20 +123,6 @@ SubscriberComposer.command("leave", checkIfGroup, async ctx => {
     }
 });
 
-//TODO: FIX
-SubscriberComposer.callbackQuery("show-all-tags", async (ctx) => {
-
-    const userId = ctx.update.callback_query.from.id.toString();
-    
-    // Ottieni tutti i tag del gruppo
-    const fullMessage = ctx.update.callback_query.data.split("_")[1];
-
-    // Invia il messaggio in privato
-    await ctx.api.sendMessage(userId, fullMessage, { parse_mode: "HTML" });
-    await ctx.answerCallbackQuery("Full tags list sent in private!");
-  
-});
-
 //function that returns the tags the user is subcribed in
 SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
     
@@ -174,25 +160,10 @@ SubscriberComposer.on("chat_member", async ctx => {
 
     if(!isBot) {
         if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus))
-            await subscriberService.setInactive(groupId, ctx.chatMember.old_chat_member.user.id);
+            await subscriberService.setActiveFlag(groupId, ctx.chatMember.old_chat_member.user.id, false);
 
         if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus))
-            await subscriberService.setActive(groupId, ctx.chatMember.new_chat_member.user.id);
-    }
-});
-
-
-
-SubscriberComposer.on("message", checkIfGroup, async ctx => {
-
-    const result = await subscriberService.getSubscriber(ctx.from.id.toString());
-
-    //Check that the subscriber.username is equal to the ctx.from.username
-    if(result.ok === true) {
-        if(result.value.username !== ctx.from.username) {
-            //If not, update the subscriber
-            await subscriberService.updateSubscriberUsername(ctx.from.id.toString(), ctx.from.username);
-        }
+            await subscriberService.setActiveFlag(groupId, ctx.chatMember.new_chat_member.user.id, true);
     }
 });
 

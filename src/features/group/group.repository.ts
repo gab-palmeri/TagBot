@@ -122,19 +122,6 @@ export default class GroupRepository implements IGroupRepository {
             return err("DB_ERROR");
         }
     }
-
-    //TODO: rimuovere questo metodo e usare createAdminList e deleteAdminList direttamente
-    public async reloadAdminList(groupId: string, adminsIDs: string[]) {
-        try {
-            
-            await this.deleteAdminList(groupId);
-            await this.createAdminList(groupId, adminsIDs);
-            return ok(null);
-        }
-        catch(e) {
-            return err("DB_ERROR");
-        }
-    }
     
     public async addAdmin(groupId: string, adminID: string) {
         try {

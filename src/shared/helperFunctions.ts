@@ -5,21 +5,6 @@ import { msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "@messa
 import { SubscriberDTO } from "features/subscriber/subscriber.dto";
 
 
-//This function tags the users directly in the group
-//TODO: SPOSTARE IN MESSAGES
-export async function tagPublicly(subscribers: SubscriberDTO[]) {
-
-    const mentions = [];
-
-    for(const subscriber of subscribers) {
-        const username: string = subscriber.username;
-        mentions.push(`<a href="tg://user?id=${subscriber.userId}">@${username}</a>`);
-    } 
-
-    const message = mentions.join(" ");
-    return message;    
-}
-
 //This function sends a private message to each user subscribed to the tag
 export async function tagPrivately(ctx: MyContext, tagName: string, groupName: string, subscribers: SubscriberDTO[], messageToReplyTo: number) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;

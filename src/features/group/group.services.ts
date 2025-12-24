@@ -149,16 +149,25 @@ export default class GroupServices implements IGroupService {
         }
     }
 
-    //TODO: aggiungere controllo se il gruppo esiste, così come in createAdminList e deleteAdminList
-    public async reloadAdminList(groupId: string, adminIDs: string[]) {
+    public async reloadAdminList(groupId: string, adminsIDs: string[]) {
         
-        const response = await this.groupRepository.reloadAdminList(groupId, adminIDs);
+        const deleteResponse = await this.groupRepository.deleteAdminList(groupId);
 
-        if(response.ok === true) {
-            return ok(null);
+        if(deleteResponse.ok === true) {
+            const createResponse = await this.groupRepository.createAdminList(groupId, adminsIDs);
+
+            if(createResponse.ok === true) {
+                return ok(null);
+            }
+            else {
+                switch(createResponse.error) {
+                    case "DB_ERROR":
+                        return err("INTERNAL_ERROR");
+                }
+            }
         }
         else {
-            switch(response.error) {
+            switch(deleteResponse.error) {
                 case "DB_ERROR":
                     return err("INTERNAL_ERROR");
             }

@@ -38,7 +38,7 @@ export default class UserServices implements IUserService {
   }
 
   public async getUser(userId: string) {
-    const result = await this.userRepository.getUserId(userId);
+    const result = await this.userRepository.getUser(userId);
 
     if (result.ok === false) {
       switch (result.error) {
@@ -51,5 +51,14 @@ export default class UserServices implements IUserService {
     }
 
     return ok(result.value);
+  }
+
+  public async updateUserUsername(userId: string, username: string) {
+    const result = await this.userRepository.updateUserUsername(userId, username);
+
+    if (result.ok === false) {
+        return err("INTERNAL_ERROR");
+    }
+    return ok(null);
   }
 }

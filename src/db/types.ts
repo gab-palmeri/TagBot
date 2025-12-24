@@ -43,7 +43,6 @@ export interface GroupTable {
 
 export interface AdminTable {
     userId: string; //primary key
-    username: string;
     groupId: string;
 }
 

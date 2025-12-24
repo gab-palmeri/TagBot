@@ -66,6 +66,7 @@ GroupComposer.on("my_chat_member", checkIfGroup, async ctx => {
             const result = await groupService.createGroup(groupName, groupId, adminIDs);
 
             if(result.ok === true) {
+                //todo: add the admin list
                 await ctx.reply(startMessage, { parse_mode: "HTML" });
             }
             else{

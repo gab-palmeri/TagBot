@@ -101,7 +101,7 @@ export default class GroupRepository implements IGroupRepository {
             await db.insertInto('admin')
                 .values(adminsIDs.map(adminID => ({
                     groupId: groupId,
-                    userId: adminID,
+                    userId: adminID
                 })))
                 .execute();
 

@@ -30,7 +30,7 @@ export async function checkIfAdmin(ctx: Context, next: NextFunction) {
 
 	const user = await ctx.getChatMember(ctx.update.message.from.id);
 
-	if(user.status == "creator" || user.status == "administrator") {
+	if(user.status !== "creator" && user.status !== "administrator") {
 		await ctx.reply("You must be an admin to use this command");
 		return;
 	}

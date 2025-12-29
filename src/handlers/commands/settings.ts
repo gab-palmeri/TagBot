@@ -1,18 +1,14 @@
-import { Composer } from "grammy";
 import { MyContext } from "@utils/customTypes";
-import { checkIfPrivate } from "shared/middlewares";
-
-import AdminServices from "./admin.services";
-
-import groupsMenu from "@menu/groupsMenu";
 import { groupsMenuDescription } from "@menu/descriptions";
-import AdminRepository from "./admin.repository";
+import AdminServices from "features/admin/admin.services";
+import AdminRepository from "features/admin/admin.repository";
+import groupsMenu from "@menu/groupsMenu";
 
-const AdminComposer = new Composer<MyContext>();
-const adminServices = new AdminServices(new AdminRepository());
 
 
-AdminComposer.command("settings", checkIfPrivate, async ctx => {
+export async function settingsHandler(ctx: MyContext) {
+
+    const adminServices = new AdminServices(new AdminRepository());
 
     // Get user ID
     const userId = ctx.msg.from.id.toString();
@@ -32,6 +28,4 @@ AdminComposer.command("settings", checkIfPrivate, async ctx => {
     
     ctx.session.groups = adminResult.value;
     return await ctx.reply(groupsMenuDescription, { parse_mode: "HTML", reply_markup: groupsMenu });  
-});
-
-export default AdminComposer;
+}

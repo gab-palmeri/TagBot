@@ -61,4 +61,13 @@ export default class UserServices implements IUserService {
     }
     return ok(null);
   }
+
+  public async setBotStarted(userId: string, hasBotStarted: boolean) {
+    const result = await this.userRepository.setBotStarted(userId, hasBotStarted);
+
+    if (result.ok === false) {
+        return err("INTERNAL_ERROR");
+    }
+    return ok(null);
+  }
 }

@@ -18,7 +18,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
                 .select('id')
                 .executeTakeFirst();
             
-            // Check if the user is already subscribed to the tag
+            //TODO: farlo fuori Check if the user is already subscribed to the tag
             const existingSubscriber = await db
                 .selectFrom('subscriber')
                 .selectAll()

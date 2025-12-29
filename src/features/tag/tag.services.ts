@@ -17,8 +17,6 @@ export default class TagServices implements ITagService {
 		if(!regex.test(tagName)) 
 			return err("INVALID_SYNTAX");
 
-		//TODO: AGGIUNGERE CONTROLLO SE TAG ESISTE
-
 		const createResult = await this.tagRepository.createTag(groupId, tagName, userId);
 
 		if(createResult.ok === true) {

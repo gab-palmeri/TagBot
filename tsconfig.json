@@ -18,10 +18,6 @@
       "baseUrl": "./src",
       "paths": {
          "@db/*": ["db/*"],
-         "@dto/*": ["dto/*"],
-         "@composer/*": ["layers/composer/*"],
-         "@service/*": ["layers/service/*"],
-         "@repository/*": ["layers/repository/*"],
          "@utils/*": ["utils/*"],
          "@menu/*": ["utils/menu/*"],
          "@messages/*": ["utils/messages/*"]

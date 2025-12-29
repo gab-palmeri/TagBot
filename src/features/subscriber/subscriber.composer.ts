@@ -11,46 +11,6 @@ const SubscriberComposer = new Composer<MyContext>();
 const subscriberService = new SubscriberServices(new SubscriberRepository());
 
 
-SubscriberComposer.command("join", checkIfGroup, async ctx => {
-
-    const tagName = ctx.match.toString();
-    const groupId = ctx.update.message.chat.id.toString();
-    const username = ctx.update.message.from.username;
-    const userId = ctx.update.message.from.id.toString();
-
-    if(tagName.length == 0) 
-        return await ctx.reply(msgJoinSyntaxError);
-    
-    const joinResult = await subscriberService.joinTag(groupId, tagName, userId);
-
-    if(joinResult.ok === true) {
-        const [msg, inlineKeyboardText] = msgJoinPublic(tagName, username);
-        const inlineKeyboard = new InlineKeyboard().text(inlineKeyboardText, `join-tag_${tagName}`);
-
-        await ctx.reply(msg, { reply_markup: inlineKeyboard });
-    }
-    else {
-
-        const [msg, inlineKeyboardUrlText] = msgJoinStartBot(username);
-        const inlineKeyboard = new InlineKeyboard().url(inlineKeyboardUrlText, `https://t.me/${ctx.me.username}?start=${groupId}_${tagName}`);
-
-        switch(joinResult.error) {
-            case "BOT_NOT_STARTED":
-                await ctx.reply(msg, { reply_markup: inlineKeyboard });
-                break;
-            case "ALREADY_EXISTS":
-                await ctx.reply("⚠️ You are already subscribed to tag #" + tagName + ", @" + username);
-                break;
-            case "NOT_FOUND":
-                await ctx.reply(`⚠️ Tag #${tagName} not found in this group, @${username}`);
-                break;
-            case "INTERNAL_ERROR":
-                await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
-                break;
-        }
-    }
-});
-
 SubscriberComposer.callbackQuery(/^join-tag_/, async (ctx) => {
 
     if(ctx.callbackQuery.message.chat.type !== "private") {
@@ -96,76 +56,6 @@ SubscriberComposer.callbackQuery(/^join-tag_/, async (ctx) => {
 });
 
 
-SubscriberComposer.command("leave", checkIfGroup, async ctx => {
-
-    const tagName = ctx.match.toString();
-    const groupId = ctx.update.message.chat.id.toString();
-    const username = ctx.update.message.from.username;
-    const userId = ctx.update.message.from.id.toString();
-
-    if(tagName.length == 0)
-        return await ctx.reply(msgLeaveSyntaxError);
-
-    const result = await subscriberService.leaveTag(groupId, tagName, userId);
-
-    if(result.ok === true) {
-        await ctx.reply(msgLeaveTag(username, tagName));
-    }
-    else {
-        switch(result.error) {
-            case "NOT_FOUND":
-                await ctx.reply(`⚠️ You are not subscribed to tag #${tagName}, @${username}`);
-                break;
-            case "INTERNAL_ERROR":
-                await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
-                break;
-        }
-    }
-});
-
-//function that returns the tags the user is subcribed in
-SubscriberComposer.command("mytags", checkIfGroup, async ctx => {
-    
-    const groupId = ctx.update.message.chat.id.toString();
-    const username = ctx.update.message.from.username;
-    const userId = ctx.update.message.from.id.toString();
-
-    const result = await subscriberService.getSubscriberTags(userId, groupId);
-
-    if(result.ok === true) {
-        const tags = result.value;
-
-        await ctx.reply(msgMyTags(tags, username), { parse_mode: "HTML" });
-    }
-    else {
-        switch(result.error) {
-            case "NOT_FOUND":
-                await ctx.reply(`⚠️ You are not subscribed to any tags in this group, @${username}`);
-                break;
-            case "INTERNAL_ERROR":
-                await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
-                break;
-        }
-    }
-});
-
-
-SubscriberComposer.on("chat_member", async ctx => {
-
-    const oldStatus = ctx.chatMember.old_chat_member.status;
-    const newStatus = ctx.chatMember.new_chat_member.status;
-    const groupId = ctx.chat.id.toString();
-
-    const isBot = ctx.chatMember.new_chat_member.user.is_bot;
-
-    if(!isBot) {
-        if(["member","administrator","creator"].includes(oldStatus) && ["kicked","left"].includes(newStatus))
-            await subscriberService.setActiveFlag(groupId, ctx.chatMember.old_chat_member.user.id, false);
-
-        if(["kicked","left"].includes(oldStatus) && ["member","administrator","creator"].includes(newStatus))
-            await subscriberService.setActiveFlag(groupId, ctx.chatMember.new_chat_member.user.id, true);
-    }
-});
 
 
 

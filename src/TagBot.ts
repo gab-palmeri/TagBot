@@ -4,13 +4,8 @@ import { getSessionKey } from "./shared/middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-
-import GroupComposer from "features/group/group.composer";
-import AdminComposer from "features/admin/admin.composer";
-import SubscriberComposer from "features/subscriber/subscriber.composer";
-import TagComposer from "features/tag/tag.composer";
-import UserComposer from "features/user/user.composer";
-
+import tagbotCommands from "commands";
+import { listenersGroup, listenersPrivate} from "listeners";
 
 import {Groups, LastUsedTags, MyContext} from '@utils/customTypes';
 import controlPanel from "@utils/menu/controlPanel";
@@ -22,22 +17,10 @@ export default class TagBot {
 	constructor(token: string) {
 		this.bot = new Bot<MyContext>(token);
 
-		//Set the bot commands list
-		this.bot.api
-            .setMyCommands([
-				{command: "start", description: "Start the bot"},
-                { command: 'create', description: 'Create a new grouptag' },
-                { command: 'delete', description: 'Delete a grouptag' },
-				{ command: 'rename', description: 'Rename a grouptag' },
-				{ command: 'restart', description: 'Restart the bot' },
-				{ command: 'settings', description: 'Change the settings of the bot in private' },
-                { command: 'join', description: 'Join a grouptag' },
-                { command: 'leave', description: 'Leave a grouptag' },
-                { command: 'list', description: 'List all the grouptags' },
-                { command: 'mytags', description: 'List all the grouptags you are subscribed to' },
-				{ command: 'help', description: 'Show the list of commands' },
-            ])
-            .catch(console.error);
+		this.bot.use(tagbotCommands);
+		void tagbotCommands.setCommands(this.bot); 
+		this.bot.use(listenersGroup);
+		this.bot.use(listenersPrivate);
 
 		//Set the basic error handler
 		this.bot.catch((err) => {
@@ -71,26 +54,6 @@ export default class TagBot {
 		this.bot.api.config.use(throttler);
 
 		this.setRateLimits();
-		this.setCommands();
-	}
-
-	public setCommands() {
-
-		//ADMIN COMMANDS
-		this.bot.use(AdminComposer);
-
-		//GENERAL COMMANDS
-		this.bot.use(GroupComposer);
-
-		//TAG COMMANDS
-		this.bot.use(TagComposer);
-		
-		//SUBSCRIBER COMMANDS
-		this.bot.use(SubscriberComposer);
-
-		//USER COMMANDS
-		this.bot.use(UserComposer);
-	
 	}
 
 	public setRateLimits() {
@@ -133,6 +96,7 @@ export default class TagBot {
 	}
 
 	public async start() {
+
 		const runner = run(
 			this.bot, 
 			500, 

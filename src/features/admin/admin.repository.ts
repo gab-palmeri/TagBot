@@ -8,7 +8,7 @@ import { db } from '@db/database';
 
 export default class AdminRepository implements IAdminRepository {
     
-    public async getAdminWithGroups(userId: string) {
+    public async getWithGroups(userId: string) {
         try {
 
             const groups = await db
@@ -36,12 +36,59 @@ export default class AdminRepository implements IAdminRepository {
         }
     }
     
-    public async editGroupPermissions(groupId: string, userId: string, permissions: Partial<GroupDTO>) {
+    public async editGroupPermissions(groupId: string, permissions: Partial<GroupDTO>) {
         try {
             // Update the group permissions
             await db
                 .updateTable('group')
                 .set(permissions)
+                .where('groupId', '=', groupId)
+                .execute();
+            return ok(null);
+        }
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
+        }
+    }
+
+    public async addAdmins(groupId: string, userIds: string[]) {
+        try {
+            const inserts = userIds.map(userId => ({
+                groupId,
+                userId
+            }));
+            await db
+                .insertInto('admin')
+                .values(inserts)
+                .execute();
+            return ok(null);
+        }
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
+        }
+    }
+
+    public async deleteAdmins(groupId: string, userIds: string[]) {
+        try {
+            await db
+                .deleteFrom('admin')
+                .where('groupId', '=', groupId)
+                .where('userId', 'in', userIds)
+                .execute();
+            return ok(null);
+        }
+        catch(e) {
+            console.log(e);
+            return err("DB_ERROR");
+        }
+    }
+
+    public async deleteAllAdmins(groupId: string) {
+        try {
+            await db
+                .deleteFrom('admin')
                 .where('groupId', '=', groupId)
                 .execute();
             return ok(null);

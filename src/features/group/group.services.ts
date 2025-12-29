@@ -5,10 +5,10 @@ export default class GroupServices implements IGroupService {
 
     constructor(private readonly groupRepository: IGroupRepository) {}
 
-    public async createGroup(groupName: string, groupId: string, adminIDs: string[]) {
+    public async createGroup(groupName: string, groupId: string) {
 
         try {
-            const response = await this.groupRepository.createGroup(groupId, groupName, adminIDs);
+            const response = await this.groupRepository.createGroup(groupId, groupName);
 
             if(response.ok === true) {
                 return ok(null);
@@ -100,9 +100,9 @@ export default class GroupServices implements IGroupService {
         } 
     }
 
-    public async toggleGroupActive(groupId: string) {
+    public async setGroupActive(groupId: string, isActive: boolean) {
         
-        const response = await this.groupRepository.toggleGroupActive(groupId);
+        const response = await this.groupRepository.setGroupActive(groupId, isActive);
 
         if(response.ok === true) {
             return ok(null);
@@ -111,93 +111,6 @@ export default class GroupServices implements IGroupService {
             switch(response.error) {
                 case "NOT_FOUND":
                     return err("NOT_FOUND");
-                case "DB_ERROR":
-                    return err("INTERNAL_ERROR");
-            }
-        }
-    }
-
-    
-    public async createAdminList(groupId: string, adminIDs: string[]) {
-        
-        const response = await this.groupRepository.createAdminList(groupId, adminIDs);
-
-        if(response.ok === true) {
-            return ok(null);
-        }
-        else {
-            switch(response.error) {
-                case "DB_ERROR":
-                    return err("INTERNAL_ERROR");
-            }
-        }
-        
-    }
-
-    public async deleteAdminList(groupId: string) {
-        
-        const response = await this.groupRepository.deleteAdminList(groupId);
-
-        if(response.ok === true) {
-            return ok(null);
-        }
-        else {
-            switch(response.error) {
-                case "DB_ERROR":
-                    return err("INTERNAL_ERROR");
-            }
-        }
-    }
-
-    public async reloadAdminList(groupId: string, adminsIDs: string[]) {
-        
-        const deleteResponse = await this.groupRepository.deleteAdminList(groupId);
-
-        if(deleteResponse.ok === true) {
-            const createResponse = await this.groupRepository.createAdminList(groupId, adminsIDs);
-
-            if(createResponse.ok === true) {
-                return ok(null);
-            }
-            else {
-                switch(createResponse.error) {
-                    case "DB_ERROR":
-                        return err("INTERNAL_ERROR");
-                }
-            }
-        }
-        else {
-            switch(deleteResponse.error) {
-                case "DB_ERROR":
-                    return err("INTERNAL_ERROR");
-            }
-        }
-    }
-    
-    public async addAdmin(groupId: string, userID: string) {
-
-        const response = await this.groupRepository.addAdmin(groupId, userID);
-
-        if(response.ok === true) {
-            return ok(null);
-        }
-        else {
-            switch(response.error) {
-                case "DB_ERROR":
-                    return err("INTERNAL_ERROR");
-            }
-        }
-    }
-    
-    public async removeAdmin(groupId: string, userId: string) {
-        
-        const response = await this.groupRepository.removeAdmin(groupId, userId);
-
-        if(response.ok === true) {
-            return ok(null);
-        }
-        else {
-            switch(response.error) {
                 case "DB_ERROR":
                     return err("INTERNAL_ERROR");
             }

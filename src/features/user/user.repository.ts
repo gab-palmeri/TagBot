@@ -75,4 +75,19 @@ export default class UserRepository implements IUserRepository {
             return err("DB_ERROR");
         }
     }
+
+    public async setBotStarted(userId: string, hasBotStarted: boolean) {
+        try {
+            await db
+                .updateTable('user')
+                .set({ hasBotStarted: hasBotStarted })
+                .where('userId', '=', userId)
+                .execute();
+            return ok(null);
+        }
+        catch(e) {
+            console.log(`Error updating bot started status for user with id: ${userId}`, e);
+            return err("DB_ERROR");
+        }
+    }
 }

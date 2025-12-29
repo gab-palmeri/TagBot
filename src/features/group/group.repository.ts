@@ -5,7 +5,7 @@ import { GroupDTO } from "./group.dto";
 import { db } from "@db/database";
 
 export default class GroupRepository implements IGroupRepository {
-    public async createGroup(groupId: string, groupName: string, adminsIDs: string[]) {
+    public async createGroup(groupId: string, groupName: string) {
         try {
             await db.insertInto('group')
                 .values({
@@ -13,15 +13,6 @@ export default class GroupRepository implements IGroupRepository {
                     groupName: groupName,
                 })
                 .execute();
-
-            if (adminsIDs.length > 0) {
-                await db.insertInto('admin')
-                    .values(adminsIDs.map(adminID => ({
-                        groupId: groupId,
-                        userId: adminID,
-                    })))
-                    .execute();
-            }
 
             return ok(null);
         }
@@ -78,71 +69,14 @@ export default class GroupRepository implements IGroupRepository {
 
     }
 
-    public async toggleGroupActive(groupId: string) {
+    public async setGroupActive(groupId: string, isActive: boolean) {
         try {
             await db
                 .updateTable('group')
-                .set((eb) => ({
-                    isActive: eb.not('isActive'),
+                .set(() => ({
+                    isActive: isActive,
                 }))
                 .where('groupId', '=', groupId)
-                .execute();
-                
-            return ok(null);
-        }
-        catch(e) {
-            return err("DB_ERROR");
-        }
-    }
-
-    
-    public async createAdminList(groupId: string, adminsIDs: string[]) {
-        try {
-            await db.insertInto('admin')
-                .values(adminsIDs.map(adminID => ({
-                    groupId: groupId,
-                    userId: adminID
-                })))
-                .execute();
-
-            return ok(null);
-        }
-        catch(e) {
-            return err("DB_ERROR");
-        }
-    }
-
-    public async deleteAdminList(groupId: string) {
-        try {
-            await db.deleteFrom('admin').where('groupId', '=', groupId).execute();
-
-            return ok(null);
-        }
-        catch(e) {
-            return err("DB_ERROR");
-        }
-    }
-    
-    public async addAdmin(groupId: string, adminID: string) {
-        try {
-            await db.insertInto('admin')
-                .values({
-                    groupId: groupId,
-                    userId: adminID,
-                })
-                .execute();
-            return ok(null);
-        }
-        catch(e) {
-            return err("DB_ERROR");
-        }
-    }
-    
-    public async removeAdmin(groupId: string, adminID: string) {
-        try {
-            await db.deleteFrom('admin')
-                .where('groupId', '=', groupId)
-                .where('userId', '=', adminID)
                 .execute();
                 
             return ok(null);

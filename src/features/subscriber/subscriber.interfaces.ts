@@ -4,6 +4,7 @@ import { TagDTO } from "../tag/tag.dto";
 export interface ISubscriberRepository {
     joinTag(groupId: string, tagName: string, userId: string, username: string): Promise<Result<null, "ALREADY_EXISTS" | "DB_ERROR">>;
     leaveTag(groupId: string, tagName: string, userId: string): Promise<Result<null, "NOT_FOUND" | "DB_ERROR">>;
+    //TODO: spostare in user??
     getSubscriberTags(userId: string, groupId: string): Promise<Result<TagDTO[], "NOT_FOUND" | "DB_ERROR">>;
     setActiveFlag(groupId: string, userId: string, isActive: boolean): Promise<Result<null, "NOT_FOUND" | "DB_ERROR">>;
 }

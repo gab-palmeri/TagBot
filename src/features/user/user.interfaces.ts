@@ -7,6 +7,7 @@ export interface IUserRepository {
   userExists(userId: string): Promise<Result<boolean, "DB_ERROR">>;
   getUser(userId: string): Promise<Result<UserDTO, "NOT_FOUND" | "DB_ERROR">>;
   updateUserUsername(userId: string, username: string): Promise<Result<null, "DB_ERROR">>;
+  setBotStarted(userId: string, hasBotStarted: boolean): Promise<Result<null, "DB_ERROR">>;
 }
 
 export interface IUserService {
@@ -15,4 +16,5 @@ export interface IUserService {
   userExists(userId: string): Promise<Result<boolean, "INTERNAL_ERROR">>;
   getUser(userId: string): Promise<Result<UserDTO, "NOT_FOUND" | "INTERNAL_ERROR">>;
   updateUserUsername(userId: string, username: string): Promise<Result<null, "INTERNAL_ERROR">>;
+  setBotStarted(userId: string, hasBotStarted: boolean): Promise<Result<null, "INTERNAL_ERROR">>;
 }

@@ -4,14 +4,14 @@ import { ok, err } from '@utils/result';
 import { AdminDTO } from './admin.dto';
 import { GroupDTO } from '../group/group.dto';
 
-import { db } from '@db/database';
+import { getDb } from '@db/database';
 
 export default class AdminRepository implements IAdminRepository {
     
     public async getWithGroups(userId: string) {
         try {
 
-            const groups = await db
+            const groups = await getDb()
                 .selectFrom('admin')
                 .innerJoin('group', 'group.groupId', 'admin.groupId')
                 .selectAll('group')
@@ -39,7 +39,7 @@ export default class AdminRepository implements IAdminRepository {
     public async editGroupPermissions(groupId: string, permissions: Partial<GroupDTO>) {
         try {
             // Update the group permissions
-            await db
+            await getDb()
                 .updateTable('group')
                 .set(permissions)
                 .where('groupId', '=', groupId)
@@ -58,7 +58,7 @@ export default class AdminRepository implements IAdminRepository {
                 groupId,
                 userId
             }));
-            await db
+            await getDb()
                 .insertInto('admin')
                 .values(inserts)
                 .execute();
@@ -72,7 +72,7 @@ export default class AdminRepository implements IAdminRepository {
 
     public async deleteAdmins(groupId: string, userIds: string[]) {
         try {
-            await db
+            await getDb()
                 .deleteFrom('admin')
                 .where('groupId', '=', groupId)
                 .where('userId', 'in', userIds)
@@ -87,7 +87,7 @@ export default class AdminRepository implements IAdminRepository {
 
     public async deleteAllAdmins(groupId: string) {
         try {
-            await db
+            await getDb()
                 .deleteFrom('admin')
                 .where('groupId', '=', groupId)
                 .execute();

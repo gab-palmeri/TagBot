@@ -2,7 +2,7 @@ import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 import { ITagRepository } from "./tag.interfaces";
 import { err, ok } from "@utils/result";
 
-import { db } from "@db/database";
+import { getDb } from '@db/database';
 import { TagDTO } from "./tag.dto";
 
 import dayjs from 'dayjs';
@@ -14,7 +14,7 @@ export default class TagRepository implements ITagRepository {
     //TODO: controllo se il gruppo esiste farlo a monte
     public async create(groupId: string, tagName: string, userId: string) {
         try {
-            await db
+            await getDb()
                 .insertInto('tag')
                 .values({
                     name: tagName.toLowerCase(),
@@ -40,7 +40,7 @@ export default class TagRepository implements ITagRepository {
     public async delete(groupId: string, tagName: string) {
         try {
             //use kysely
-            const tag = await db
+            const tag = await getDb()
                 .selectFrom('tag')
                 .where('name', '=', tagName)
                 .where('groupId', '=', groupId)
@@ -51,7 +51,7 @@ export default class TagRepository implements ITagRepository {
                 return err("NOT_FOUND");
             }
     
-            await db.deleteFrom('tag')
+            await getDb().deleteFrom('tag')
                 .where('id', '=', tag.id)
                 .execute();
             return ok(null);
@@ -66,7 +66,7 @@ export default class TagRepository implements ITagRepository {
         try {
 
 
-            const tag = await db
+            const tag = await getDb()
                 .selectFrom('tag')
                 .where('name', '=', oldTagName)
                 .where('groupId', '=', groupId)
@@ -78,7 +78,7 @@ export default class TagRepository implements ITagRepository {
             }
     
             tag.name = newTagName;
-            await db.updateTable('tag')
+            await getDb().updateTable('tag')
                 .set({ name: newTagName })
                 .where('id', '=', tag.id)
                 .execute();
@@ -96,7 +96,7 @@ export default class TagRepository implements ITagRepository {
 
     public async updateLastTagged(groupId: string, tagName: string) {
         try {
-            const result = await db
+            const result = await getDb()
                 .updateTable('tag')
                 .set({ lastTagged: dayjs.utc().toISOString() })
                 .where('name', '=', tagName)
@@ -119,7 +119,7 @@ export default class TagRepository implements ITagRepository {
     public async get(groupId: string, tagName: string) {
         try {
 
-            const tag = await db
+            const tag = await getDb()
                 .selectFrom('tag')
                 .where('name', '=', tagName)
                 .where('groupId', '=', groupId)
@@ -148,7 +148,7 @@ export default class TagRepository implements ITagRepository {
         try {
             
             //get all subscribers for the given tag. the username is taken from the user table
-            const subscribersTags = await db
+            const subscribersTags = await getDb()
                 .selectFrom('subscriber')
                 .innerJoin('tag', 'subscriber.tagId', 'tag.id')
                 .innerJoin('user', 'subscriber.userId', 'user.userId')
@@ -178,7 +178,7 @@ export default class TagRepository implements ITagRepository {
     public async getByGroup(groupId: string) {
         try {
 
-            const tags = await db
+            const tags = await getDb()
                 .selectFrom('tag')
                 .leftJoin('subscriber', 'tag.id', 'subscriber.tagId')
                 .where('tag.groupId', '=', groupId)
@@ -186,7 +186,7 @@ export default class TagRepository implements ITagRepository {
                     'tag.name',
                     'tag.creatorId as creatorId',
                     'tag.lastTagged as lastTagged',
-                    db.fn.count('subscriber.userId').as('subscriberCount')
+                    getDb().fn.count('subscriber.userId').as('subscriberCount')
                 ])
                 .groupBy(['tag.name', 'tag.creatorId', 'tag.lastTagged'])
                 .execute();

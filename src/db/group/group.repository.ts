@@ -2,12 +2,12 @@ import { IGroupRepository } from "./group.interfaces";
 import { err, ok } from "@utils/result";
 import { GroupDTO } from "./group.dto";
 
-import { db } from "@db/database";
+import { getDb } from '@db/database';
 
 export default class GroupRepository implements IGroupRepository {
     public async createGroup(groupId: string, groupName: string) {
         try {
-            await db.insertInto('group')
+            await getDb().insertInto('group')
                 .values({
                     groupId: groupId,
                     groupName: groupName,
@@ -29,7 +29,7 @@ export default class GroupRepository implements IGroupRepository {
 
     public async getGroup(groupID: string) {
         try {
-            const group = await db.selectFrom('group')
+            const group = await getDb().selectFrom('group')
                 .selectAll()
                 .where('groupId', '=', groupID)
                 .executeTakeFirst();
@@ -56,7 +56,7 @@ export default class GroupRepository implements IGroupRepository {
     public async migrateGroup(oldGroupId: string, newGroupId: string) {
         try {
     
-            const result = await db.updateTable('group')
+            const result = await getDb().updateTable('group')
                 .set({ groupId: newGroupId })
                 .where('groupId', '=', oldGroupId)
                 .executeTakeFirst();
@@ -76,7 +76,7 @@ export default class GroupRepository implements IGroupRepository {
 
     public async setGroupActive(groupId: string, isActive: boolean) {
         try {
-            await db
+            await getDb()
                 .updateTable('group')
                 .set(() => ({
                     isActive: isActive,

@@ -2,14 +2,14 @@ import { TagDTO } from '../../db/tag/tag.dto';
 import { ISubscriberRepository } from './subscriber.interfaces';
 import { err, ok } from '@utils/result';
 
-import { db } from '@db/database';
+import { getDb } from '@db/database';
 
 export default class SubscriberRepository implements ISubscriberRepository {
    
     public async joinTag(groupId: string, tagName: string, userId: string) {
         try {
 
-            const tag = await db.
+            const tag = await getDb().
                 selectFrom('tag')
                 .selectAll()
                 .where('name', '=', tagName)
@@ -18,7 +18,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
                 .executeTakeFirst();
             
             //TODO: farlo fuori Check if the user is already subscribed to the tag
-            const existingSubscriber = await db
+            const existingSubscriber = await getDb()
                 .selectFrom('subscriber')
                 .selectAll()
                 .where('userId', '=', userId)
@@ -26,7 +26,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
                 .executeTakeFirst();
 
             if (!existingSubscriber) {
-                await db.insertInto('subscriber')
+                await getDb().insertInto('subscriber')
                     .values({
                         userId: userId,
                         tagId: tag.id,
@@ -47,7 +47,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
     public async leaveTag(groupId: string, tagName: string, userId: string) {
         
         try {
-            const tag = await db
+            const tag = await getDb()
                 .selectFrom('tag')
                 .selectAll()
                 .where('name', '=', tagName)
@@ -59,7 +59,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
                 return err("NOT_FOUND");
             }
 
-            const subscriber = await db
+            const subscriber = await getDb()
                 .selectFrom('subscriber')
                 .selectAll()
                 .where('userId', '=', userId)
@@ -70,7 +70,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
                 return err("NOT_FOUND");
             }
 
-            await db
+            await getDb()
                 .deleteFrom('subscriber')
                 .where('userId', '=', userId)
                 .where('tagId', '=', tag.id)
@@ -86,7 +86,7 @@ export default class SubscriberRepository implements ISubscriberRepository {
     
     public async getSubscriberTags(userId: string, groupId: string) {
         try {
-            const tags = await db
+            const tags = await getDb()
                 .selectFrom('subscriber')
                 .innerJoin('tag', 'subscriber.tagId', 'tag.id')
                 .select([
@@ -115,13 +115,13 @@ export default class SubscriberRepository implements ISubscriberRepository {
     public async setActiveFlag(groupId: string, userId: string, isActive: boolean) {
         try {
 
-            const groupTags = await db
+            const groupTags = await getDb()
                 .selectFrom('tag')
                 .selectAll()
                 .where('groupId', '=', groupId)
                 .execute();
 
-            await db
+            await getDb()
                 .updateTable('subscriber')
                 .set({ isActive: isActive })
                 .where('userId', '=', userId)

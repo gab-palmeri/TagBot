@@ -1,7 +1,7 @@
 import { IUserRepository } from "./user.interfaces";
 import { ok, err } from "@utils/result";
 
-import { db } from "@db/database";
+import { getDb } from '@db/database';
 import { UserDTO } from "./user.dto";
 
 export default class UserRepository implements IUserRepository {
@@ -10,7 +10,7 @@ export default class UserRepository implements IUserRepository {
         try {
             
             //save user with kysely and db
-            await db.insertInto('user').values({ userId: userId.toString(), username: username }).execute();
+            await getDb().insertInto('user').values({ userId: userId.toString(), username: username }).execute();
             return ok(null);
         }
         catch(e) {
@@ -21,7 +21,7 @@ export default class UserRepository implements IUserRepository {
 
     public async deleteUser(userId: string)  {
         try {
-            await db.deleteFrom('user').where('userId', '=', userId).execute();
+            await getDb().deleteFrom('user').where('userId', '=', userId).execute();
             return ok(null);
         }
         catch(e) {
@@ -32,7 +32,7 @@ export default class UserRepository implements IUserRepository {
 
     public async userExists(userId: string) {
         try {
-            const user = await db.selectFrom('user').selectAll().where('userId', '=', userId).executeTakeFirst();
+            const user = await getDb().selectFrom('user').selectAll().where('userId', '=', userId).executeTakeFirst();
             return ok(user != null);
         }
         catch(e) {
@@ -43,7 +43,7 @@ export default class UserRepository implements IUserRepository {
 
     public async getUser(userId: string) {
         try {
-            const user = await db
+            const user = await getDb()
                 .selectFrom('user')
                 .selectAll()
                 .where('userId', '=', userId)
@@ -63,7 +63,7 @@ export default class UserRepository implements IUserRepository {
 
     public async updateUserUsername(userId: string, newUsername: string) {
         try {
-            await db
+            await getDb()
                 .updateTable('user')
                 .set({ username: newUsername })
                 .where('userId', '=', userId)
@@ -78,7 +78,7 @@ export default class UserRepository implements IUserRepository {
 
     public async setBotStarted(userId: string, hasBotStarted: boolean) {
         try {
-            await db
+            await getDb()
                 .updateTable('user')
                 .set({ hasBotStarted: hasBotStarted })
                 .where('userId', '=', userId)

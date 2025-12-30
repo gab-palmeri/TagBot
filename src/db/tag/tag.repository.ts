@@ -1,6 +1,6 @@
-import { SubscriberDTO } from "features/subscriber/subscriber.dto";
+import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 import { ITagRepository } from "./tag.interfaces";
-import { err, ok } from "shared/result";
+import { err, ok } from "@utils/result";
 
 import { db } from "@db/database";
 import { TagDTO } from "./tag.dto";
@@ -12,7 +12,7 @@ dayjs.extend(utc);
 export default class TagRepository implements ITagRepository {
 
     //TODO: controllo se il gruppo esiste farlo a monte
-    public async createTag(groupId: string, tagName: string, userId: string) {
+    public async create(groupId: string, tagName: string, userId: string) {
         try {
             await db
                 .insertInto('tag')
@@ -37,7 +37,7 @@ export default class TagRepository implements ITagRepository {
         }
     }
     
-    public async deleteTag(groupId: string, tagName: string) {
+    public async delete(groupId: string, tagName: string) {
         try {
             //use kysely
             const tag = await db
@@ -62,7 +62,7 @@ export default class TagRepository implements ITagRepository {
         }
     }
     
-    public async renameTag(groupId: string, oldTagName: string, newTagName: string) {
+    public async rename(groupId: string, oldTagName: string, newTagName: string) {
         try {
 
 
@@ -116,7 +116,7 @@ export default class TagRepository implements ITagRepository {
         }
     }
 
-    public async getTag(groupId: string, tagName: string) {
+    public async get(groupId: string, tagName: string) {
         try {
 
             const tag = await db
@@ -144,33 +144,21 @@ export default class TagRepository implements ITagRepository {
         }
     }
 
-    public async getSubscribersByTag(tagName: string, groupId: string) {
+    public async getSubscribers(tagName: string, groupId: string) {
         try {
-            const tag = await db
-                .selectFrom('tag')
-                .where('tag.name', '=', tagName)
-                .where('tag.groupId', '=', groupId)
-                .selectAll('tag')
-                .executeTakeFirst();
-    
-            if(!tag) {
-                return err("NOT_FOUND");
-            }
-
+            
+            //get all subscribers for the given tag. the username is taken from the user table
             const subscribersTags = await db
                 .selectFrom('subscriber')
-                .innerJoin('user', 'user.userId', 'subscriber.userId')
-                .where('subscriber.tagId', '=', tag.id)
-                .where('subscriber.isActive', '=', true)
+                .innerJoin('tag', 'subscriber.tagId', 'tag.id')
+                .innerJoin('user', 'subscriber.userId', 'user.userId')
+                .where('tag.name', '=', tagName)
+                .where('tag.groupId', '=', groupId)
                 .select([
-                    'subscriber.userId',
-                    'user.username'
+                    'subscriber.userId as userId',
+                    'user.username as username'
                 ])
                 .execute();
-    
-            if(subscribersTags.length === 0) {
-                return err("NO_CONTENT");
-            }
     
             const subscribers = subscribersTags.map(st => { 
                 return new SubscriberDTO(
@@ -187,7 +175,7 @@ export default class TagRepository implements ITagRepository {
         }
     }
 
-    public async getTagsByGroup(groupId: string) {
+    public async getByGroup(groupId: string) {
         try {
 
             const tags = await db
@@ -202,10 +190,6 @@ export default class TagRepository implements ITagRepository {
                 ])
                 .groupBy(['tag.name', 'tag.creatorId', 'tag.lastTagged'])
                 .execute();
-    
-            if(tags.length === 0) {
-                return err("NOT_FOUND");
-            }
     
             const tagDTOs = tags.map(t => {
                 return new TagDTO(

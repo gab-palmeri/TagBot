@@ -1,17 +1,18 @@
 import { MyContext } from "@utils/customTypes";
 import { InlineKeyboard } from "grammy";
-import TagServices from "features/tag/tag.services";
-import TagRepository from "features/tag/tag.repository";
 import { msgListTags } from "@messages/subscriberMessages";
+import { organizeTagsList } from "@utils/organizeTagsList";
 
 
 export async function listHandler(ctx: MyContext) {
 
-    const tagService = new TagServices(new TagRepository());
+    // Take parameters
+    const groupId = ctx.chatId.toString();
 
-    const groupId = ctx.update.message.chat.id.toString();
-    const tagsByGroupResponse = await tagService.getTagsByGroup(groupId);
+    // Invoke repository
+    const tagsByGroupResponse = await organizeTagsList(groupId);
 
+    // Handle response
     if(tagsByGroupResponse.ok === true) {
         const mostActiveTags = tagsByGroupResponse.value.mainTags;
         const nextTags = tagsByGroupResponse.value.secondaryTags;

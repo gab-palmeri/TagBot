@@ -1,6 +1,6 @@
 import { IAdminRepository } from './admin.interfaces';
 
-import { ok, err } from 'shared/result';
+import { ok, err } from '@utils/result';
 import { AdminDTO } from './admin.dto';
 import { GroupDTO } from '../group/group.dto';
 

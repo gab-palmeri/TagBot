@@ -1,25 +1,26 @@
 import { MyContext } from "@utils/customTypes";
-import SubscriberServices from "features/subscriber/subscriber.services";
-import SubscriberRepository from "features/subscriber/subscriber.repository";
+import SubscriberRepository from "db/subscriber/subscriber.repository";
 import { msgLeaveSyntaxError, msgLeaveTag } from "@messages/subscriberMessages";
-
-
-
 
 export async function leaveHandler(ctx: MyContext) {
 
-    const subscriberService = new SubscriberServices(new SubscriberRepository());
+    const subscriberRepository = new SubscriberRepository();
 
-    const tagName = ctx.match.toString();
-    const groupId = ctx.update.message.chat.id.toString();
-    const username = ctx.update.message.from.username;
-    const userId = ctx.update.message.from.id.toString();
+    // Take parameters
+    const tagName = ctx.match.toString().trim().replace(/^#/, '');
+    const groupId = ctx.chatId.toString();
+    const username = ctx.from.username || ctx.from.first_name;
+    const userId = ctx.from.id.toString();
 
-    if(tagName.length == 0)
+    // Validate parameters
+    if(tagName.length == 0) {
         return await ctx.reply(msgLeaveSyntaxError);
+    }
 
-    const result = await subscriberService.leaveTag(groupId, tagName, userId);
+    // Invoke service
+    const result = await subscriberRepository.leaveTag(groupId, tagName, userId);
 
+    // Handle response
     if(result.ok === true) {
         await ctx.reply(msgLeaveTag(username, tagName));
     }
@@ -28,7 +29,7 @@ export async function leaveHandler(ctx: MyContext) {
             case "NOT_FOUND":
                 await ctx.reply(`⚠️ You are not subscribed to tag #${tagName}, @${username}`);
                 break;
-            case "INTERNAL_ERROR":
+            case "DB_ERROR":
                 await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
                 break;
         }

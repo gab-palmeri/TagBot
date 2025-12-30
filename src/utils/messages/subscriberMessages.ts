@@ -1,5 +1,5 @@
-import { SubscriberDTO } from "features/subscriber/subscriber.dto";
-import { TagDTO } from "features/tag/tag.dto";
+import { SubscriberDTO } from "db/subscriber/subscriber.dto";
+import { TagDTO } from "@db/tag/tag.dto";
 
 //SYNTAX MESSAGES
 export const msgJoinSyntaxError = `⚠️ Syntax: /join tagname`;

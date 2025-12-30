@@ -1,5 +1,5 @@
 import { IUserRepository } from "./user.interfaces";
-import { ok, err } from "shared/result";
+import { ok, err } from "@utils/result";
 
 import { db } from "@db/database";
 import { UserDTO } from "./user.dto";

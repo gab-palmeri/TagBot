@@ -1,38 +1,44 @@
 import { MyContext } from "@utils/customTypes";
-import TagServices from "features/tag/tag.services";
-import TagRepository from "features/tag/tag.repository";
+import TagRepository from "@db/tag/tag.repository";
 import { msgRenameSyntaxError, msgRenameTag, msgTagSyntaxError } from "@messages/tagMessages";
-import { tagPrivately } from "shared/helperFunctions";
+import { tagPrivately } from "@utils/helperFunctions";
 import { msgPublicTag } from "@messages/subscriberMessages";
 
 export async function renameHandler(ctx: MyContext) {
 
-    const tagService = new TagServices(new TagRepository());
+    const tagRepository = new TagRepository();
 
+    // Take parameters
     const args = ctx.match.toString();
-    const [oldTagName, newTagName] = args.trim().split(/\s+/);
-    const groupId = ctx.update.message.chat.id.toString();
-    
+    const [oldTagName, newTagName] = args.trim().split(/\s+/).map(tag => tag.replace(/^#/, ""));
+    const groupId = ctx.chatId.toString();
+    const username = ctx.from.username || ctx.from.first_name;
+    const groupName = ctx.msg.chat.title;
+
+    // Validate parameters
     if(oldTagName.length == 0 || newTagName.length == 0)
         return await ctx.reply(msgRenameSyntaxError);
 
-    const issuerUsername = ctx.msg.from.username;
 
-    const result = await tagService.renameTag(groupId, oldTagName, newTagName);
-        
+    const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+    if(!regex.test(oldTagName) || !regex.test(newTagName)) 
+        return await ctx.reply(msgTagSyntaxError(username)); 
+
+    const result = await tagRepository.rename(groupId, oldTagName, newTagName);
+    
+    // Handle response
     if(result.ok === true) {
-        const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,issuerUsername) , {parse_mode: "HTML"});
+        const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,username) , {parse_mode: "HTML"});
         
         //NOTIFY SUBSCRIBERS OF THE TAG RENAMING
-        const result = await tagService.getTagSubscribers(newTagName, groupId);
+        const result = await tagRepository.getSubscribers(newTagName, groupId);
 
-        if(result instanceof Array) {
+        if(result.ok) {
             //Remove the current user from the subscribers list
-            const subscribersWithoutMe = result.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
+            const subscribersWithoutMe = result.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
             if(subscribersWithoutMe.length > 0) {
                 //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(result.length > 10) {
-                    const groupName = ctx.msg.chat.title;
+                if(subscribersWithoutMe.length > 10) {
                     const message = await tagPrivately(ctx, newTagName, groupName, subscribersWithoutMe, sentMessage.message_id);
                     await ctx.reply(message, { 
                         reply_to_message_id: sentMessage.message_id,
@@ -41,22 +47,20 @@ export async function renameHandler(ctx: MyContext) {
                     });
                 }
                 else {
-                    const message = await msgPublicTag(subscribersWithoutMe);
+                    const message = msgPublicTag(subscribersWithoutMe);
                     await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
                 }
             }
-        }
+        } //TODO: handle error?
     }
     else {
         switch(result.error) {
-            case "INVALID_SYNTAX":
-                return await ctx.reply(msgTagSyntaxError(issuerUsername));
             case "NOT_FOUND":
-                return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${issuerUsername})`, {parse_mode: "HTML"});
+                return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${username})`, {parse_mode: "HTML"});
             case "ALREADY_EXISTS":
-                return await ctx.reply(`⚠️ Tag <b>#${newTagName}</b> already exists (@${issuerUsername})`, {parse_mode: "HTML"});
-            case "INTERNAL_ERROR":
-                return await ctx.reply(`⚠️ An internal error occurred while renaming the tag (@${issuerUsername})`, {parse_mode: "HTML"});
+                return await ctx.reply(`⚠️ Tag <b>#${newTagName}</b> already exists (@${username})`, {parse_mode: "HTML"});
+            case "DB_ERROR":
+                return await ctx.reply(`⚠️ An internal error occurred while renaming the tag (@${username})`, {parse_mode: "HTML"});
         }
     }
 }

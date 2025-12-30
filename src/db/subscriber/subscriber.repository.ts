@@ -1,12 +1,11 @@
-import { TagDTO } from '../tag/tag.dto';
+import { TagDTO } from '../../db/tag/tag.dto';
 import { ISubscriberRepository } from './subscriber.interfaces';
-import { err, ok } from 'shared/result';
+import { err, ok } from '@utils/result';
 
 import { db } from '@db/database';
 
 export default class SubscriberRepository implements ISubscriberRepository {
    
-    //TODO: rimosso il controllo se il tag esiste, bisogna metterlo altrove a monte
     public async joinTag(groupId: string, tagName: string, userId: string) {
         try {
 

@@ -2,7 +2,7 @@ import { MyContext, LastUsedTags } from "@utils/customTypes";
 
 
 import { msgPrivateTag, msgPrivateTagError, msgPrivateTagResponse } from "@messages/subscriberMessages";
-import { SubscriberDTO } from "features/subscriber/subscriber.dto";
+import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 
 
 //This function sends a private message to each user subscribed to the tag

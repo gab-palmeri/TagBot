@@ -1,27 +1,28 @@
-import AdminRepository from "features/admin/admin.repository";
-import AdminServices from "features/admin/admin.services";
+import AdminRepository from "@db/admin/admin.repository";
 import { MyContext } from "@utils/customTypes";
 import { restartSuccessMessage, restartErrorMessage } from "@utils/messages/generalMessages";
 
 
 export async function restartHandler(ctx: MyContext) {
 
-    const adminService = new AdminServices(new AdminRepository());
+    const adminRepository = new AdminRepository();
 
-    const groupId = ctx.chat.id.toString();
-        
-    //Get the admins list from Telegram API and convert them to strings
+    // Take parameters
+    const groupId = ctx.chatId.toString();
     const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
     const adminIDs = adminList.map(admin => admin.user.id.toString());
-    const result = await adminService.reloadAdmins(groupId, adminIDs);
 
-    if(result.ok === true) {
-        return await ctx.reply(restartSuccessMessage);
+    // Invoke service
+    const deleteResult = await adminRepository.deleteAllAdmins(groupId);
+    if(deleteResult.ok === false) {
+        return await ctx.reply(restartErrorMessage);
     }
-    else {
-        switch(result.error) {
-            case "INTERNAL_ERROR":
-                return await ctx.reply(restartErrorMessage);
-        }
+
+    // Invoke service
+    const addResult = await adminRepository.addAdmins(groupId, adminIDs);
+    if(addResult.ok === false) {
+        return await ctx.reply(restartErrorMessage);
     }
+
+    return await ctx.reply(restartSuccessMessage);
 }

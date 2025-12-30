@@ -1,87 +1,89 @@
 import { MyContext } from "@utils/customTypes";
-import TagServices from "features/tag/tag.services";
-import TagRepository from "features/tag/tag.repository";
+import TagRepository from "@db/tag/tag.repository";
 
-import { isUserFlooding, tagPrivately } from "shared/helperFunctions";
+import { isUserFlooding, tagPrivately } from "@utils/helperFunctions";
 import { msgFloodingError, msgPublicTag, msgTagsErrors } from "@messages/subscriberMessages";
 
 export async function hashtagHandler(ctx: MyContext) {
 
-    const tagService = new TagServices(new TagRepository());
+    const tagRepository = new TagRepository();
 
     if(ctx.msg.forward_origin !== undefined)
         return;
 
-    //get ALL tag names mentioned 
-    const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(entity => entity.text);
+    // Take parameters
+    const tagNames = ctx.entities().filter(entity => entity.type == "hashtag").map(e => e.text.replace(/^#/, ""));
     const messageToReplyTo = ctx.msg.message_id;
     const groupId = ctx.update.message.chat.id.toString();
 
+    await ctx.react("👀");
+
+    // Initialize arrays
     const emptyTags = [];
     const nonExistentTags = [];
     const onlyOneInTags = [];
     let isFlooding = false;
 
-    await ctx.react("👀");
     
-    //for every tag name, get the subcribers and create a set of users preceded by "@"
-    //if the tag does not exist / is empty / only has the current user, add it to the corresponding array
+    // For each tag name, get the subscribers and create a set of users preceded by "@"
+    // If the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
+
+        const tag = await tagRepository.get(tagName, groupId);
+
+        if(tag.ok === false && tag.error === "NOT_FOUND") {
+            nonExistentTags.push(tagName);
+            continue;
+        }
         
-        const tagSubResult = await tagService.getTagSubscribers(tagName.substring(1), groupId);
+        const tagSubResult = await tagRepository.getSubscribers(tagName.substring(1), groupId);
 
         if(tagSubResult.ok === true) {
+
+            // Check if the tag is empty
+            if(tagSubResult.value.length == 0) {
+                emptyTags.push(tagName);
+                continue;
+            }
 
             //Remove the current user from the subscribers list
             const subscribersWithoutMe = tagSubResult.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
 
-            if(subscribersWithoutMe.length > 0) {
+            if(subscribersWithoutMe.length == 0) {
+                onlyOneInTags.push(tagName);
+                continue;
+            }
 
-                //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
-                const userId = ctx.update.message.from.id.toString();
-                const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
-                if(iuf) {
-                    isFlooding = true;
-                    break;
-                }
+            //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
+            const userId = ctx.update.message.from.id.toString();
+            const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
+            if(iuf) {
+                isFlooding = true;
+                break;
+            }
 
-                //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(subscribersWithoutMe.length > 10) {
+            //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
+            if(subscribersWithoutMe.length > 10) {
 
-                    const groupName = ctx.msg.chat.title;
+                const groupName = ctx.msg.chat.title;
 
-                    const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
-                    await ctx.reply(message, { 
-                        reply_to_message_id: ctx.msg.message_id,
-                        parse_mode: "HTML",
-                        link_preview_options: { is_disabled: true }
-                    });
-                }
-                else {
-                    const message = await msgPublicTag(subscribersWithoutMe);
-                    await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
-                }
-
-
-                await tagService.updateLastTagged(tagName.substring(1), groupId);
-            
+                const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
+                await ctx.reply(message, { 
+                    reply_to_message_id: ctx.msg.message_id,
+                    parse_mode: "HTML",
+                    link_preview_options: { is_disabled: true }
+                });
             }
             else {
-                onlyOneInTags.push(tagName);
-            } 
+                const message = await msgPublicTag(subscribersWithoutMe);
+                await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
+            }
+
+            await tagRepository.updateLastTagged(tagName.substring(1), groupId);        
         }
         else {
-            switch(tagSubResult.error) {
-                case "NOT_FOUND":
-                    nonExistentTags.push(tagName);
-                    break;
-                case "NO_CONTENT":
-                    emptyTags.push(tagName);
-                    break;
-                case "INTERNAL_ERROR":
-                    console.log(`An internal error occurred while retrieving subscribers for tag ${tagName} in group ${groupId}`);
-                    break;
-            }
+            console.log(`An internal error occurred while retrieving subscribers for tag ${tagName} in group ${groupId}`);
+            await ctx.reply(`⚠️ An internal error occurred while retrieving subscribers for tag <b>#${tagName}</b>`, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" });
         }
     }
 

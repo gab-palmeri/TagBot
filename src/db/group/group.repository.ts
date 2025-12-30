@@ -1,5 +1,5 @@
 import { IGroupRepository } from "./group.interfaces";
-import { err, ok } from "shared/result";
+import { err, ok } from "@utils/result";
 import { GroupDTO } from "./group.dto";
 
 import { db } from "@db/database";
@@ -55,10 +55,15 @@ export default class GroupRepository implements IGroupRepository {
     
     public async migrateGroup(oldGroupId: string, newGroupId: string) {
         try {
-            await db.updateTable('group')
+    
+            const result = await db.updateTable('group')
                 .set({ groupId: newGroupId })
                 .where('groupId', '=', oldGroupId)
-                .execute();
+                .executeTakeFirst();
+
+            if (result?.numUpdatedRows && result.numUpdatedRows > 0) {
+                return err("NOT_FOUND");
+            }
 
             return ok(null);
         }

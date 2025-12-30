@@ -1,18 +1,20 @@
 import { MyContext } from "@utils/customTypes";
-import GroupServices from "features/group/group.services";
-import GroupRepository from "features/group/group.repository";
+import GroupRepository from "@db/group/group.repository";
 import { migrateSuccessMessage, migrateErrorMessage } from "@utils/messages/generalMessages";
 
 
 export async function migrateHandler(ctx: MyContext) {
 
-    const groupService = new GroupServices(new GroupRepository());
+    const groupRepository = new GroupRepository();
 
+    // Take parameters
     const oldGroupId = ctx.chat.id.toString();
     const newGroupId = ctx.msg.migrate_to_chat_id.toString();
 
-    const response = await groupService.migrateGroup(oldGroupId, newGroupId);
+    // Invoke service
+    const response = await groupRepository.migrateGroup(oldGroupId, newGroupId);
 
+    // Handle response
     if(response.ok === true) {
         await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateSuccessMessage);
         return;
@@ -21,7 +23,7 @@ export async function migrateHandler(ctx: MyContext) {
         switch(response.error) {
             case "NOT_FOUND":
                 return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
-            case "INTERNAL_ERROR":
+            case "DB_ERROR":
                 return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
         }
     } 

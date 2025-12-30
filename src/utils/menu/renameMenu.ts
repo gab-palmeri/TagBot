@@ -1,20 +1,16 @@
 import { Menu } from "@grammyjs/menu";
 import {MyContext} from "@utils/customTypes";
 
-import AdminServices from "features/admin/admin.services";
-import AdminRepository from "features/admin/admin.repository";
-
 import { controlPanelDescription, errorDescription } from "./descriptions";
-
-const adminService = new AdminServices(new AdminRepository());
+import editGroupPermissions from "./editGroupPermissions";
 
 const renameMenu = new Menu<MyContext>("rename-menu")
 .text(ctx => ctx.session.selectedGroup.canRename == 1 ? "👉🏻 Everyone" : "Everyone", async (ctx) => {
 
-    const groupId = ctx.msg.chat.id.toString();
+    const userId = ctx.chatId.toString();
 
     if(ctx.session.selectedGroup.canRename !== 1) {
-        const result = await adminService.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canRename: 1});
+        const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 1});
         if(result.ok === true) {
             ctx.session.selectedGroup.canRename = 1;
             ctx.menu.update();
@@ -27,10 +23,10 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 
 .text(ctx => ctx.session.selectedGroup.canRename == 0 ? "👉🏻 Only admins" : "Only admins", async (ctx) => {
 
-    const groupId = ctx.msg.chat.id.toString();
+    const userId = ctx.chatId.toString();
 
     if(ctx.session.selectedGroup.canRename !== 0) {
-        const result = await adminService.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canRename: 0});
+        const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 0});
         if(result.ok === true) {
             ctx.session.selectedGroup.canRename = 0;
             ctx.menu.update();
@@ -43,10 +39,10 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 
 .text(ctx => ctx.session.selectedGroup.canRename == 2 ? "👉🏻 Tag creators and admins" : "Tag creators and admins", async (ctx) => {
 
-    const groupId = ctx.msg.chat.id.toString();
+    const userId = ctx.chatId.toString();
 
     if(ctx.session.selectedGroup.canRename !== 2) {
-        const result = await adminService.editGroupPermissions(ctx.session.selectedGroup.groupId, groupId, {canRename: 2});
+        const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 2});
         if(result.ok === true) {
             ctx.session.selectedGroup.canRename = 2;
             ctx.menu.update();

@@ -1,37 +1,38 @@
 import { MyContext } from "@utils/customTypes";
-import TagServices from "features/tag/tag.services";
-import TagRepository from "features/tag/tag.repository";
+import TagRepository from "@db/tag/tag.repository";
 import { msgCreateSyntaxError, msgCreateTag, msgTagSyntaxError } from "@messages/tagMessages";
 
 
 export async function createHandler(ctx: MyContext) {
 
-    const tagService = new TagServices(new TagRepository());
+    const tagRepository = new TagRepository();
 
-    const issuerUsername = ctx.msg.from.username;
-    const args = ctx.match.toString();
+    // Take parameters
+    const username = ctx.msg.from.username;
+    const tagName = ctx.match.toString().trim().replace(/^#/, "");
+    const groupId = ctx.chatId.toString();
+    const userId = ctx.from.id.toString();
 
-    const groupId = ctx.msg.chat.id.toString();
-    const userId = ctx.msg.from.id.toString();
-
-    const tagName = args.trim();
+    // Validate parameters
+    const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
     if(tagName.length == 0)
         return await ctx.reply(msgCreateSyntaxError);
-    
-        
-    const result = await tagService.createTag(groupId, tagName, userId);
+    if(!regex.test(tagName)) 
+        return await ctx.reply(msgTagSyntaxError(username));
 
+    // Invoke repository
+    const result = await tagRepository.create(groupId, tagName, userId);
+
+    // Handle response
     if(result.ok === true) {
-        return await ctx.reply(msgCreateTag(tagName, issuerUsername));
+        return await ctx.reply(msgCreateTag(tagName, username));
     }
     else {
         switch(result.error) {
-            case "INVALID_SYNTAX":
-                return await ctx.reply(msgTagSyntaxError(issuerUsername));
             case "ALREADY_EXISTS":
-                return await ctx.reply(`⚠️ Tag <b>#${tagName}</b> already exists (@${issuerUsername})`, {parse_mode: "HTML"});
-            case "INTERNAL_ERROR":
-                return await ctx.reply(`⚠️ An internal error occurred while creating the tag (@${issuerUsername})`, {parse_mode: "HTML"});
+                return await ctx.reply(`⚠️ Tag <b>#${tagName}</b> already exists (@${username})`, {parse_mode: "HTML"});
+            case "DB_ERROR":
+                return await ctx.reply(`⚠️ An internal error occurred while creating the tag (@${username})`, {parse_mode: "HTML"});
         }
     }
 }

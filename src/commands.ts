@@ -1,5 +1,6 @@
 import { CommandGroup } from "@grammyjs/commands";
 import { MyContext } from "@utils/customTypes";
+import { checkIfPrivate } from "@utils/middlewares";
 import { createHandler } from "handlers/commands/create";
 import { deleteHandler } from "handlers/commands/delete";
 import { helpCommandHandler } from "handlers/commands/help";
@@ -17,6 +18,7 @@ const tagbotCommands = new CommandGroup<MyContext>();
 tagbotCommands.command("start", "Start the bot", startCommandHandler);
 tagbotCommands.command("help", "Show the list of commands", helpCommandHandler);
 tagbotCommands.command("restart", "Restart the bot").addToScope({ type: "all_group_chats" }, restartHandler);
+tagbotCommands.command("settings", "Change the settings of the bot", [checkIfPrivate, settingsHandler]);
 
 tagbotCommands.command("join", "Join a tag").addToScope({ type: "all_group_chats" }, joinHandler);
 tagbotCommands.command("leave", "Leave a tag").addToScope({ type: "all_group_chats" }, leaveHandler);
@@ -27,6 +29,5 @@ tagbotCommands.command("delete", "Delete a tag").addToScope({ type: "all_group_c
 tagbotCommands.command("rename", "Rename a tag").addToScope({ type: "all_group_chats" }, renameHandler);
 tagbotCommands.command("list", "List all tags").addToScope({ type: "all_group_chats" }, listHandler);
 
-tagbotCommands.command("settings", "Change the settings of the bot in private").addToScope({ type: "all_private_chats" }, settingsHandler);
 
 export default tagbotCommands;

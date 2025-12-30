@@ -1,30 +1,29 @@
 import { MyContext } from "@utils/customTypes";
-import SubscriberServices from "features/subscriber/subscriber.services";
-import SubscriberRepository from "features/subscriber/subscriber.repository";
+import SubscriberRepository from "db/subscriber/subscriber.repository";
 import { msgMyTags } from "@messages/subscriberMessages";
 
 export async function mytagsHandler(ctx: MyContext) {
-    const subscriberService = new SubscriberServices(new SubscriberRepository());
+    const subscriberRepository = new SubscriberRepository();
 
-    const groupId = ctx.update.message.chat.id.toString();
-    const username = ctx.update.message.from.username;
-    const userId = ctx.update.message.from.id.toString();
+    // Take parameters
+    const groupId = ctx.chatId.toString();
+    const username = ctx.from.username || ctx.from.first_name;
+    const userId = ctx.from.id.toString();
 
-    const result = await subscriberService.getSubscriberTags(userId, groupId);
+    // Invoke service
+    const result = await subscriberRepository.getSubscriberTags(userId, groupId);
 
+    // Handle response
     if(result.ok === true) {
-        const tags = result.value;
+        
+        if(result.value.length === 0) {
+            return await ctx.reply(`⚠️ You are not subscribed to any tags in this group, @${username}`);
+        }
 
+        const tags = result.value.sort((a,b) => a.name.localeCompare(b.name));
         await ctx.reply(msgMyTags(tags, username), { parse_mode: "HTML" });
     }
     else {
-        switch(result.error) {
-            case "NOT_FOUND":
-                await ctx.reply(`⚠️ You are not subscribed to any tags in this group, @${username}`);
-                break;
-            case "INTERNAL_ERROR":
-                await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
-                break;
-        }
+        return await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
     }
 }

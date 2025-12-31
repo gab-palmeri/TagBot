@@ -13,11 +13,6 @@ import controlPanel from "@utils/menu/controlPanel";
 export default async function initializeBot() {
 	const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
 
-	bot.use(tagbotCommands);
-	await tagbotCommands.setCommands(bot); 
-	bot.use(listenersGroup);
-	bot.use(listenersPrivate);
-
 	//Set the basic error handler
 	bot.catch((err) => {
 		console.error(`Error while handling update ${err.ctx.update.update_id}:`);
@@ -48,6 +43,12 @@ export default async function initializeBot() {
 
 	const throttler = apiThrottler();
 	bot.api.config.use(throttler);
+
+	// Set commands and listeners
+	bot.use(tagbotCommands);
+	await tagbotCommands.setCommands(bot); 
+	bot.use(listenersGroup);
+	bot.use(listenersPrivate);
 
 	// Rate limits
 	bot.filter(ctx => ctx.has("::bot_command")).use(limit({

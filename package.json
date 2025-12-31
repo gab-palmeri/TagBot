@@ -31,7 +31,7 @@
    },
    "scripts": {
       "build": "tsc && tsc-alias",
-      "start": "tsx src/index.ts",
+      "start": "tsx watch src/index.ts",
       "start-prod": "node dist/index.js",
       "test": "kysely-codegen"
    }

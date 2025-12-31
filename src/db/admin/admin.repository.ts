@@ -11,34 +11,32 @@ export default class AdminRepository implements IAdminRepository {
     public async getWithGroups(userId: string) {
         try {
 
-            const groups = await getDb()
+            //get admin with groups
+            const admin = await getDb()
                 .selectFrom('admin')
-                .innerJoin('group', 'group.groupId', 'admin.groupId')
-                .selectAll('group')
+                .leftJoin('group', 'admin.groupId', 'group.groupId')
                 .where('admin.userId', '=', userId)
+                .selectAll()
                 .execute();
-            
-            return ok(new AdminDTO(
-                userId,
-                groups.map(group => new GroupDTO(
-                    group.groupId,
-                    group.groupName,
-                    group.canCreate,
-                    group.canDelete,
-                    group.canRename,
-                    group.isActive
-                ))
+
+            const groups = admin.map(a => new GroupDTO(
+                a.groupId,
+                a.groupName,
+                a.canCreate,
+                a.canDelete,
+                a.canRename,
+                a.isActive
             ));
+            
+            return ok(new AdminDTO(userId, groups));
         }
         catch(e) {
-            console.log(e);
             return err("DB_ERROR");
         }
     }
     
     public async editGroupPermissions(groupId: string, permissions: Partial<GroupDTO>) {
         try {
-            // Update the group permissions
             await getDb()
                 .updateTable('group')
                 .set(permissions)

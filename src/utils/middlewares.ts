@@ -102,18 +102,32 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 		const tag = tagResult.value;
 		const commandName = ctx.msg.text.split(/\s+/)[0].substring(1);
 
-		switch(commandName) {
+		switch (commandName) {
 			case "delete":
-				group.canDelete == 1 || (group.canDelete == 2 && tag.creatorId == userId) ? await next() :
-				group.canDelete == 2 ? await ctx.reply("Only admins or the creator of this tag can delete it") :
-				await ctx.reply("Only admins can delete tags");
+				if (group.canDelete === 1 || (group.canDelete === 2 && tag.creatorId === userId)) {
+					await next();
+				} 
+				else if (group.canDelete === 2) {
+					await ctx.reply("Only admins or the creator of this tag can delete it");
+				} 
+				else {
+					await ctx.reply("Only admins can delete tags");
+				}
 				break;
+
 			case "rename":
-				group.canRename == 1 || (group.canRename == 2 && tag.creatorId == userId) ? await next() :
-				group.canRename == 2 ? await ctx.reply("Only admins or the creator of this tag can rename it") :
-				await ctx.reply("Only admins can rename tags");
+				if (group.canRename === 1 || (group.canRename === 2 && tag.creatorId === userId)) {
+					await next();
+				} 
+				else if (group.canRename === 2) {
+					await ctx.reply("Only admins or the creator of this tag can rename it");
+				} 
+				else {
+					await ctx.reply("Only admins can rename tags");
+				}
 				break;
 		}
+
 	}
 }
 

@@ -93,9 +93,15 @@ export const msgFloodingError = `🕑 You can only mention three tags every five
 
 
 //MISC MESSAGES
-export function msgListTags(mainTags: TagDTO[], otherTags: TagDTO[] = null) {
+export function msgListTags(mainTags: TagDTO[], otherTags: TagDTO[] = null, groupName: string = null) {
 
-    let message = "<b>📄 Here's a list of all the tags in this group:</b>\n\n";
+    let message: string;
+    if(groupName) {
+        message = `<b>📄 Here's a list of all the tags in ${groupName}:</b>\n\n`;
+    }
+    else {
+        message = "<b>📄 Here's a partial list of the tags in this group:</b>\n\n";
+    }
 
     if(otherTags != null)
         message +=  "<b>Main tags:</b>\n";

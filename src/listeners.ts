@@ -6,6 +6,7 @@ import { joinTagCallbackQueryHandler } from "handlers/listeners/join-tag_callbac
 import { messageHandler } from "handlers/listeners/message";
 import { migrateHandler } from "handlers/listeners/migrate";
 import { myGroupChatMemberHandler, myPrivateChatMemberHandler } from "handlers/listeners/my_chat_member";
+import { showAllTagsCallbackQueryHandler } from "handlers/listeners/show-all-tags_callback_query";
 
 
 const listeners = new Composer<MyContext>();
@@ -16,23 +17,26 @@ const listenersPrivate = listeners.chatType("private");
 //hashtag
 listenersGroup.on("::hashtag", hashtagHandler);
 
-// controlla se l'utente ha aggiornato il suo username
+// check if an user has updated their username
 listenersGroup.on("message", messageHandler);
 
+// callback queries
 listenersGroup.callbackQuery(/^join-tag_/, joinTagCallbackQueryHandler);
-    
-//deactivate or activat esubscriber when left
+listenersGroup.callbackQuery(/^show-all-tags/, showAllTagsCallbackQueryHandler);
+
+// deactivate or activate subscriber when left, and check admin changes
 listenersGroup.on("chat_member", chatMemberHandler);
 
-//handle bot add, promotion, kicked
+// handle bot add, promotion, kicked
 listenersGroup.on("my_chat_member", myGroupChatMemberHandler);
-// controlla se un utente entra o esce dal bot in privato
+
+// check if an user enters or leaves the bot in private
 listenersPrivate.on("my_chat_member", myPrivateChatMemberHandler);
 
-//chat migration
+// chat migration
 listenersGroup.on(":migrate_to_chat_id", migrateHandler);
 
 
 
-//export the two vars
+// export the two vars
 export { listenersGroup, listenersPrivate };

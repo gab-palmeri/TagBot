@@ -3,7 +3,7 @@ import { TagDTO } from "../db/tag/tag.dto";
 import TagRepository from "@db/tag/tag.repository";
 
 //TODO: better typing of the response
-export async function organizeTagsList(groupId: string) {
+export async function organizeTagsList(groupId: string, limitNextTags = true){
 
     const tagRepository = new TagRepository();
     const getTagsByGroupResult = await tagRepository.getByGroup(groupId);
@@ -17,9 +17,9 @@ export async function organizeTagsList(groupId: string) {
     }
 
     const tags = getTagsByGroupResult.value;
-    const maxActiveTags = 5; 
-    const maxNextTags = 5; 
-
+    const maxActiveTags = 5;
+    const maxNextTags = limitNextTags ? 5 : tags.length - maxActiveTags;
+    
     // If there are more than 5 tags, sort them by score
     if(tags.length > maxActiveTags) {
         //Calculate the maximum number of subscribers among all the tags

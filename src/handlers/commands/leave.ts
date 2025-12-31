@@ -17,7 +17,7 @@ export async function leaveHandler(ctx: MyContext) {
         return await ctx.reply(msgLeaveSyntaxError);
     }
 
-    // Invoke service
+    // Invoke repository
     const result = await subscriberRepository.leaveTag(groupId, tagName, userId);
 
     // Handle response

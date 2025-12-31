@@ -23,7 +23,7 @@ export async function joinHandler(ctx: MyContext) {
     if(tagName.length == 0) 
         return await ctx.reply(msgJoinSyntaxError);
 
-    // Invoke service
+    // Invoke repository
     const userResult = await userRepository.getUser(userId);
 
     // Handle response
@@ -40,7 +40,7 @@ export async function joinHandler(ctx: MyContext) {
         }
     }
     
-    // Invoke service
+    // Invoke repository
     const tag = await tagRepository.get(groupId, tagName);
     if(tag.ok === false) {
         switch(tag.error) {
@@ -51,7 +51,7 @@ export async function joinHandler(ctx: MyContext) {
         }
     }
 
-    // Invoke service
+    // Invoke repository
     const joinResult = await subscriberRepository.joinTag(groupId, tagName, userId);
 
     // Handle response

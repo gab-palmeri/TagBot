@@ -12,7 +12,7 @@ export async function settingsHandler(ctx: MyContext) {
     // Get parameters
     const userId = ctx.from.id.toString();
 
-    // Invoke service
+    // Invoke repository
     const adminResult = await adminRepository.getWithGroups(userId);
 
     // Handle response

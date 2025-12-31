@@ -10,7 +10,7 @@ export async function mytagsHandler(ctx: MyContext) {
     const username = ctx.from.username || ctx.from.first_name;
     const userId = ctx.from.id.toString();
 
-    // Invoke service
+    // Invoke repository
     const result = await subscriberRepository.getSubscriberTags(userId, groupId);
 
     // Handle response

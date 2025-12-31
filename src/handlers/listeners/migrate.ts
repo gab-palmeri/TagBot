@@ -11,7 +11,7 @@ export async function migrateHandler(ctx: MyContext) {
     const oldGroupId = ctx.chat.id.toString();
     const newGroupId = ctx.msg.migrate_to_chat_id.toString();
 
-    // Invoke service
+    // Invoke repository
     const response = await groupRepository.migrateGroup(oldGroupId, newGroupId);
 
     // Handle response

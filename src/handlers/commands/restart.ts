@@ -12,13 +12,13 @@ export async function restartHandler(ctx: MyContext) {
     const adminList = await ctx.api.getChatAdministrators(ctx.chat.id);
     const adminIDs = adminList.map(admin => admin.user.id.toString());
 
-    // Invoke service
+    // Invoke repository
     const deleteResult = await adminRepository.deleteAllAdmins(groupId);
     if(deleteResult.ok === false) {
         return await ctx.reply(restartErrorMessage);
     }
 
-    // Invoke service
+    // Invoke repository
     const addResult = await adminRepository.addAdmins(groupId, adminIDs);
     if(addResult.ok === false) {
         return await ctx.reply(restartErrorMessage);

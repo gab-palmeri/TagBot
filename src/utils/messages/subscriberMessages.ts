@@ -97,31 +97,31 @@ export function msgListTags(mainTags: TagDTO[], otherTags: TagDTO[] = null, grou
 
     let message: string;
     if(groupName) {
-        message = `<b>📄 Here's a list of all the tags in ${groupName}:</b>\n\n`;
+        message = `<b>👇 Here's a list of all the tags in ${groupName}:</b>\n\n`;
     }
     else {
-        message = "<b>📄 Here's a partial list of the tags in this group:</b>\n\n";
+        message = "<b>👇 Here's a partial list of the tags in this group:</b>\n\n";
     }
 
     if(otherTags != null)
-        message +=  "<b>Main tags:</b>\n";
+        message +=  "<b>🔥 Main tags:</b>\n";
 
     message += mainTags.map((tag) => {
         if(tag.subscribersNum == 1)
-            return `- ` + tag.name + ` <i>(1 sub)</i>`;
+            return `- <code>${tag.name}</code> <i>(1 sub)</i>`;
         else
-            return `- ` + tag.name + ` <i>(` + tag.subscribersNum + ` subs)</i>`;
+            return `- <code>${tag.name}</code> <i>(` + tag.subscribersNum + ` subs)</i>`;
     }).join(`\n`);
 
 
     if(otherTags != null) {
-        message += `\n\n <b>Other tags:</b>\n`;
+        message += `\n\n <b>📝 Other tags:</b>\n`;
 
         message += otherTags.map((tag) => {
             if(tag.subscribersNum == 1)
-                return `- ` + tag.name + ` <i>(1 sub)</i>`;
+                return `- <code>${tag.name}</code> <i>(1 sub)</i>`;
             else
-                return `- ` + tag.name + ` <i>(` + tag.subscribersNum + ` subs)</i>`;
+                return `- <code>${tag.name}</code> <i>(` + tag.subscribersNum + ` subs)</i>`;
         }).join(`\n`);
     }
 

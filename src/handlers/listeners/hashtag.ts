@@ -29,14 +29,14 @@ export async function hashtagHandler(ctx: MyContext) {
     // If the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
 
-        const tag = await tagRepository.get(tagName, groupId);
+        const tag = await tagRepository.get(groupId, tagName);
 
         if(tag.ok === false && tag.error === "NOT_FOUND") {
             nonExistentTags.push(tagName);
             continue;
         }
         
-        const tagSubResult = await tagRepository.getSubscribers(tagName.substring(1), groupId);
+        const tagSubResult = await tagRepository.getSubscribers(groupId, tagName);
 
         if(tagSubResult.ok === true) {
 
@@ -49,6 +49,7 @@ export async function hashtagHandler(ctx: MyContext) {
             //Remove the current user from the subscribers list
             const subscribersWithoutMe = tagSubResult.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
 
+            //Check if the tag has only one subscriber (the current user)
             if(subscribersWithoutMe.length == 0) {
                 onlyOneInTags.push(tagName);
                 continue;

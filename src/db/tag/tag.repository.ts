@@ -11,7 +11,6 @@ dayjs.extend(utc);
 
 export default class TagRepository implements ITagRepository {
 
-    //TODO: controllo se il gruppo esiste farlo a monte
     public async create(groupId: string, tagName: string, userId: string) {
         try {
             await getDb()
@@ -39,7 +38,6 @@ export default class TagRepository implements ITagRepository {
     
     public async delete(groupId: string, tagName: string) {
         try {
-            //use kysely
             const tag = await getDb()
                 .selectFrom('tag')
                 .where('name', '=', tagName)
@@ -144,7 +142,7 @@ export default class TagRepository implements ITagRepository {
         }
     }
 
-    public async getSubscribers(tagName: string, groupId: string) {
+    public async getSubscribers(groupId: string, tagName: string) {
         try {
             
             //get all subscribers for the given tag. the username is taken from the user table

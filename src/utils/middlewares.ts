@@ -6,8 +6,8 @@ import TagRepository from "@db/tag/tag.repository";
 export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
 	if(!ctx.hasChatType("private")) {
-		const inlineKeyboard = new InlineKeyboard().url("..press here!", "https://t.me/grouptags_bot?start");
-		await ctx.reply("To use this command...", { reply_markup: inlineKeyboard});
+		const inlineKeyboard = new InlineKeyboard().url("👉 Tap here", "https://t.me/grouptags_bot?start");
+		await ctx.reply("✨ This command works only in private chats!", { reply_markup: inlineKeyboard});
 		return;
 	}
 	await next();

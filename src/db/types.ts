@@ -16,6 +16,7 @@ export interface Database {
 export interface UserTable {
     userId: string; //primary key
     username: string;
+    hasBotStarted: boolean;
 }
 
 export interface SubscriberTable {

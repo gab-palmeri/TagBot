@@ -1,4 +1,5 @@
-import { TagDTO } from "features/tag/tag.dto";
+import { SubscriberDTO } from "db/subscriber/subscriber.dto";
+import { TagDTO } from "@db/tag/tag.dto";
 
 //SYNTAX MESSAGES
 export const msgJoinSyntaxError = `⚠️ Syntax: /join tagname`;
@@ -33,6 +34,14 @@ export function msgLeaveTag(username: string, tagName: string) {
 
 
 //TAGS MESSAGES
+
+export function msgPublicTag(subscribers: SubscriberDTO[]) {
+    return subscribers.map((subscriber) => {
+        const username: string = subscriber.username;
+        return `<a href="tg://user?id=${subscriber.userId}">@${username}</a>`;
+    }).join(" ");
+}
+
 export function msgPrivateTag(tagName: string, groupTitle: string, messageLink: string) {
     return `You have been tagged in <b>${groupTitle}</b> through the ${tagName} tag. Click <a href='${messageLink}'>here</a> to see the message`;
 }
@@ -84,29 +93,35 @@ export const msgFloodingError = `🕑 You can only mention three tags every five
 
 
 //MISC MESSAGES
-export function msgListTags(mainTags: TagDTO[], otherTags: TagDTO[] = null) {
+export function msgListTags(mainTags: TagDTO[], otherTags: TagDTO[] = null, groupName: string = null) {
 
-    let message = "<b>📄 Here's a list of all the tags in this group:</b>\n\n";
+    let message: string;
+    if(groupName) {
+        message = `<b>👇 Here's a list of all the tags in ${groupName}:</b>\n\n`;
+    }
+    else {
+        message = "<b>👇 Here's a partial list of the tags in this group:</b>\n\n";
+    }
 
     if(otherTags != null)
-        message +=  "<b>Main tags:</b>\n";
+        message +=  "<b>🔥 Main tags:</b>\n";
 
     message += mainTags.map((tag) => {
         if(tag.subscribersNum == 1)
-            return `- ` + tag.name + ` <i>(1 sub)</i>`;
+            return `- <code>${tag.name}</code> <i>(1 sub)</i>`;
         else
-            return `- ` + tag.name + ` <i>(` + tag.subscribersNum + ` subs)</i>`;
+            return `- <code>${tag.name}</code> <i>(` + tag.subscribersNum + ` subs)</i>`;
     }).join(`\n`);
 
 
     if(otherTags != null) {
-        message += `\n\n <b>Other tags:</b>\n`;
+        message += `\n\n <b>📝 Other tags:</b>\n`;
 
         message += otherTags.map((tag) => {
             if(tag.subscribersNum == 1)
-                return `- ` + tag.name + ` <i>(1 sub)</i>`;
+                return `- <code>${tag.name}</code> <i>(1 sub)</i>`;
             else
-                return `- ` + tag.name + ` <i>(` + tag.subscribersNum + ` subs)</i>`;
+                return `- <code>${tag.name}</code> <i>(` + tag.subscribersNum + ` subs)</i>`;
         }).join(`\n`);
     }
 

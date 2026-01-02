@@ -1,10 +1,12 @@
 import { MyContext } from "@utils/customTypes";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
 import { msgLeaveSyntaxError, msgLeaveTag } from "@messages/subscriberMessages";
+import TagRepository from "@db/tag/tag.repository";
 
 export async function leaveHandler(ctx: MyContext) {
 
     const subscriberRepository = new SubscriberRepository();
+    const tagRepository = new TagRepository();
 
     // Take parameters
     const tagName = ctx.match.toString().trim().replace(/^#/, '');
@@ -16,22 +18,20 @@ export async function leaveHandler(ctx: MyContext) {
     if(tagName.length == 0) {
         return await ctx.reply(msgLeaveSyntaxError);
     }
-
-    // Invoke repository
-    const result = await subscriberRepository.leaveTag(groupId, tagName, userId);
-
-    // Handle response
-    if(result.ok === true) {
-        await ctx.reply(msgLeaveTag(username, tagName));
+    // Check if tag exists
+    const tag = await tagRepository.get(groupId, tagName);
+    if(tag === null) {
+        return await ctx.reply("⚠️ The tag #" + tagName + " does not exist in this group, @" + username);
     }
-    else {
-        switch(result.error) {
-            case "NOT_FOUND":
-                await ctx.reply(`⚠️ You are not subscribed to tag #${tagName}, @${username}`);
-                break;
-            case "DB_ERROR":
-                await ctx.reply("⚠️ An internal error occurred, please try again later, @" + username);
-                break;
-        }
+
+    // Check if user is subscribed to the tag
+    const isSubscribed = await subscriberRepository.isSubscribedToTag(groupId, tagName, userId);
+    if(!isSubscribed) {
+        return await ctx.reply("⚠️ You are not subscribed to the tag " + tagName + ", @" + username);
     }
+
+    // Leave tag
+    await subscriberRepository.leaveTag(groupId, tagName, userId);
+    await ctx.reply(msgLeaveTag(username, tagName));
+
 }

@@ -22,7 +22,7 @@ export async function chatMemberHandler(ctx: MyContext, next: NextFunction) {
     const userId = new_chat_member.user.id.toString();
     const groupId = ctx.chatId.toString();
 
-     if (new_chat_member.user.is_bot) return next();
+    if (new_chat_member.user.is_bot) return next();
     
 
     //Handle subscriber active flag and admin add/removal

@@ -2,6 +2,8 @@ import { Context, InlineKeyboard, NextFunction } from "grammy";
 
 import GroupRepository from "@db/group/group.repository";
 import TagRepository from "@db/tag/tag.repository";
+import { GroupDTO } from "@db/group/group.dto";
+import { TagDTO } from "@db/tag/tag.dto";
 
 export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 
@@ -30,23 +32,14 @@ export async function canCreate(ctx: Context, next: NextFunction) {
 	}
 	else {
 		const groupRepository = new GroupRepository();
-
 		const groupResult = await groupRepository.getGroup(groupId);
-
-		if(groupResult.ok === false) {
-			switch(groupResult.error) {
-				case "NOT_FOUND":
-					await ctx.reply("Group not found");
-					return;
-				case "DB_ERROR":
-					await ctx.reply("Internal error occurred");
-					return;
-			}
+		
+		if(groupResult === null) {
+			await ctx.reply("Group not found");
+			return;
 		}
 
-		const group = groupResult.value;
-
-		if(group.canCreate == 1) {
+		if(groupResult.canCreate == 1) {
 			await next();
 		}
 		else {
@@ -75,39 +68,26 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 		const groupRepository = new GroupRepository();
 
 		const groupResult = await groupRepository.getGroup(groupId);
-		if(groupResult.ok === false) {
-			switch(groupResult.error) {
-				case "NOT_FOUND":
-					await ctx.reply("Group not found");
-					return;
-				case "DB_ERROR":
-					await ctx.reply("Internal error occurred");
-					return;
-			}
+		if(groupResult === null) {
+			await ctx.reply("Group not found");
+			return;
 		}
 
 		const tagResult = await tagRepository.get(tagName, groupId);
-		if(tagResult.ok === false) {
-			switch(tagResult.error) {
-				case "NOT_FOUND":
-					await ctx.reply("Tag not found");
-					return;
-				case "DB_ERROR":
-					await ctx.reply("Internal error occurred");
-					return;
-			}
+		if(tagResult === null) {
+			await ctx.reply("Tag not found");
+			return;
 		}
+		
 
-		const group = groupResult.value;
-		const tag = tagResult.value;
 		const commandName = ctx.msg.text.split(/\s+/)[0].substring(1);
 
 		switch (commandName) {
 			case "delete":
-				if (group.canDelete === 1 || (group.canDelete === 2 && tag.creatorId === userId)) {
+				if (groupResult.canDelete === 1 || (groupResult.canDelete === 2 && tagResult.creatorId === userId)) {
 					await next();
 				} 
-				else if (group.canDelete === 2) {
+				else if (groupResult.canDelete === 2) {
 					await ctx.reply("Only admins or the creator of this tag can delete it");
 				} 
 				else {
@@ -116,10 +96,10 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 				break;
 
 			case "rename":
-				if (group.canRename === 1 || (group.canRename === 2 && tag.creatorId === userId)) {
+				if (groupResult.canRename === 1 || (groupResult.canRename === 2 && tagResult.creatorId === userId)) {
 					await next();
 				} 
-				else if (group.canRename === 2) {
+				else if (groupResult.canRename === 2) {
 					await ctx.reply("Only admins or the creator of this tag can rename it");
 				} 
 				else {
@@ -127,7 +107,6 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 				}
 				break;
 		}
-
 	}
 }
 

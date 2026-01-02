@@ -11,7 +11,8 @@ const createMenu = new Menu<MyContext>("create-menu")
 
     if(ctx.session.selectedGroup.canCreate !== 1) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canCreate: 1});
-        if(result.ok === true) {
+
+        if(result) {
             ctx.session.selectedGroup.canCreate = 1;
             ctx.menu.update();
         }
@@ -27,7 +28,7 @@ const createMenu = new Menu<MyContext>("create-menu")
 
     if(ctx.session.selectedGroup.canCreate !== 0) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canCreate: 0});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canCreate = 0;
             ctx.menu.update();
         }

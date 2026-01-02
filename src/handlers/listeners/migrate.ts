@@ -11,20 +11,19 @@ export async function migrateHandler(ctx: MyContext) {
     const oldGroupId = ctx.chat.id.toString();
     const newGroupId = ctx.msg.migrate_to_chat_id.toString();
 
-    // Invoke repository
-    const response = await groupRepository.migrateGroup(oldGroupId, newGroupId);
+    try {
+        // Invoke repository
+        const group = await groupRepository.getGroup(oldGroupId);
 
-    // Handle response
-    if(response.ok === true) {
-        await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateSuccessMessage);
-        return;
-    }
-    else {
-        switch(response.error) {
-            case "NOT_FOUND":
-                return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
-            case "DB_ERROR":
-                return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
+        if (group === null) {
+            return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
         }
-    } 
+
+        await groupRepository.migrateGroup(oldGroupId, newGroupId);
+        return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateSuccessMessage);
+    }
+    catch(e) {
+        await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, migrateErrorMessage);
+        throw e;
+    }
 }

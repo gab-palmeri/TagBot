@@ -25,26 +25,31 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
 
     // BOT ADDED
     if (wasOut && isIn) {
-        const result = await groupRepository.createGroup(groupId, groupName);
+
         const admins = (await ctx.api.getChatAdministrators(ctx.chat.id))
-            .map(a => a.user.id.toString());
+                    .map(a => a.user.id.toString());
+                    
 
-        if (result.ok) {
-            await adminRepository.addAdmins(groupId, admins);
-            await ctx.reply(startMessage, { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
-            return;
+        try {
+            const group = await groupRepository.getGroup(groupId);
+
+            if (group !== null) {
+                await adminRepository.addAdmins(groupId, admins);
+                await groupRepository.setGroupActive(groupId, true);
+                await ctx.reply(botRejoinedMessage, { parse_mode: "HTML" });
+            }
+            else {
+                await groupRepository.createGroup(groupId, groupName);
+                await adminRepository.addAdmins(groupId, admins);
+                return await ctx.reply(startMessage, { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+                
+            }
         }
-
-        if (result.ok === false && result.error === "ALREADY_EXISTS") {
-            await adminRepository.addAdmins(groupId, admins);
-            await groupRepository.setGroupActive(groupId, true);
-            await ctx.reply(botRejoinedMessage, { parse_mode: "HTML" });
-            return;
+        catch(e) {
+            await ctx.reply(botJoinErrorMessage);
+            await ctx.leaveChat();
+            throw e;
         }
-
-        await ctx.reply(botJoinErrorMessage);
-        await ctx.leaveChat();
-        return;
     }
 
     // BOT PROMOTED
@@ -76,14 +81,13 @@ export async function myPrivateChatMemberHandler(ctx: MyContext, next: NextFunct
         await userRepository.setBotStarted(userId, false);
     }
     else {
-        const userExists = await userRepository.userExists(userId);
+        const user = userRepository.getUser(userId);
 
-        //TODO: put a last updated_field
-        if(userExists.ok === true && userExists.value === true) {
+        if(user !== null) {
             await userRepository.setBotStarted(userId, true);
         }
         else {
             await userRepository.saveUser(userId.toString(), ctx.chat.username || "");
-        } 
+        }
     }
 }

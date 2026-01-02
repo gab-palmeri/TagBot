@@ -10,14 +10,16 @@ export async function joinHandler(ctx: MyContext) {
     // Take parameters
     const tagName = ctx.match.toString().trim().replace(/^#/, '');
     const groupId = ctx.chatId.toString();
-    const username = ctx.from.username || ctx.from.first_name;
     const userId = ctx.from.id.toString();
+    const username = ctx.from.username || ctx.from.first_name;
+    const botUsername = ctx.me.username;
+
 
     // Validate parameters
     if(tagName.length == 0) 
         return await ctx.reply(msgJoinSyntaxError);
 
-    const joinResult = await joinTag(tagName, groupId, username, userId);
+    const joinResult = await joinTag(tagName, groupId, username, botUsername, userId);
 
     if (joinResult.inlineKeyboard) {
         const kb = new InlineKeyboard();

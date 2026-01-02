@@ -1,5 +1,6 @@
 import { MyContext } from "@utils/customTypes";
 import TagRepository from "@db/tag/tag.repository";
+
 import { msgCreateSyntaxError, msgCreateTag, msgTagSyntaxError } from "@messages/tagMessages";
 
 
@@ -20,19 +21,13 @@ export async function createHandler(ctx: MyContext) {
     if(!regex.test(tagName)) 
         return await ctx.reply(msgTagSyntaxError(username));
 
-    // Invoke repository
-    const result = await tagRepository.create(groupId, tagName, userId);
+    // Check if tag already exist
+    const tag = await tagRepository.get(groupId, tagName);
+    if(tag !== null) {
+        return await ctx.reply("⚠️ The tag #" + tagName + " already exists in this group, @" + username);
+    }
 
-    // Handle response
-    if(result.ok === true) {
-        return await ctx.reply(msgCreateTag(tagName, username));
-    }
-    else {
-        switch(result.error) {
-            case "ALREADY_EXISTS":
-                return await ctx.reply(`⚠️ Tag <b>#${tagName}</b> already exists (@${username})`, {parse_mode: "HTML"});
-            case "DB_ERROR":
-                return await ctx.reply(`⚠️ An internal error occurred while creating the tag (@${username})`, {parse_mode: "HTML"});
-        }
-    }
+    // Invoke repository
+    await tagRepository.create(groupId, tagName, userId);
+    return await ctx.reply(msgCreateTag(tagName, username));
 }

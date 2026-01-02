@@ -1,93 +1,50 @@
 import { IUserRepository } from "./user.interfaces";
-import { ok, err } from "@utils/result";
-
 import { getDb } from '@db/database';
 import { UserDTO } from "./user.dto";
 
 export default class UserRepository implements IUserRepository {
     
     public async saveUser(userId: string, username: string) {
-        try {
-            
-            //save user with kysely and db
-            await getDb().insertInto('user').values({ userId: userId.toString(), username: username }).execute();
-            return ok(null);
-        }
-        catch(e) {
-            console.log(`User with id: ${userId} already exists (expected in normal operation)`);
-            return err("ALREADY_EXISTS");
-        }
+        await getDb()
+            .insertInto('user')
+            .values({ userId: userId.toString(), username: username })
+            .execute();
     }
 
-    public async deleteUser(userId: string)  {
-        try {
-            await getDb().deleteFrom('user').where('userId', '=', userId).execute();
-            return ok(null);
-        }
-        catch(e) {
-            console.log(`Failed to delete user with id: ${userId}`, e);
-            return err("DB_ERROR");
-        }
-    }
-
-    public async userExists(userId: string) {
-        try {
-            const user = await getDb().selectFrom('user').selectAll().where('userId', '=', userId).executeTakeFirst();
-            return ok(user != null);
-        }
-        catch(e) {
-            console.log(`Error checking user existence for id: ${userId}`, e);
-            return err("DB_ERROR");
-        }
+    public async deleteUser(userId: string) {
+        await getDb()
+            .deleteFrom('user')
+            .where('userId', '=', userId)
+            .execute();
     }
 
     public async getUser(userId: string) {
-        try {
-            const user = await getDb()
-                .selectFrom('user')
-                .selectAll()
-                .where('userId', '=', userId)
-                .executeTakeFirst();
-            
-            if (!user) {
-                return err("NOT_FOUND");
-            }
+        const user = await getDb()
+            .selectFrom('user')
+            .selectAll()
+            .where('userId', '=', userId)
+            .executeTakeFirst();
+        
+        if (!user) {
+            return null;
+        }
 
-            return ok(new UserDTO(user.userId, user.username));
-        }
-        catch(e) {
-            console.log(`Error fetching user with id: ${userId}`, e);
-            return err("DB_ERROR");
-        }
+        return new UserDTO(user.userId, user.username);
     }
 
     public async updateUserUsername(userId: string, newUsername: string) {
-        try {
-            await getDb()
-                .updateTable('user')
-                .set({ username: newUsername })
-                .where('userId', '=', userId)
-                .execute();
-            return ok(null);
-        }
-        catch(e) {
-            console.log(`Error updating username for user with id: ${userId}`, e);
-            return err("DB_ERROR");
-        }
+        await getDb()
+            .updateTable('user')
+            .set({ username: newUsername })
+            .where('userId', '=', userId)
+            .execute();
     }
 
     public async setBotStarted(userId: string, hasBotStarted: boolean) {
-        try {
-            await getDb()
-                .updateTable('user')
-                .set({ hasBotStarted: hasBotStarted })
-                .where('userId', '=', userId)
-                .execute();
-            return ok(null);
-        }
-        catch(e) {
-            console.log(`Error updating bot started status for user with id: ${userId}`, e);
-            return err("DB_ERROR");
-        }
+        await getDb()
+            .updateTable('user')
+            .set({ hasBotStarted: hasBotStarted })
+            .where('userId', '=', userId)
+            .execute();
     }
 }

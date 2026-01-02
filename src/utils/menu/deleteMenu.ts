@@ -11,7 +11,7 @@ const deleteMenu = new Menu<MyContext>("delete-menu")
 
     if(ctx.session.selectedGroup.canDelete !== 1) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canDelete: 1});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canDelete = 1;
             ctx.menu.update();
         }
@@ -27,7 +27,7 @@ const deleteMenu = new Menu<MyContext>("delete-menu")
 
     if(ctx.session.selectedGroup.canDelete !== 0) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canDelete: 0});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canDelete = 0;
             ctx.menu.update();
         }
@@ -43,7 +43,7 @@ const deleteMenu = new Menu<MyContext>("delete-menu")
 
     if(ctx.session.selectedGroup.canDelete !== 2) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canDelete: 2});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canDelete = 2;
             ctx.menu.update();
         }

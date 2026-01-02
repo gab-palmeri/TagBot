@@ -24,43 +24,40 @@ export async function renameHandler(ctx: MyContext) {
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
         return await ctx.reply(msgTagSyntaxError(username)); 
 
-    const result = await tagRepository.rename(groupId, oldTagName, newTagName);
-    
-    // Handle response
-    if(result.ok === true) {
+
+        // Check if the tag exists
+        const tag = await tagRepository.get(groupId, oldTagName);
+        if(tag === null) {
+            return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${username})`, {parse_mode: "HTML"});
+        }
+
+        // Check if the new tag name already exists
+        const tagExists = await tagRepository.get(groupId, newTagName);
+        if(tagExists !== null) {
+            return await ctx.reply(`⚠️ Tag <b>#${newTagName}</b> already exists (@${username})`, {parse_mode: "HTML"});
+        }
+
+        // Rename the tag and send the confirmation message
+        await tagRepository.rename(groupId, oldTagName, newTagName);
         const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,username) , {parse_mode: "HTML"});
         
-        //NOTIFY SUBSCRIBERS OF THE TAG RENAMING
-        const result = await tagRepository.getSubscribers(newTagName, groupId);
-
-        if(result.ok) {
-            //Remove the current user from the subscribers list
-            const subscribersWithoutMe = result.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
-            if(subscribersWithoutMe.length > 0) {
-                //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-                if(subscribersWithoutMe.length > 10) {
-                    const message = await tagPrivately(ctx, newTagName, groupName, subscribersWithoutMe, sentMessage.message_id);
-                    await ctx.reply(message, { 
-                        reply_to_message_id: sentMessage.message_id,
-                        parse_mode: "HTML",
-                        link_preview_options: { is_disabled: true }
-                    });
-                }
-                else {
-                    const message = msgPublicTag(subscribersWithoutMe);
-                    await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
-                }
+        // NOTIFY SUBSCRIBERS OF THE TAG RENAMING
+        const subscribers = await tagRepository.getSubscribers(newTagName, groupId);
+        const subscribersWithoutMe = subscribers.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
+        
+        if(subscribersWithoutMe.length > 0) {
+            //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
+            if(subscribersWithoutMe.length > 10) {
+                const message = await tagPrivately(ctx, newTagName, groupName, subscribersWithoutMe, sentMessage.message_id);
+                await ctx.reply(message, { 
+                    reply_to_message_id: sentMessage.message_id,
+                    parse_mode: "HTML",
+                    link_preview_options: { is_disabled: true }
+                });
             }
-        } //TODO: handle error?
-    }
-    else {
-        switch(result.error) {
-            case "NOT_FOUND":
-                return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${username})`, {parse_mode: "HTML"});
-            case "ALREADY_EXISTS":
-                return await ctx.reply(`⚠️ Tag <b>#${newTagName}</b> already exists (@${username})`, {parse_mode: "HTML"});
-            case "DB_ERROR":
-                return await ctx.reply(`⚠️ An internal error occurred while renaming the tag (@${username})`, {parse_mode: "HTML"});
+            else {
+                const message = msgPublicTag(subscribersWithoutMe);
+                await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
+            }
         }
-    }
 }

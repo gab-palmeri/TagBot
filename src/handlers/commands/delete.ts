@@ -16,19 +16,14 @@ export async function deleteHandler(ctx: MyContext) {
     if (tagName.length == 0)
         return await ctx.reply(msgDeleteSyntaxError);
 
-    // Invoke repository
-    const result = await tagRepository.delete(groupId, tagName);
+    // Check if tag exists
+    const tag = await tagRepository.get(groupId, tagName);
 
-    // Handle response
-    if(result.ok === true) {
-        return await ctx.reply(msgDeleteTag(tagName, username));
+    if (tag === null) {
+        return await ctx.reply("⚠️ The tag #" + tagName + " does not exist in this group, @" + username);
     }
-    else {
-        switch(result.error) {
-            case "NOT_FOUND":
-                return await ctx.reply(`⚠️ Tag <b>#${tagName}</b> not found (@${username})`, {parse_mode: "HTML"});
-            case "DB_ERROR":
-                return await ctx.reply(`⚠️ An internal error occurred while deleting the tag (@${username})`, {parse_mode: "HTML"});
-        }
-    }
+
+    // Delete tag
+    await tagRepository.delete(groupId, tagName);
+    return await ctx.reply(msgDeleteTag(tagName, username));
 }

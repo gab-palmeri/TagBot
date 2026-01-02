@@ -1,6 +1,5 @@
 import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 import { ITagRepository } from "./tag.interfaces";
-import { err, ok } from "@utils/result";
 
 import { getDb } from '@db/database';
 import { TagDTO } from "./tag.dto";
@@ -12,197 +11,109 @@ dayjs.extend(utc);
 export default class TagRepository implements ITagRepository {
 
     public async create(groupId: string, tagName: string, userId: string) {
-        try {
-            await getDb()
-                .insertInto('tag')
-                .values({
-                    name: tagName.toLowerCase(),
-                    creatorId: userId,
-                    groupId: groupId,
-                    lastTagged: dayjs.utc().format(),
-                })
-                .execute();
-
-            return ok(null);
-        }
-        catch(e) {
-            if(e.code === '23505') {
-                return err("ALREADY_EXISTS");
-            }
-            else {
-                console.log(e);
-                return err("DB_ERROR");
-            }
-        }
+        await getDb()
+            .insertInto('tag')
+            .values({
+                name: tagName.toLowerCase(),
+                creatorId: userId,
+                groupId: groupId,
+                lastTagged: dayjs.utc().format(),
+            })
+            .execute();
     }
     
     public async delete(groupId: string, tagName: string) {
-        try {
-            const tag = await getDb()
-                .selectFrom('tag')
-                .where('name', '=', tagName)
-                .where('groupId', '=', groupId)
-                .selectAll()
-                .executeTakeFirst();
-    
-            if(!tag) {
-                return err("NOT_FOUND");
-            }
-    
-            await getDb().deleteFrom('tag')
-                .where('id', '=', tag.id)
-                .execute();
-            return ok(null);
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
+        await getDb().deleteFrom('tag')
+            .innerJoin('group', 'tag.groupId', 'group.groupId')
+            .where('name', '=', tagName)
+            .where('groupId', '=', groupId)
+            .execute();
     }
     
     public async rename(groupId: string, oldTagName: string, newTagName: string) {
-        try {
-
-
-            const tag = await getDb()
-                .selectFrom('tag')
-                .where('name', '=', oldTagName)
-                .where('groupId', '=', groupId)
-                .selectAll()
-                .executeTakeFirst();
-    
-            if(!tag) {
-                return err("NOT_FOUND");
-            }
-    
-            tag.name = newTagName;
-            await getDb().updateTable('tag')
-                .set({ name: newTagName })
-                .where('id', '=', tag.id)
-                .execute();
-            
-            return ok(null);
-        }
-        catch(e) {
-            if(e.code == "23505")
-                return err("ALREADY_EXISTS");
-            else {
-                return err("DB_ERROR");
-            }
-        }
+        await getDb().updateTable('tag')
+            .set({ name: newTagName })
+            .where('name', '=', oldTagName)
+            .where('groupId', '=', groupId)
+            .execute();
     }
 
     public async updateLastTagged(groupId: string, tagName: string) {
-        try {
-            const result = await getDb()
-                .updateTable('tag')
-                .set({ lastTagged: dayjs.utc().toISOString() })
-                .where('name', '=', tagName)
-                .where('groupId', '=', groupId)
-                .executeTakeFirst();
-
-            // executeTakeFirst() returns undefined if no rows were updated
-            if (!result || Number(result.numUpdatedRows) === 0) {
-                return err('NOT_FOUND');
-            }
-
-            return ok(null);
-
-        } catch (e) {
-            console.log(e);
-            return err('DB_ERROR');
-        }
+        await getDb()
+            .updateTable('tag')
+            .set({ lastTagged: dayjs.utc().toISOString() })
+            .where('name', '=', tagName)
+            .where('groupId', '=', groupId)
+            .execute();
     }
 
     public async get(groupId: string, tagName: string) {
-        try {
+        const tag = await getDb()
+            .selectFrom('tag')
+            .where('name', '=', tagName)
+            .where('groupId', '=', groupId)
+            .selectAll()
+            .executeTakeFirst();
 
-            const tag = await getDb()
-                .selectFrom('tag')
-                .where('name', '=', tagName)
-                .where('groupId', '=', groupId)
-                .selectAll()
-                .executeTakeFirst();
-    
-            if(!tag) {
-                return err("NOT_FOUND");
-            }
-            
-            const foundTagDTO = new TagDTO(
-                tag.name,
-                tag.creatorId,
-                tag.lastTagged
-            );
-            
-            return ok(foundTagDTO);
+        if(!tag) {
+            return null;
         }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
+        
+        const foundTagDTO = new TagDTO(
+            tag.name,
+            tag.creatorId,
+            tag.lastTagged
+        );
+        
+        return foundTagDTO;
     }
 
     public async getSubscribers(groupId: string, tagName: string) {
-        try {
-            
-            //get all subscribers for the given tag. the username is taken from the user table
-            const subscribersTags = await getDb()
-                .selectFrom('subscriber')
-                .innerJoin('tag', 'subscriber.tagId', 'tag.id')
-                .innerJoin('user', 'subscriber.userId', 'user.userId')
-                .where('tag.name', '=', tagName)
-                .where('tag.groupId', '=', groupId)
-                .select([
-                    'subscriber.userId as userId',
-                    'user.username as username'
-                ])
-                .execute();
-    
-            const subscribers = subscribersTags.map(st => { 
-                return new SubscriberDTO(
-                    st.userId,
-                    st.username
-                );
-            });
+        const subscribersTags = await getDb()
+            .selectFrom('subscriber')
+            .innerJoin('tag', 'subscriber.tagId', 'tag.id')
+            .innerJoin('user', 'subscriber.userId', 'user.userId')
+            .where('tag.name', '=', tagName)
+            .where('tag.groupId', '=', groupId)
+            .select([
+                'subscriber.userId as userId',
+                'user.username as username'
+            ])
+            .execute();
 
-            return ok(subscribers);
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
+        const subscribers = subscribersTags.map(st => { 
+            return new SubscriberDTO(
+                st.userId,
+                st.username
+            );
+        });
+
+        return subscribers;
     }
 
     public async getByGroup(groupId: string) {
-        try {
+        const tags = await getDb()
+            .selectFrom('tag')
+            .leftJoin('subscriber', 'tag.id', 'subscriber.tagId')
+            .where('tag.groupId', '=', groupId)
+            .select([
+                'tag.name',
+                'tag.creatorId as creatorId',
+                'tag.lastTagged as lastTagged',
+                getDb().fn.count('subscriber.userId').as('subscriberCount')
+            ])
+            .groupBy(['tag.name', 'tag.creatorId', 'tag.lastTagged'])
+            .execute();
 
-            const tags = await getDb()
-                .selectFrom('tag')
-                .leftJoin('subscriber', 'tag.id', 'subscriber.tagId')
-                .where('tag.groupId', '=', groupId)
-                .select([
-                    'tag.name',
-                    'tag.creatorId as creatorId',
-                    'tag.lastTagged as lastTagged',
-                    getDb().fn.count('subscriber.userId').as('subscriberCount')
-                ])
-                .groupBy(['tag.name', 'tag.creatorId', 'tag.lastTagged'])
-                .execute();
-    
-            const tagDTOs = tags.map(t => {
-                return new TagDTO(
-                    t.name,
-                    t.creatorId,
-                    t.lastTagged,
-                    Number(t.subscriberCount)
-                );
-            });
-    
-            return ok(tagDTOs);
-        }
-        catch(e) {
-            console.log(e);
-            return err("DB_ERROR");
-        }
+        const tagDTOs = tags.map(t => {
+            return new TagDTO(
+                t.name,
+                t.creatorId,
+                t.lastTagged,
+                Number(t.subscriberCount)
+            );
+        });
+
+        return tagDTOs;
     }
 }

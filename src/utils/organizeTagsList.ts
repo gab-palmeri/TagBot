@@ -1,4 +1,3 @@
-import { err, ok } from "@utils/result";
 import { TagDTO } from "../db/tag/tag.dto";
 import TagRepository from "@db/tag/tag.repository";
 
@@ -8,15 +7,7 @@ export async function organizeTagsList(groupId: string, limitNextTags = true){
     const tagRepository = new TagRepository();
     const getTagsByGroupResult = await tagRepository.getByGroup(groupId);
 
-    if(getTagsByGroupResult.ok === false) {
-        return err("INTERNAL_ERROR");
-    }
-
-    if(getTagsByGroupResult.value.length === 0) {
-        return err("NOT_FOUND");
-    }
-
-    const tags = getTagsByGroupResult.value;
+    const tags = getTagsByGroupResult;
     const maxActiveTags = 5;
     const maxNextTags = limitNextTags ? 5 : tags.length - maxActiveTags;
     
@@ -51,19 +42,19 @@ export async function organizeTagsList(groupId: string, limitNextTags = true){
                                     .sort((a,b) => a.name.localeCompare(b.name))
                                     .map(tag => new TagDTO(tag.name, tag.creatorId, tag.lastTagged, tag.subscribersNum));
 
-        return ok({
+        return {
             "mainTags": mostActiveTags,
             "secondaryTags": nextTags
-        });
+        };
         
 
     }
     else {
         // If there are less than 5 tags, sort them alphabetically and send them
         const tagsByName = tags.sort((a,b) => a.name.localeCompare(b.name));
-        return ok({
+        return {
             "mainTags": tagsByName,
             "secondaryTags": null
-        });
+        };
     }
 }

@@ -11,7 +11,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 
     if(ctx.session.selectedGroup.canRename !== 1) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 1});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canRename = 1;
             ctx.menu.update();
         }
@@ -27,7 +27,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 
     if(ctx.session.selectedGroup.canRename !== 0) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 0});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canRename = 0;
             ctx.menu.update();
         }
@@ -43,7 +43,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 
     if(ctx.session.selectedGroup.canRename !== 2) {
         const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 2});
-        if(result.ok === true) {
+        if(result) {
             ctx.session.selectedGroup.canRename = 2;
             ctx.menu.update();
         }

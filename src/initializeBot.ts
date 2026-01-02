@@ -14,14 +14,16 @@ export default async function initializeBot() {
 	const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
 
 	//Set the basic error handler
-	bot.catch((err) => {
+	bot.catch(async (err) => {
 		console.error(`Error while handling update ${err.ctx.update.update_id}:`);
-
 		err.error instanceof GrammyError
 			? console.error('Error in request:', err.error.description)
 			: err.error instanceof HttpError
 			? console.error('Could not contact Telegram:', err.error)
 			: console.error('Unknown error:', err.error);
+
+		const messageToReplyTo = err.ctx.msg.message_id;
+		await err.ctx.reply("⚠️ An internal error occurred. Please try again later.", { reply_to_message_id: messageToReplyTo });
 	});
 
 	//Set the session middleware and initialize session data

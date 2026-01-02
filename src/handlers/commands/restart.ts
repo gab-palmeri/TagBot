@@ -13,16 +13,13 @@ export async function restartHandler(ctx: MyContext) {
     const adminIDs = adminList.map(admin => admin.user.id.toString());
 
     // Invoke repository
-    const deleteResult = await adminRepository.deleteAllAdmins(groupId);
-    if(deleteResult.ok === false) {
-        return await ctx.reply(restartErrorMessage);
+    try {
+        await adminRepository.deleteAllAdmins(groupId);
+        await adminRepository.addAdmins(groupId, adminIDs);
+        return await ctx.reply(restartSuccessMessage);
     }
-
-    // Invoke repository
-    const addResult = await adminRepository.addAdmins(groupId, adminIDs);
-    if(addResult.ok === false) {
-        return await ctx.reply(restartErrorMessage);
+    catch(e) {
+        await ctx.reply(restartErrorMessage);
+        throw e;
     }
-
-    return await ctx.reply(restartSuccessMessage);
 }

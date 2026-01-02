@@ -32,61 +32,55 @@ export async function hashtagHandler(ctx: MyContext) {
 
         const tag = await tagRepository.get(groupId, tagName);
 
-        if(tag.ok === false && tag.error === "NOT_FOUND") {
+        if(tag === null) {
             nonExistentTags.push(tagName);
             continue;
         }
         
         const tagSubResult = await tagRepository.getSubscribers(groupId, tagName);
 
-        if(tagSubResult.ok === true) {
 
-            // Check if the tag is empty
-            if(tagSubResult.value.length == 0) {
-                emptyTags.push(tagName);
-                continue;
-            }
+        // Check if the tag is empty
+        if(tagSubResult.length == 0) {
+            emptyTags.push(tagName);
+            continue;
+        }
 
-            //Remove the current user from the subscribers list
-            const subscribersWithoutMe = tagSubResult.value.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
+        //Remove the current user from the subscribers list
+        const subscribersWithoutMe = tagSubResult.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
 
-            //Check if the tag has only one subscriber (the current user)
-            if(subscribersWithoutMe.length == 0) {
-                onlyOneInTags.push(tagName);
-                continue;
-            }
+        //Check if the tag has only one subscriber (the current user)
+        if(subscribersWithoutMe.length == 0) {
+            onlyOneInTags.push(tagName);
+            continue;
+        }
 
-            //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
-            const userId = ctx.update.message.from.id.toString();
-            const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
-            if(iuf) {
-                isFlooding = true;
-                break;
-            }
+        //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
+        const userId = ctx.update.message.from.id.toString();
+        const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
+        if(iuf) {
+            isFlooding = true;
+            break;
+        }
 
-            //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
-            if(subscribersWithoutMe.length > 10) {
+        //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
+        if(subscribersWithoutMe.length > 10) {
 
-                const groupName = ctx.msg.chat.title;
+            const groupName = ctx.msg.chat.title;
 
-                const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
-                await ctx.reply(message, { 
-                    reply_to_message_id: ctx.msg.message_id,
-                    parse_mode: "HTML",
-                    link_preview_options: { is_disabled: true }
-                });
-            }
-            else {
-                const message = await msgPublicTag(subscribersWithoutMe);
-                await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
-            }
-
-            await tagRepository.updateLastTagged(tagName.substring(1), groupId);        
+            const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
+            await ctx.reply(message, { 
+                reply_to_message_id: ctx.msg.message_id,
+                parse_mode: "HTML",
+                link_preview_options: { is_disabled: true }
+            });
         }
         else {
-            console.log(`An internal error occurred while retrieving subscribers for tag ${tagName} in group ${groupId}`);
-            await ctx.reply(`⚠️ An internal error occurred while retrieving subscribers for tag <b>#${tagName}</b>`, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" });
+            const message = await msgPublicTag(subscribersWithoutMe);
+            await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
         }
+
+        await tagRepository.updateLastTagged(tagName, groupId);        
     }
 
     //ERROR MESSAGES PHASE

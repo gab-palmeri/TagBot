@@ -1,7 +1,8 @@
 import { MyContext } from "@utils/customTypes";
 import TagRepository from "@db/tag/tag.repository";
 
-import { isUserFlooding, tagPrivately } from "@utils/helperFunctions";
+import { isUserFlooding } from "@utils/isUserFlooding";
+import { tagPrivately } from "@utils/tagPrivately";
 import { msgFloodingError, msgPublicTag, msgTagsErrors } from "@messages/subscriberMessages";
 
 export async function hashtagHandler(ctx: MyContext) {

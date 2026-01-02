@@ -1,7 +1,7 @@
 import { MyContext } from "@utils/customTypes";
 import TagRepository from "@db/tag/tag.repository";
 import { msgRenameSyntaxError, msgRenameTag, msgTagSyntaxError } from "@messages/tagMessages";
-import { tagPrivately } from "@utils/helperFunctions";
+import { tagPrivately } from "@utils/tagPrivately";
 import { msgPublicTag } from "@messages/subscriberMessages";
 
 export async function renameHandler(ctx: MyContext) {

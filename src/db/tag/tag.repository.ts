@@ -23,10 +23,12 @@ export default class TagRepository implements ITagRepository {
     }
     
     public async delete(groupId: string, tagName: string) {
-        await getDb().deleteFrom('tag')
-            .innerJoin('group', 'tag.groupId', 'group.groupId')
-            .where('name', '=', tagName)
-            .where('groupId', '=', groupId)
+        await getDb()
+            .deleteFrom('tag')
+            .using('group')
+            .whereRef('tag.groupId', '=', 'group.groupId')
+            .where('tag.name', '=', tagName)
+            .where('group.groupId', '=', groupId)
             .execute();
     }
     

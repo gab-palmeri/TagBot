@@ -1,6 +1,6 @@
 import { CommandGroup } from "@grammyjs/commands";
 import { MyContext } from "@utils/customTypes";
-import { checkIfPrivate } from "@utils/middlewares";
+import { canCreate, checkIfPrivate, canUpdate } from "@utils/middlewares";
 import { createHandler } from "handlers/commands/create";
 import { deleteHandler } from "handlers/commands/delete";
 import { helpCommandHandler } from "handlers/commands/help";
@@ -24,9 +24,9 @@ tagbotCommands.command("join", "Join a tag").addToScope({ type: "all_group_chats
 tagbotCommands.command("leave", "Leave a tag").addToScope({ type: "all_group_chats" }, leaveHandler);
 tagbotCommands.command("mytags", "List your tags").addToScope({ type: "all_group_chats" }, mytagsHandler);
 
-tagbotCommands.command("create", "Create a tag").addToScope({ type: "all_group_chats" }, createHandler);
-tagbotCommands.command("delete", "Delete a tag").addToScope({ type: "all_group_chats" }, deleteHandler);
-tagbotCommands.command("rename", "Rename a tag").addToScope({ type: "all_group_chats" }, renameHandler);
+tagbotCommands.command("create", "Create a tag").addToScope({ type: "all_group_chats" }, [canCreate, createHandler]);
+tagbotCommands.command("delete", "Delete a tag").addToScope({ type: "all_group_chats" }, [canUpdate, deleteHandler]);
+tagbotCommands.command("rename", "Rename a tag").addToScope({ type: "all_group_chats" }, [canUpdate, renameHandler]);
 tagbotCommands.command("list", "List all tags").addToScope({ type: "all_group_chats" }, listHandler);
 
 

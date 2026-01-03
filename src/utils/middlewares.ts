@@ -2,8 +2,6 @@ import { Context, InlineKeyboard, NextFunction } from "grammy";
 
 import GroupRepository from "@db/group/group.repository";
 import TagRepository from "@db/tag/tag.repository";
-import { GroupDTO } from "@db/group/group.dto";
-import { TagDTO } from "@db/tag/tag.dto";
 
 export async function checkIfPrivate(ctx: Context, next: NextFunction) {
 

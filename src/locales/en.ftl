@@ -2,12 +2,14 @@
 ### GENERAL ###
 ###############
 start = 
-    Hi! I'm a [bot](https://t.me/tagbotchannel/3) that allows you to *create* and *manage* grouptags.
-    Type */help* to see the *list of commands.*
+    Hi! I'm a [bot](https://t.me/tagbotchannel/3) that lets you create and manage *tags*.
 
-    _Remember to give me_ *administrator* _permissions so that I can answer to #tags._
+    A *tag* is like an #hashtag: people can subscribe to it and get notified when it’s mentioned.
+    Use tags to group people by topic, interest, or role.
 
-    _To report a bug, suggest a feature or get bot updates, join @tagbotchannel_
+    Type */help* to see the list of commands.
+
+    _Remember to give me_ *administrator* _permissions so I can tag people in your group._
 
 
 help =
@@ -111,7 +113,7 @@ tag =
 
 
 join =
-    .ok = @{ $username } joined tag { $tagName }. They will be notified when someone tags it.
+    .ok = @{ $username } joined tag { $tagName }. They will be notified when someone mentions it.
     .btn = Join this tag
     .syntax = ⚠️ Syntax: /join *tagname*
     .start-bot-msg = To join *tags*, you need to start a *private chat* with the bot.
@@ -119,7 +121,7 @@ join =
     .already-subscribed = ⚠️ You are already subscribed to *{ $tagName }*
 
 leave =
-    .ok = @{ $username } left tag { $tagName }. They will no longer be notified when someone tags it.
+    .ok = @{ $username } left tag { $tagName }. They will no longer be notified when someone mentions it.
     .syntax = ⚠️ Syntax: /leave *tagname*
     .not-subscribed = ⚠️ You are *not subscribed* to tag { $tagName }
     

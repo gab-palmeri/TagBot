@@ -12,7 +12,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, groupName: s
 
     for(const subscriber of subscribers) {
         try {
-            await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "HTML" });
+            await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "Markdown" });
         } catch(e) {
             notContacted.push((await ctx.getChatMember(parseInt(subscriber.userId))).user.first_name);
         }

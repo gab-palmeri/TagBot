@@ -44,6 +44,9 @@ private-only =
 private-only-button =
     👉 Tap here
 
+internal-error =
+    ⚠️ An internal error occurred. Please try again later.
+
 #############
 ### ADMIN ###
 #############
@@ -166,12 +169,12 @@ not-subscribed-error =
 ##################
 
 private-tag =
-    You have been tagged in *{ $groupTitle }* through the { $tagName } tag.
-    Click [here]({ $messageLink }) to see the message
+    🔔📩 You have been tagged in *{ $groupName }* 📩🔔
+    🏷️ Tag: *{ $tagName }*
+    👉 Click [here]({ $messageLink }) to see the message
 
 private-tag-response =
-    ✅ Users in { $tagName } have been tagged privately.
-    [Why?](https://t.me/tagbotchannel/7)
+    ✅ Users in { $tagName } have been tagged privately. [Why?](https://t.me/tagbotchannel/7)
 
 private-tag-error =
     ⚠️ These users didn't start the bot in private: { $notContacted }

@@ -2,11 +2,11 @@ import { TagDTO } from "./tag.dto";
 import { SubscriberDTO } from "../../db/subscriber/subscriber.dto";
 
 export interface ITagRepository {
-  create(groupId: string, tagName: string, userId: string);
-  delete(groupId: string, tagName: string);
-  rename(groupId: string, oldTagName: string, newTagName: string);
-  updateLastTagged(groupId: string, tagName: string);
-  get(groupId: string, tagName: string): Promise<TagDTO>;
-  getSubscribers(groupId: string, tagName: string): Promise<SubscriberDTO[]>;
-  getByGroup(groupId: string): Promise<TagDTO[]>;
+  create(group_id: number, tagName: string, userId: string);
+  delete(group_id: number, tagName: string);
+  rename(group_id: number, oldTagName: string, newTagName: string);
+  updateLastTagged(group_id: number, tagName: string);
+  get(group_id: number, tagName: string): Promise<TagDTO>;
+  getSubscribers(group_id: number, tagName: string): Promise<SubscriberDTO[]>;
+  getByGroup(group_id: number): Promise<TagDTO[]>;
 }

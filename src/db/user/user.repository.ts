@@ -42,8 +42,6 @@ export default class UserRepository implements IUserRepository {
 
     public async setBotStarted(userId: string, hasBotStarted: boolean) {
 
-        console.log(hasBotStarted);
-
         await getDb()
             .updateTable('user')
             .set({ hasBotStarted: hasBotStarted })

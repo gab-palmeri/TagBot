@@ -1,5 +1,6 @@
 import { MyContext } from "@utils/customTypes";
 import TagRepository from "@db/tag/tag.repository";
+import GroupRepository from "@db/group/group.repository";
 
 import { isUserFlooding } from "@utils/isUserFlooding";
 import { tagPrivately } from "@utils/tagPrivately";
@@ -7,6 +8,7 @@ import { tagPrivately } from "@utils/tagPrivately";
 export async function hashtagHandler(ctx: MyContext) {
 
     const tagRepository = new TagRepository();
+    const groupRepository = new GroupRepository();
 
     if(ctx.msg.forward_origin !== undefined)
         return;
@@ -24,19 +26,21 @@ export async function hashtagHandler(ctx: MyContext) {
     const onlyOneInTags = [];
     let isFlooding = false;
 
-    
+    // Get group
+    const group = await groupRepository.getGroup(groupId);
+
     // For each tag name, get the subscribers and create a set of users preceded by "@"
     // If the tag does not exist / is empty / only has the current user, add it to the corresponding array
     for(const tagName of tagNames) {
 
-        const tag = await tagRepository.get(groupId, tagName);
+        const tag = await tagRepository.get(group.id, tagName);
 
         if(tag === null) {
             nonExistentTags.push(tagName);
             continue;
         }
         
-        const tagSubResult = await tagRepository.getSubscribers(groupId, tagName);
+        const tagSubResult = await tagRepository.getSubscribers(group.id, tagName);
 
 
         // Check if the tag is empty
@@ -79,7 +83,7 @@ export async function hashtagHandler(ctx: MyContext) {
             await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "Markdown" }); 
         }
 
-        await tagRepository.updateLastTagged(tagName, groupId);        
+        await tagRepository.updateLastTagged(group.id, tagName);        
     }
 
     //ERROR MESSAGES PHASE

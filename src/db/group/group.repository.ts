@@ -24,6 +24,7 @@ export default class GroupRepository implements IGroupRepository {
         }
 
         const groupDTO: GroupDTO = {
+            id: group.id,
             groupId: group.groupId,
             groupName: group.groupName,
             canCreate: group.canCreate,

@@ -8,7 +8,7 @@ export async function messageHandler(ctx: MyContext) {
     // Invoke user retrieval
     const user = await userRepository.getUser(ctx.from.id.toString());
 
-    if(user.username !== ctx.from.username) {
+    if(user != null && user.username !== ctx.from.username) {
         //If not, update the user
         await userRepository.updateUserUsername(ctx.from.id.toString(), ctx.from.username);
     }

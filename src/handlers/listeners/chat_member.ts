@@ -3,13 +3,15 @@ import { NextFunction } from "grammy";
 
 import SubscriberRepository from "db/subscriber/subscriber.repository";
 import AdminRepository from "@db/admin/admin.repository";
-
-
-const subscriberRepository = new SubscriberRepository();
-const adminRepository = new AdminRepository();
+import GroupRepository from "@db/group/group.repository";
 
 
 export async function chatMemberHandler(ctx: MyContext, next: NextFunction) {
+
+    const subscriberRepository = new SubscriberRepository();
+    const adminRepository = new AdminRepository();
+    const groupRepository = new GroupRepository();
+
 
     // Take parameters
     const ACTIVE_STATUSES = new Set(["member", "administrator", "creator"]);
@@ -23,15 +25,18 @@ export async function chatMemberHandler(ctx: MyContext, next: NextFunction) {
     const groupId = ctx.chatId.toString();
 
     if (new_chat_member.user.is_bot) return next();
+
+    // Get group
+    const group = await groupRepository.getGroup(groupId);
     
 
     //Handle subscriber active flag and admin add/removal
     if (ACTIVE_STATUSES.has(oldStatus) && INACTIVE_STATUSES.has(newStatus)) {
-        await subscriberRepository.setActiveFlag(groupId, userId, false);
+        await subscriberRepository.setActiveFlag(group.id, userId, false);
     }
 
     if (INACTIVE_STATUSES.has(oldStatus) && ACTIVE_STATUSES.has(newStatus)) {
-        await subscriberRepository.setActiveFlag(groupId, userId, true);
+        await subscriberRepository.setActiveFlag(group.id, userId, true);
     }
 
     else {
@@ -40,11 +45,11 @@ export async function chatMemberHandler(ctx: MyContext, next: NextFunction) {
         const isAdmin = newStatus === "administrator";
 
         if (!wasAdmin && isAdmin) {
-            await adminRepository.addAdmins(groupId, [userId]);
+            await adminRepository.addAdmins(group.id, [userId]);
         }
 
         if (wasAdmin && !isAdmin) {
-            await adminRepository.deleteAdmins(groupId, [userId]);
+            await adminRepository.deleteAdmins(group.id, [userId]);
         }
     }
 }

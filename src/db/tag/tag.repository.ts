@@ -10,50 +10,48 @@ dayjs.extend(utc);
 
 export default class TagRepository implements ITagRepository {
 
-    public async create(groupId: string, tagName: string, userId: string) {
+    public async create(group_id: number, tagName: string, userId: string) {
         await getDb()
             .insertInto('tag')
             .values({
                 name: tagName.toLowerCase(),
                 creatorId: userId,
-                groupId: groupId,
+                group_id: group_id,
                 lastTagged: dayjs.utc().format(),
             })
             .execute();
     }
     
-    public async delete(groupId: string, tagName: string) {
+    public async delete(group_id: number, tagName: string) {
         await getDb()
             .deleteFrom('tag')
-            .using('group')
-            .whereRef('tag.groupId', '=', 'group.groupId')
             .where('tag.name', '=', tagName)
-            .where('group.groupId', '=', groupId)
+            .where('tag.group_id', '=', group_id)
             .execute();
     }
     
-    public async rename(groupId: string, oldTagName: string, newTagName: string) {
+    public async rename(group_id: number, oldTagName: string, newTagName: string) {
         await getDb().updateTable('tag')
             .set({ name: newTagName })
             .where('name', '=', oldTagName)
-            .where('groupId', '=', groupId)
+            .where('group_id', '=', group_id)
             .execute();
     }
 
-    public async updateLastTagged(groupId: string, tagName: string) {
+    public async updateLastTagged(group_id: number, tagName: string) {
         await getDb()
             .updateTable('tag')
             .set({ lastTagged: dayjs.utc().toISOString() })
             .where('name', '=', tagName)
-            .where('groupId', '=', groupId)
+            .where('group_id', '=', group_id)
             .execute();
     }
 
-    public async get(groupId: string, tagName: string) {
+    public async get(group_id: number, tagName: string) {
         const tag = await getDb()
             .selectFrom('tag')
             .where('name', '=', tagName)
-            .where('groupId', '=', groupId)
+            .where('group_id', '=', group_id)
             .selectAll()
             .executeTakeFirst();
 
@@ -70,13 +68,13 @@ export default class TagRepository implements ITagRepository {
         return foundTagDTO;
     }
 
-    public async getSubscribers(groupId: string, tagName: string) {
+    public async getSubscribers(group_id: number, tagName: string) {
         const subscribersTags = await getDb()
             .selectFrom('subscriber')
             .innerJoin('tag', 'subscriber.tagId', 'tag.id')
             .innerJoin('user', 'subscriber.userId', 'user.userId')
             .where('tag.name', '=', tagName)
-            .where('tag.groupId', '=', groupId)
+            .where('tag.group_id', '=', group_id)
             .select([
                 'subscriber.userId as userId',
                 'user.username as username'
@@ -93,11 +91,11 @@ export default class TagRepository implements ITagRepository {
         return subscribers;
     }
 
-    public async getByGroup(groupId: string) {
+    public async getByGroup(group_id: number) {
         const tags = await getDb()
             .selectFrom('tag')
             .leftJoin('subscriber', 'tag.id', 'subscriber.tagId')
-            .where('tag.groupId', '=', groupId)
+            .where('tag.group_id', '=', group_id)
             .select([
                 'tag.name',
                 'tag.creatorId as creatorId',

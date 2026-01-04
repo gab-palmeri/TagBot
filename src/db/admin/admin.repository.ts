@@ -8,7 +8,7 @@ export default class AdminRepository implements IAdminRepository {
     public async getWithGroups(userId: string) {
         const admin = await getDb()
             .selectFrom('admin')
-            .leftJoin('group', 'admin.groupId', 'group.groupId')
+            .leftJoin('group', 'admin.group_id', 'group.id')
             .where('admin.userId', '=', userId)
             .selectAll()
             .execute();
@@ -25,17 +25,18 @@ export default class AdminRepository implements IAdminRepository {
         return new AdminDTO(userId, groups);
     }
     
-    public async editGroupPermissions(groupId: string, permissions: Partial<GroupDTO>) {
+    //TODO: move to group repository
+    public async editGroupPermissions(group_id: number, permissions: Partial<GroupDTO>) {
         await getDb()
             .updateTable('group')
             .set(permissions)
-            .where('groupId', '=', groupId)
+            .where('id', '=', group_id)
             .execute();
     }
 
-    public async addAdmins(groupId: string, userIds: string[]) {
+    public async addAdmins(group_id: number, userIds: string[]) {
         const inserts = userIds.map(userId => ({
-            groupId,
+            group_id,
             userId
         }));
         await getDb()
@@ -44,18 +45,18 @@ export default class AdminRepository implements IAdminRepository {
             .execute();
     }
 
-    public async deleteAdmins(groupId: string, userIds: string[]) {
+    public async deleteAdmins(group_id: number, userIds: string[]) {
         await getDb()
             .deleteFrom('admin')
-            .where('groupId', '=', groupId)
+            .where('group_id', '=', group_id)
             .where('userId', 'in', userIds)
             .execute();
     }
 
-    public async deleteAllAdmins(groupId: string) {
+    public async deleteAllAdmins(group_id: number) {
         await getDb()
             .deleteFrom('admin')
-            .where('groupId', '=', groupId)
+            .where('group_id', '=', group_id)
             .execute();
     }
 }

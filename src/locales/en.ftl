@@ -150,7 +150,7 @@ join-start-bot =
 join-start-bot-button =
     Start the bot!
 
-already-subscriber-error =
+already-subscribed-error =
     ⚠️ You are already subscribed to *{ $tagName }*
 
 ### Leave ###

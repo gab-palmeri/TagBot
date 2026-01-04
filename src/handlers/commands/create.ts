@@ -1,11 +1,14 @@
 import { MyContext } from "@utils/customTypes";
 import TagRepository from "@db/tag/tag.repository";
+import GroupRepository from "@db/group/group.repository";
 
 
 
 export async function createHandler(ctx: MyContext) {
 
     const tagRepository = new TagRepository();
+    const groupRepository = new GroupRepository();
+
 
     // Take parameters
     const tagName = ctx.match.toString().trim().replace(/^#/, "");
@@ -19,13 +22,17 @@ export async function createHandler(ctx: MyContext) {
     if(!regex.test(tagName)) 
         return await ctx.reply(ctx.t("tag-syntax-error"), {parse_mode: "Markdown"});
 
+    // Get group
+    const group = await groupRepository.getGroup(groupId);
+
+
     // Check if tag already exist
-    const tag = await tagRepository.get(groupId, tagName);
+    const tag = await tagRepository.get(group.id, tagName);
     if(tag !== null) {
         return await ctx.reply(ctx.t("tag-already-exists", {tagName}), {parse_mode: "Markdown"});
     }
 
     // Invoke repository
-    await tagRepository.create(groupId, tagName, userId);
+    await tagRepository.create(group.id, tagName, userId);
     return await ctx.reply(ctx.t("tag-created", {tagName}), {parse_mode: "Markdown"});
 }

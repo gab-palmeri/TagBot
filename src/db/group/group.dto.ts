@@ -1,6 +1,7 @@
 //Dto class that holds groups
 export class GroupDTO {
     constructor(
+        public id: number,
         public groupId: string,
         public groupName: string,
         public canCreate: number = 0,
@@ -8,6 +9,7 @@ export class GroupDTO {
         public canRename: number = 0,
         public isActive: boolean = true
     ) {
+        this.id = id;
         this.groupId = groupId;
         this.groupName = groupName;
         this.canCreate = canCreate;

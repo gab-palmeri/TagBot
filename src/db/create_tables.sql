@@ -9,7 +9,8 @@ CREATE TABLE "user" (
 -- Create the "group" table
 -- Stores information about groups/chats where the bot is active.
 CREATE TABLE "group" (
-    "groupId" TEXT PRIMARY KEY,
+    "id" SERIAL PRIMARY KEY,
+    "groupId" TEXT NOT NULL,
     "groupName" TEXT NOT NULL,
     "canCreate" INTEGER NOT NULL DEFAULT 0,
     "canDelete" INTEGER NOT NULL DEFAULT 0,
@@ -21,12 +22,12 @@ CREATE TABLE "group" (
 -- Stores the tags created within groups.
 CREATE TABLE "tag" (
     "id" BIGSERIAL PRIMARY KEY,
-    "groupId" TEXT NOT NULL,
+    "group_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "lastTagged" TIMESTAMPTZ,
     "creatorId" TEXT NOT NULL,
-    FOREIGN KEY ("groupId") REFERENCES "group"("groupId") ON DELETE CASCADE,
-    UNIQUE ("groupId", "name") -- A tag name should be unique within a group
+    FOREIGN KEY ("group_id") REFERENCES "group"("id") ON DELETE CASCADE,
+    UNIQUE ("group_id", "name") -- A tag name should be unique within a group
 );
 
 -- Create the "subscriber" table
@@ -44,15 +45,15 @@ CREATE TABLE "subscriber" (
 -- A join table to manage which users are admins of which groups (many-to-many).
 CREATE TABLE "admin" (
     "userId" TEXT NOT NULL,
-    "groupId" TEXT NOT NULL,
-    PRIMARY KEY ("userId", "groupId"),
-    FOREIGN KEY ("groupId") REFERENCES "group"("groupId") ON DELETE CASCADE
+    "group_id" INTEGER NOT NULL,
+    PRIMARY KEY ("userId", "group_id"),
+    FOREIGN KEY ("group_id") REFERENCES "group"("id") ON DELETE CASCADE
 );
 
 -- Create indexes for foreign keys to improve query performance
-CREATE INDEX "idx_tag_groupId" ON "tag"("groupId");
+CREATE INDEX "idx_tag_group_id" ON "tag"("group_id");
 CREATE INDEX "idx_tag_creatorId" ON "tag"("creatorId");
 CREATE INDEX "idx_subscriber_userId" ON "subscriber"("userId");
 CREATE INDEX "idx_subscriber_tagId" ON "subscriber"("tagId");
 CREATE INDEX "idx_admin_userId" ON "admin"("userId");
-CREATE INDEX "idx_admin_groupId" ON "admin"("groupId");
+CREATE INDEX "idx_admin_group_id" ON "admin"("group_id");

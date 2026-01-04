@@ -31,14 +31,14 @@ export async function canCreate(ctx: MyContext, next: NextFunction) {
 	}
 	else {
 		const groupRepository = new GroupRepository();
-		const groupResult = await groupRepository.getGroup(groupId);
+		const group = await groupRepository.getGroup(groupId);
 		
-		if(groupResult === null) {
+		if(group === null) {
 			await ctx.reply(ctx.t("group-not-found"));
 			return;
 		}
 
-		if(groupResult.canCreate == 1) {
+		if(group.canCreate == 1) {
 			await next();
 		}
 		else {
@@ -66,13 +66,13 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 		const tagRepository = new TagRepository();
 		const groupRepository = new GroupRepository();
 
-		const groupResult = await groupRepository.getGroup(groupId);
-		if(groupResult === null) {
+		const group = await groupRepository.getGroup(groupId);
+		if(group === null) {
 			await ctx.reply(ctx.t("group-not-found"));
 			return;
 		}
 
-		const tagResult = await tagRepository.get(tagName, groupId);
+		const tagResult = await tagRepository.get(group.id, tagName);
 		if(tagResult === null) {
 			await ctx.reply(ctx.t("tag-not-found", {tagName}));
 			return;
@@ -83,10 +83,10 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 
 		switch (commandName) {
 			case "delete":
-				if (groupResult.canDelete === 1 || (groupResult.canDelete === 2 && tagResult.creatorId === userId)) {
+				if (group.canDelete === 1 || (group.canDelete === 2 && tagResult.creatorId === userId)) {
 					await next();
 				} 
-				else if (groupResult.canDelete === 2) {
+				else if (group.canDelete === 2) {
 					await ctx.reply(ctx.t("only-admins-or-creator-delete"));
 				} 
 				else {
@@ -95,10 +95,10 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 				break;
 
 			case "rename":
-				if (groupResult.canRename === 1 || (groupResult.canRename === 2 && tagResult.creatorId === userId)) {
+				if (group.canRename === 1 || (group.canRename === 2 && tagResult.creatorId === userId)) {
 					await next();
 				} 
-				else if (groupResult.canRename === 2) {
+				else if (group.canRename === 2) {
 					await ctx.reply(ctx.t("only-admins-or-creator-rename"));
 				} 
 				else {

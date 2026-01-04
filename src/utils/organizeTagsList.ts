@@ -1,11 +1,17 @@
-import { TagDTO } from "../db/tag/tag.dto";
+import GroupRepository from "@db/group/group.repository";
 import TagRepository from "@db/tag/tag.repository";
+
+import { TagDTO } from "../db/tag/tag.dto";
 
 //TODO: better typing of the response
 export async function organizeTagsList(groupId: string, limitNextTags = true){
 
     const tagRepository = new TagRepository();
-    const getTagsByGroupResult = await tagRepository.getByGroup(groupId);
+    const groupRepository = new GroupRepository();
+
+    const group = await groupRepository.getGroup(groupId);
+
+    const getTagsByGroupResult = await tagRepository.getByGroup(group.id);
 
     const tags = getTagsByGroupResult;
     const maxActiveTags = 5;

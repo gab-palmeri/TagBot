@@ -27,14 +27,15 @@ export interface SubscriberTable {
 
 export interface TagTable {
     id: Generated<number>; //primary key
-    groupId: string;
+    group_id: number;
     name: string;
     lastTagged: string;
     creatorId: string;
 }
 
 export interface GroupTable {
-    groupId: string; //primary key
+    id: Generated<number>; //primary key
+    groupId: string; 
     groupName: string;
     canCreate: number;
     canDelete: number;
@@ -44,7 +45,7 @@ export interface GroupTable {
 
 export interface AdminTable {
     userId: string; //primary key
-    groupId: string;
+    group_id: number;
 }
 
 export type User = Selectable<UserTable>

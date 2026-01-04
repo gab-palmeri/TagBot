@@ -22,6 +22,9 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
     const wasOut = oldStatus === "left" || oldStatus === "kicked";
     const isIn = newStatus === "member" || newStatus === "administrator";
 
+    // Get group
+    const group = await groupRepository.getGroup(groupId);
+
     // BOT ADDED
     if (wasOut && isIn) {
 
@@ -30,16 +33,16 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
                     
 
         try {
-            const group = await groupRepository.getGroup(groupId);
 
             if (group !== null) {
-                await adminRepository.addAdmins(groupId, admins);
-                await groupRepository.setGroupActive(groupId, true);
+                await adminRepository.addAdmins(group.id, admins);
+                await groupRepository.setGroupActive(groupId, true); //TODO: Modificare a group_id?
                 await ctx.reply(ctx.t("bot-rejoined"), { parse_mode: "Markdown" });
             }
             else {
                 await groupRepository.createGroup(groupId, groupName);
-                await adminRepository.addAdmins(groupId, admins);
+                const newGroup = await groupRepository.getGroup(groupId);
+                await adminRepository.addAdmins(newGroup.id, admins);
                 return await ctx.reply(ctx.t("start"), { parse_mode: "Markdown", link_preview_options: { is_disabled: true } });
                 
             }
@@ -59,7 +62,7 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
 
     // BOT KICKED / LEFT
     if (newStatus === "left" || newStatus === "kicked") {
-        await adminRepository.deleteAllAdmins(groupId);
+        await adminRepository.deleteAllAdmins(group.id);
         await groupRepository.setGroupActive(groupId, false);
         return;
     }
@@ -80,7 +83,7 @@ export async function myPrivateChatMemberHandler(ctx: MyContext, next: NextFunct
         await userRepository.setBotStarted(userId, false);
     }
     else {
-        const user = userRepository.getUser(userId);
+        const user = await userRepository.getUser(userId);
 
         if(user !== null) {
             await userRepository.setBotStarted(userId, true);

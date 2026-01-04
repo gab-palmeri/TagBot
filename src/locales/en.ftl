@@ -103,12 +103,12 @@ rename-syntax-error =
 
 tag-syntax-error =
     ⚠️ *Tags* must be between 3 and 32 characters long, and they should only contain letters, numbers, and underscores.
-    Tags cannot start with an underscore (_)
+    Tags cannot start with an underscore
 
 tag-not-found =
     ❌ Tag *{ $tagName }* not found
 
-tag-already-exist = 
+tag-already-exists = 
     ❌ Tag *{ $tagName }* already exists
 
 tag-created =

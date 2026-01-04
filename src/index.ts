@@ -17,7 +17,7 @@ if(process.env.MODE == "polling") {
 	const runner = run(
 		bot,
 		500,
-		{allowed_updates: ["message", "callback_query", "my_chat_member", "chat_member"]},
+		{allowed_updates: ["message", "callback_query", "my_chat_member", "chat_member"], drop_pending_updates: true},
 		{retryInterval: 1000}
 	);
 

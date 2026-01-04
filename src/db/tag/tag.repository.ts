@@ -75,6 +75,7 @@ export default class TagRepository implements ITagRepository {
             .innerJoin('user', 'subscriber.userId', 'user.userId')
             .where('tag.name', '=', tagName)
             .where('tag.group_id', '=', group_id)
+            .where('subscriber.isActive', '=', true)
             .select([
                 'subscriber.userId as userId',
                 'user.username as username'

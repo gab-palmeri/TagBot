@@ -1,5 +1,5 @@
+import { composeTagList } from "@utils/composeTagsList";
 import { MyContext } from "@utils/customTypes";
-import { msgListTags } from "@utils/messages/subscriberMessages";
 import { organizeTagsList } from "@utils/organizeTagsList";
 
 export async function showAllTagsCallbackQueryHandler(ctx: MyContext) {
@@ -37,7 +37,8 @@ export async function showAllTagsCallbackQueryHandler(ctx: MyContext) {
         const nextTags = tagsResult.secondaryTags;
 
         // Create the message to send
-        const message = msgListTags(mostActiveTags, nextTags, groupName);
+        const message = composeTagList(ctx, { tags: mostActiveTags, otherTags: nextTags, groupName, fullList: true });
+
 
         // Send the message in private
         try {

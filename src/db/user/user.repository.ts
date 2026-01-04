@@ -29,7 +29,7 @@ export default class UserRepository implements IUserRepository {
             return null;
         }
 
-        return new UserDTO(user.userId, user.username);
+        return new UserDTO(user.userId, user.username, user.hasBotStarted);
     }
 
     public async updateUserUsername(userId: string, newUsername: string) {
@@ -41,6 +41,9 @@ export default class UserRepository implements IUserRepository {
     }
 
     public async setBotStarted(userId: string, hasBotStarted: boolean) {
+
+        console.log(hasBotStarted);
+
         await getDb()
             .updateTable('user')
             .set({ hasBotStarted: hasBotStarted })

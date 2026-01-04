@@ -25,33 +25,39 @@ export default class SubscriberRepository implements ISubscriberRepository {
     public async leaveTag(groupId: string, tagName: string, userId: string) {
         await getDb()
             .deleteFrom('subscriber')
-            .innerJoin('tag', 'subscriber.tagId', 'tag.id')
-            .where('userId', '=', userId)
+            .using('tag')
+            .whereRef('subscriber.tagId', '=', 'tag.id')
+            .where('subscriber.userId', '=', userId)
             .where('tag.name', '=', tagName)
             .where('tag.groupId', '=', groupId)
             .execute();
+
     }
     
+    //TODO: Valutare se spostare il metodo in Tags con un metodo getBySubscriber
     public async getSubscriberTags(userId: string, groupId: string) {
+        
         const tags = await getDb()
-            .selectFrom('subscriber')
-            .innerJoin('tag', 'subscriber.tagId', 'tag.id')
+            .selectFrom('tag')
+            .innerJoin('subscriber', 'subscriber.tagId', 'tag.id')
+            .where('subscriber.userId', '=', userId) // solo tag a cui l'utente è iscritto
+            .where('tag.groupId', '=', groupId)
+            .innerJoin('subscriber as subAll', 'subAll.tagId', 'tag.id')
             .select([
                 'tag.name',
-                'tag.creatorId',
-                'tag.lastTagged'
-            ])
-            .where('subscriber.userId', '=', userId)
-            .where('tag.groupId', '=', groupId)
+                'tag.creatorId as creatorId',
+                'tag.lastTagged as lastTagged',
+                (eb) => eb.fn.count('subAll.userId').as('subscribersNum')
+            ])            
+            .groupBy(['tag.id', 'tag.name', 'tag.creatorId', 'tag.lastTagged'])
             .execute();
-        
-        const tagsDTOS = tags.map(tag => new TagDTO(
+
+        return tags.map(tag => new TagDTO(
             tag.name,
             tag.creatorId,
-            tag.lastTagged
+            tag.lastTagged,
+            Number(tag.subscribersNum)
         ));
-
-        return tagsDTOS;
     }
 
     public async setActiveFlag(groupId: string, userId: string, isActive: boolean) {

@@ -1,6 +1,5 @@
 import { MyContext } from "@utils/customTypes";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
-import { msgLeaveSyntaxError, msgLeaveTag } from "@messages/subscriberMessages";
 import TagRepository from "@db/tag/tag.repository";
 
 export async function leaveHandler(ctx: MyContext) {
@@ -16,22 +15,22 @@ export async function leaveHandler(ctx: MyContext) {
 
     // Validate parameters
     if(tagName.length == 0) {
-        return await ctx.reply(msgLeaveSyntaxError);
+        return await ctx.reply(ctx.t("leave-syntax-error"), {parse_mode: "Markdown"});
     }
     // Check if tag exists
     const tag = await tagRepository.get(groupId, tagName);
     if(tag === null) {
-        return await ctx.reply("⚠️ The tag #" + tagName + " does not exist in this group, @" + username);
+        return await ctx.reply(ctx.t("tag-not-found", {tagName}));
     }
 
     // Check if user is subscribed to the tag
     const isSubscribed = await subscriberRepository.isSubscribedToTag(groupId, tagName, userId);
     if(!isSubscribed) {
-        return await ctx.reply("⚠️ You are not subscribed to the tag " + tagName + ", @" + username);
+        return await ctx.reply(ctx.t("not-subscribed-error", {username, tagName}), {parse_mode: "Markdown"});
     }
 
     // Leave tag
     await subscriberRepository.leaveTag(groupId, tagName, userId);
-    await ctx.reply(msgLeaveTag(username, tagName));
+    await ctx.reply(ctx.t("leave-tag", {username, tagName}), {parse_mode: "Markdown"});
 
 }

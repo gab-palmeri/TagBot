@@ -3,7 +3,6 @@ import GroupRepository from "@db/group/group.repository";
 import AdminRepository from "@db/admin/admin.repository";
 import UserRepository from "@db/user/user.repository";
 
-import { startMessage, botRejoinedMessage, botJoinErrorMessage, botPromotedMessage } from "@utils/messages/generalMessages";
 import { NextFunction } from "grammy";
 
 const groupRepository = new GroupRepository();
@@ -36,17 +35,17 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
             if (group !== null) {
                 await adminRepository.addAdmins(groupId, admins);
                 await groupRepository.setGroupActive(groupId, true);
-                await ctx.reply(botRejoinedMessage, { parse_mode: "HTML" });
+                await ctx.reply(ctx.t("bot-rejoined"), { parse_mode: "Markdown" });
             }
             else {
                 await groupRepository.createGroup(groupId, groupName);
                 await adminRepository.addAdmins(groupId, admins);
-                return await ctx.reply(startMessage, { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+                return await ctx.reply(ctx.t("start"), { parse_mode: "Markdown", link_preview_options: { is_disabled: true } });
                 
             }
         }
         catch(e) {
-            await ctx.reply(botJoinErrorMessage);
+            await ctx.reply(ctx.t("bot-join-error"));
             await ctx.leaveChat();
             throw e;
         }
@@ -54,7 +53,7 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
 
     // BOT PROMOTED
     if (oldStatus === "member" && newStatus === "administrator") {
-        await ctx.reply(botPromotedMessage, { parse_mode: "HTML" });
+        await ctx.reply(ctx.t("bot-promoted"), { parse_mode: "Markdown" });
         return;
     }
 

@@ -2,8 +2,6 @@ import { MyContext } from "@utils/customTypes";
 
 import { InlineKeyboard } from "grammy";
 
-import { msgJoinSyntaxError } from "@messages/subscriberMessages";
-
 import { joinTag } from "@utils/joinTag";
 
 
@@ -14,11 +12,8 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
     const username = ctx.callbackQuery.from.username;
     const botUsername = ctx.me.username;
     const userId = ctx.callbackQuery.from.id.toString();
-
-    if(tagName.length == 0) 
-        return await ctx.reply(msgJoinSyntaxError);
     
-    const joinResult = await joinTag(tagName, groupId, username, botUsername, userId);
+    const joinResult = await joinTag(ctx.t, tagName, groupId, username, botUsername, userId);
 
     if (joinResult.inlineKeyboard) {
         const kb = new InlineKeyboard();

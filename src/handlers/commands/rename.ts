@@ -1,8 +1,6 @@
 import { MyContext } from "@utils/customTypes";
 import TagRepository from "@db/tag/tag.repository";
-import { msgRenameSyntaxError, msgRenameTag, msgTagSyntaxError } from "@messages/tagMessages";
 import { tagPrivately } from "@utils/tagPrivately";
-import { msgPublicTag } from "@messages/subscriberMessages";
 
 export async function renameHandler(ctx: MyContext) {
 
@@ -12,34 +10,33 @@ export async function renameHandler(ctx: MyContext) {
     const args = ctx.match.toString();
     const [oldTagName, newTagName] = args.trim().split(/\s+/).map(tag => tag.replace(/^#/, ""));
     const groupId = ctx.chatId.toString();
-    const username = ctx.from.username || ctx.from.first_name;
     const groupName = ctx.msg.chat.title;
 
     // Validate parameters
     if(oldTagName.length == 0 || newTagName.length == 0)
-        return await ctx.reply(msgRenameSyntaxError);
+        return await ctx.reply(ctx.t("rename-syntax-error"), {parse_mode: "Markdown"});
 
 
     const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-        return await ctx.reply(msgTagSyntaxError(username)); 
+        return await ctx.reply(ctx.t("tag-syntax-error"), {parse_mode: "Markdown"}); 
 
 
         // Check if the tag exists
         const tag = await tagRepository.get(groupId, oldTagName);
         if(tag === null) {
-            return await ctx.reply(`⚠️ Tag <b>#${oldTagName}</b> not found (@${username})`, {parse_mode: "HTML"});
+            return await ctx.reply(ctx.t("tag-not-found", {oldTagName}), {parse_mode: "Markdown"});
         }
 
         // Check if the new tag name already exists
         const tagExists = await tagRepository.get(groupId, newTagName);
         if(tagExists !== null) {
-            return await ctx.reply(`⚠️ Tag <b>#${newTagName}</b> already exists (@${username})`, {parse_mode: "HTML"});
+            return await ctx.reply(ctx.t("tag-already-exists", {newTagName}), {parse_mode: "Markdown"});
         }
 
         // Rename the tag and send the confirmation message
         await tagRepository.rename(groupId, oldTagName, newTagName);
-        const sentMessage = await ctx.reply(msgRenameTag(oldTagName,newTagName,username) , {parse_mode: "HTML"});
+        const sentMessage = await ctx.reply(ctx.t("tag-renamed", {oldTagName, newTagName}) , {parse_mode: "Markdown"});
         
         // NOTIFY SUBSCRIBERS OF THE TAG RENAMING
         const subscribers = await tagRepository.getSubscribers(newTagName, groupId);
@@ -56,7 +53,8 @@ export async function renameHandler(ctx: MyContext) {
                 });
             }
             else {
-                const message = msgPublicTag(subscribersWithoutMe);
+
+                const message = subscribersWithoutMe.map(s => ctx.t("public-tag", {username: s.username, userId: s.userId})).join(" ");
                 await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
             }
         }

@@ -1,24 +1,25 @@
-import { Context, InlineKeyboard, NextFunction } from "grammy";
+import { InlineKeyboard, NextFunction } from "grammy";
 
 import GroupRepository from "@db/group/group.repository";
 import TagRepository from "@db/tag/tag.repository";
+import { MyContext } from "./customTypes";
 
-export async function checkIfPrivate(ctx: Context, next: NextFunction) {
+export async function checkIfPrivate(ctx: MyContext, next: NextFunction) {
 
 	if(!ctx.hasChatType("private")) {
-		const inlineKeyboard = new InlineKeyboard().url("👉 Tap here", "https://t.me/grouptags_bot?start");
-		await ctx.reply("✨ This command works only in private chats!", { reply_markup: inlineKeyboard});
+		const inlineKeyboard = new InlineKeyboard().url(ctx.t("private-only-button"), "https://t.me/grouptags_bot?start");
+		await ctx.reply(ctx.t("private-only"), { parse_mode: "Markdown", reply_markup: inlineKeyboard});
 		return;
 	}
 	await next();
 }
 
-export function getSessionKey(ctx: Context) {
+export function getSessionKey(ctx: MyContext) {
   return ctx.chat?.id.toString();
 }
 
 
-export async function canCreate(ctx: Context, next: NextFunction) {
+export async function canCreate(ctx: MyContext, next: NextFunction) {
 
 	if(!ctx.update.message || !ctx.msg || !ctx.msg.from) return;
 
@@ -33,7 +34,7 @@ export async function canCreate(ctx: Context, next: NextFunction) {
 		const groupResult = await groupRepository.getGroup(groupId);
 		
 		if(groupResult === null) {
-			await ctx.reply("Group not found");
+			await ctx.reply(ctx.t("group-not-found"));
 			return;
 		}
 
@@ -41,13 +42,13 @@ export async function canCreate(ctx: Context, next: NextFunction) {
 			await next();
 		}
 		else {
-			await ctx.reply("Only admins can create tags");
+			await ctx.reply(ctx.t("only-admins-create-tags"));
 		}
 	}	
 }
 
 
-export async function canUpdate(ctx: Context, next: NextFunction) {
+export async function canUpdate(ctx: MyContext, next: NextFunction) {
 
 	if(!ctx.update.message || !ctx.msg || !ctx.msg.from || !ctx.match || !ctx.msg.text) return;
 
@@ -67,13 +68,13 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 
 		const groupResult = await groupRepository.getGroup(groupId);
 		if(groupResult === null) {
-			await ctx.reply("Group not found");
+			await ctx.reply(ctx.t("group-not-found"));
 			return;
 		}
 
 		const tagResult = await tagRepository.get(tagName, groupId);
 		if(tagResult === null) {
-			await ctx.reply("Tag not found");
+			await ctx.reply(ctx.t("tag-not-found", {tagName}));
 			return;
 		}
 		
@@ -86,10 +87,10 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 					await next();
 				} 
 				else if (groupResult.canDelete === 2) {
-					await ctx.reply("Only admins or the creator of this tag can delete it");
+					await ctx.reply(ctx.t("only-admins-or-creator-delete"));
 				} 
 				else {
-					await ctx.reply("Only admins can delete tags");
+					await ctx.reply(ctx.t("only-admins-delete"));
 				}
 				break;
 
@@ -98,10 +99,10 @@ export async function canUpdate(ctx: Context, next: NextFunction) {
 					await next();
 				} 
 				else if (groupResult.canRename === 2) {
-					await ctx.reply("Only admins or the creator of this tag can rename it");
+					await ctx.reply(ctx.t("only-admins-or-creator-rename"));
 				} 
 				else {
-					await ctx.reply("Only admins can rename tags");
+					await ctx.reply(ctx.t("only-admins-rename"));
 				}
 				break;
 		}

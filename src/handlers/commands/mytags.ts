@@ -1,6 +1,6 @@
+import { composeTagList } from "@utils/composeTagsList";
 import { MyContext } from "@utils/customTypes";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
-import { msgMyTags } from "@messages/subscriberMessages";
 
 export async function mytagsHandler(ctx: MyContext) {
     const subscriberRepository = new SubscriberRepository();
@@ -17,6 +17,9 @@ export async function mytagsHandler(ctx: MyContext) {
     }
 
     const tags = result.sort((a,b) => a.name.localeCompare(b.name));
-    await ctx.reply(msgMyTags(tags, username), { parse_mode: "HTML" });
+
+    const myTags = composeTagList(ctx, { tags, username, fullList: false });
+
+    await ctx.reply(myTags, { parse_mode: "Markdown" });
     
 }

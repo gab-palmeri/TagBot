@@ -4,10 +4,12 @@ import { getSessionKey } from "./utils/middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
-import tagbotCommands from "commands";
-import { listenersGroup, listenersPrivate} from "listeners";
+import { I18n } from "@grammyjs/i18n";
 
 import { Groups, LastUsedTags, MyContext } from '@utils/customTypes';
+
+import tagbotCommands from "commands";
+import { listenersGroup, listenersPrivate} from "listeners";
 import controlPanel from "@utils/menu/controlPanel";
 
 export default async function initializeBot() {
@@ -45,6 +47,13 @@ export default async function initializeBot() {
 
 	const throttler = apiThrottler();
 	bot.api.config.use(throttler);
+
+	//Set i18n
+	const i18n = new I18n<MyContext>({
+		defaultLocale: "en", 
+		directory: "src/locales",
+	});
+	bot.use(i18n);
 
 	// Set commands and listeners
 	bot.use(tagbotCommands);

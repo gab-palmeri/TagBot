@@ -3,7 +3,6 @@ import TagRepository from "@db/tag/tag.repository";
 
 import { isUserFlooding } from "@utils/isUserFlooding";
 import { tagPrivately } from "@utils/tagPrivately";
-import { msgFloodingError, msgPublicTag, msgTagsErrors } from "@messages/subscriberMessages";
 
 export async function hashtagHandler(ctx: MyContext) {
 
@@ -76,19 +75,27 @@ export async function hashtagHandler(ctx: MyContext) {
             });
         }
         else {
-            const message = await msgPublicTag(subscribersWithoutMe);
-            await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "HTML" }); 
+            const message = subscribersWithoutMe.map(s => ctx.t("public-tag", {username: s.username, userId: s.userId})).join(" ");
+            await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "Markdown" }); 
         }
 
         await tagRepository.updateLastTagged(tagName, groupId);        
     }
 
     //ERROR MESSAGES PHASE
-    const errorMessages = msgTagsErrors(emptyTags, nonExistentTags, onlyOneInTags);
+    let errorMessages = "";
+    if(emptyTags.length > 0)
+        errorMessages += ctx.t("empty-tags", {tags: emptyTags.join(", "), count: emptyTags.length});
+    if(nonExistentTags.length > 0)
+        errorMessages += "\n" + ctx.t("non-existent-tags", {tags: nonExistentTags.join(", "), count: nonExistentTags.length});
+    if(onlyOneInTags.length > 0)
+        errorMessages += "\n" + ctx.t("only-one-in-tags", {tags: onlyOneInTags.join(", "), count: onlyOneInTags.length});
+
+
     
     //This message will be deleted shortly after
     if(errorMessages.length > 0) {
-        const errorMessage = await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo });
+        const errorMessage = await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo, parse_mode: "Markdown"});
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
@@ -97,7 +104,7 @@ export async function hashtagHandler(ctx: MyContext) {
 
     //ANTI FLOOD MESSAGE PHASE
     if(isFlooding) {
-        const antiFloodMessage = await ctx.reply(msgFloodingError, { reply_to_message_id: messageToReplyTo });
+        const antiFloodMessage = await ctx.reply(ctx.t("flooding-error"), { parse_mode: "Markdown", reply_to_message_id: messageToReplyTo });
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);

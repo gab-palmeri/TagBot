@@ -1,6 +1,5 @@
 import AdminRepository from "@db/admin/admin.repository";
 import { MyContext } from "@utils/customTypes";
-import { restartSuccessMessage, restartErrorMessage } from "@utils/messages/generalMessages";
 
 
 export async function restartHandler(ctx: MyContext) {
@@ -16,10 +15,10 @@ export async function restartHandler(ctx: MyContext) {
     try {
         await adminRepository.deleteAllAdmins(groupId);
         await adminRepository.addAdmins(groupId, adminIDs);
-        return await ctx.reply(restartSuccessMessage);
+        return await ctx.reply(ctx.t("restart-success"), {parse_mode: "Markdown"});
     }
     catch(e) {
-        await ctx.reply(restartErrorMessage);
+        await ctx.reply(ctx.t("restart-error"), {parse_mode: "Markdown"});
         throw e;
     }
 }

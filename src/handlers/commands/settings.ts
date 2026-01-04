@@ -13,7 +13,7 @@ export async function settingsHandler(ctx: MyContext) {
     // Invoke repository
     const adminResult = await adminRepository.getWithGroups(userId);
     if(adminResult.groups.length === 0) {
-        return await ctx.reply("⚠️ You are not an admin of any group.");
+        return await ctx.reply(ctx.t("admin-no-group"), {parse_mode: "Markdown"});
     }
     // Set session data and menu
     ctx.session.groups = adminResult.groups;

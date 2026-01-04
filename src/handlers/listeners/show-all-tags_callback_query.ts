@@ -42,15 +42,15 @@ export async function showAllTagsCallbackQueryHandler(ctx: MyContext) {
 
         // Send the message in private
         try {
-            await ctx.api.sendMessage(userId, message, { parse_mode: "HTML" });
+            await ctx.api.sendMessage(userId, message, { parse_mode: "Markdown" });
             await ctx.answerCallbackQuery({
-                text: `✅ I've sent you a private message with all the tags!`,
+                text: ctx.t("list-callback-success"),
                 show_alert: true
             });
         } catch (e) {
             // If the bot can't send a message to the user (e.g., because the user hasn't started a chat with the bot)
             await ctx.answerCallbackQuery({
-                text: `⚠️ @${username}, I couldn't send you a private message. Please start a chat with me first`,
+                text: ctx.t("list-callback-error"),
                 show_alert: true
             });
         }

@@ -20,7 +20,7 @@ export async function mytagsHandler(ctx: MyContext) {
     const result = await subscriberRepository.getSubscriberTags(userId, group.id);
                 
     if(result.length === 0) {
-        return await ctx.reply(`⚠️ You are not subscribed to any tags in this group, @${username}`);
+        return await ctx.reply(ctx.t("no-subscription", {username}), {parse_mode: "Markdown"});
     }
 
     const tags = result.sort((a,b) => a.name.localeCompare(b.name));

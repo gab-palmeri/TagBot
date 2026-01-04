@@ -50,8 +50,7 @@ export async function hashtagHandler(ctx: MyContext) {
         }
 
         //Remove the current user from the subscribers list
-        const subscribersWithoutMe = tagSubResult.filter(subscriber => subscriber.userId !== ctx.from.id.toString());
-
+        const subscribersWithoutMe = tagSubResult.filter(subscriber => subscriber.userId !== ctx.from.id.toString());    
         //Check if the tag has only one subscriber (the current user)
         if(subscribersWithoutMe.length == 0) {
             onlyOneInTags.push(tagName);
@@ -73,14 +72,14 @@ export async function hashtagHandler(ctx: MyContext) {
 
             const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
             await ctx.reply(message, { 
-                reply_to_message_id: ctx.msg.message_id,
-                parse_mode: "HTML",
+                reply_parameters: { message_id: messageToReplyTo },
+                parse_mode: "Markdown",
                 link_preview_options: { is_disabled: true }
             });
         }
         else {
-            const message = subscribersWithoutMe.map(s => ctx.t("public-tag", {username: s.username, userId: s.userId})).join(" ");
-            await ctx.reply(message, { reply_to_message_id: messageToReplyTo, parse_mode: "Markdown" }); 
+            const message = subscribersWithoutMe.map(s => `[@${s.username}](tg://user?id=${s.userId})`).join(" ");
+            await ctx.reply(message, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "Markdown" }); 
         }
 
         await tagRepository.updateLastTagged(group.id, tagName);        
@@ -99,7 +98,7 @@ export async function hashtagHandler(ctx: MyContext) {
     
     //This message will be deleted shortly after
     if(errorMessages.length > 0) {
-        const errorMessage = await ctx.reply(errorMessages, { reply_to_message_id: messageToReplyTo, parse_mode: "Markdown"});
+        const errorMessage = await ctx.reply(errorMessages, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "Markdown"});
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
@@ -108,7 +107,7 @@ export async function hashtagHandler(ctx: MyContext) {
 
     //ANTI FLOOD MESSAGE PHASE
     if(isFlooding) {
-        const antiFloodMessage = await ctx.reply(ctx.t("flooding-error"), { parse_mode: "Markdown", reply_to_message_id: messageToReplyTo });
+        const antiFloodMessage = await ctx.reply(ctx.t("flooding-error"), { parse_mode: "Markdown", reply_parameters: { message_id: messageToReplyTo }});
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);

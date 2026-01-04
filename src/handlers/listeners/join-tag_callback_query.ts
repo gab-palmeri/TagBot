@@ -19,7 +19,7 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
         const kb = new InlineKeyboard();
         if (joinResult.inlineKeyboard.url) kb.url(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.url);
         if (joinResult.inlineKeyboard.callbackData) kb.text(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.callbackData);
-        await ctx.reply(joinResult.message, { reply_markup: kb, parse_mode: "HTML" });
+        await ctx.reply(joinResult.message, { reply_markup: kb, parse_mode: "Markdown" });
     } else {
         await ctx.reply(joinResult.message);
     }

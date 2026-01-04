@@ -16,7 +16,7 @@ export async function renameHandler(ctx: MyContext) {
     const groupName = ctx.msg.chat.title;
 
     // Validate parameters
-    if(oldTagName.length == 0 || newTagName.length == 0)
+    if (!oldTagName || !newTagName)
         return await ctx.reply(ctx.t("rename-syntax-error"), {parse_mode: "Markdown"});
 
 
@@ -52,15 +52,14 @@ export async function renameHandler(ctx: MyContext) {
         if(subscribersWithoutMe.length > 10) {
             const message = await tagPrivately(ctx, newTagName, groupName, subscribersWithoutMe, sentMessage.message_id);
             await ctx.reply(message, { 
-                reply_to_message_id: sentMessage.message_id,
-                parse_mode: "HTML",
+                reply_parameters: { message_id: sentMessage.message_id },
+                parse_mode: "Markdown",
                 link_preview_options: { is_disabled: true }
             });
         }
         else {
-
-            const message = subscribersWithoutMe.map(s => ctx.t("public-tag", {username: s.username, userId: s.userId})).join(" ");
-            await ctx.reply(message, { reply_to_message_id: sentMessage.message_id, parse_mode: "HTML" });
+            const message = subscribersWithoutMe.map(s => `[@${s.username}](tg://user?id=${s.userId})`).join(" ");
+            await ctx.reply(message, { reply_parameters: { message_id: sentMessage.message_id }, parse_mode: "Markdown" });
         }
     }
 }

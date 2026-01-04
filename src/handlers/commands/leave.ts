@@ -28,17 +28,17 @@ export async function leaveHandler(ctx: MyContext) {
     // Check if tag exists
     const tag = await tagRepository.get(group.id, tagName);
     if(tag === null) {
-        return await ctx.reply(ctx.t("tag-not-found", {tagName}));
+        return await ctx.reply(ctx.t("tag-not-found", {tagName}), {parse_mode: "Markdown"});
     }
 
     // Check if user is subscribed to the tag
-    const isSubscribed = await subscriberRepository.isSubscribedToTag(groupId, tagName, userId);
+    const isSubscribed = await subscriberRepository.isSubscribedToTag(group.id, tagName, userId);
     if(!isSubscribed) {
-        return await ctx.reply(ctx.t("not-subscribed-error", {username, tagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("not-subscribed-error", {tagName}), {parse_mode: "Markdown"});
     }
 
     // Leave tag
-    await subscriberRepository.leaveTag(groupId, tagName, userId);
+    await subscriberRepository.leaveTag(group.id, tagName, userId);
     await ctx.reply(ctx.t("leave-tag", {username, tagName}), {parse_mode: "Markdown"});
 
 }

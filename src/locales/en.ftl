@@ -165,9 +165,6 @@ not-subscribed-error =
 ### USING TAGS ###
 ##################
 
-public-tag =
-    [@{ $username }](tg://user?id={ $userId })
-
 private-tag =
     You have been tagged in *{ $groupTitle }* through the { $tagName } tag.
     Click [here]({ $messageLink }) to see the message
@@ -225,5 +222,14 @@ tag-entry =
        *[other] { $count } subs
     }_
 
+list-callback-success = 
+    ✅ I've sent you a private message with all the tags!
+
+list-callback-error =
+    ⚠️ I couldn't send you a private message. Please start a chat with me first
+
 my-tags-header =
     📄 *Here's a list of the tags you're in, @{ $username }:*
+
+no-subscription =
+    ⚠️ You are not subscribed to any tags in this group, @{ $username }

@@ -15,7 +15,7 @@ export async function deleteHandler(ctx: MyContext) {
 
     // Validate parameters
     if (tagName.length == 0)
-        return await ctx.reply(ctx.t("delete-syntax-error"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.delete-syntax"), {parse_mode: "Markdown"});
 
     // Get group
     const group = await groupRepository.getGroup(groupId);
@@ -25,10 +25,10 @@ export async function deleteHandler(ctx: MyContext) {
     const tag = await tagRepository.get(group.id, tagName);
 
     if (tag === null) {
-        return await ctx.reply(ctx.t("tag-not-found", { tagName }), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-not-found", { tagName }), {parse_mode: "Markdown"});
     }
 
     // Delete tag
     await tagRepository.delete(group.id, tagName);
-    return await ctx.reply(ctx.t("tag-deleted", { tagName }), {parse_mode: "Markdown"});
+    return await ctx.reply(ctx.t("tag.delete-ok", { tagName }), {parse_mode: "Markdown"});
 }

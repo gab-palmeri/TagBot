@@ -8,7 +8,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, groupName: s
     const notContacted = [];
 
     // const toSendMessage = msgPrivateTag(tagName, groupName, messageLink);
-    const toSendMessage = ctx.t("private-tag", {tagName, groupName, messageLink});
+    const toSendMessage = ctx.t("tag.private-message", {tagName, groupName, messageLink});
 
     for(const subscriber of subscribers) {
         try {
@@ -22,12 +22,12 @@ export async function tagPrivately(ctx: MyContext, tagName: string, groupName: s
 
     //if at least one user was privately tagged successfully..
     if(subscribers.length > notContacted.length)
-        message += ctx.t("private-tag-response", {tagName});
+        message += ctx.t("tag.private-ok", {tagName});
 
 
     //If the bot was not able to contact at least one user..
     if(notContacted.length > 0) 
-        message += ctx.t("private-tag-error", {notContacted: notContacted.join(", ")});
+        message += ctx.t("tag.private-error", {notContacted: notContacted.join(", ")});
 
     return message;
 

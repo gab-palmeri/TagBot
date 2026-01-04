@@ -5,7 +5,7 @@ start =
     Hi! I'm a [bot](https://t.me/tagbotchannel/3) that allows you to *create* and *manage* grouptags.
     Type */help* to see the *list of commands.*
 
-    _Remember to give me *administrator* permissions so that I can answer to #tags._
+    _Remember to give me_ *administrator* _permissions so that I can answer to #tags._
 
     _To report a bug, suggest a feature or get bot updates, join @tagbotchannel_
 
@@ -29,19 +29,14 @@ help =
     _To report a bug, suggest a feature or get bot updates, join @tagbotchannel_
 
 
-restart-success =
-    ✅ *Admin list* has been updated!
-
-restart-error =
-    ❌ An error occurred while updating the *admin list*.
-
-group-not-found =
-    Group not found
+restart =
+    .success = ✅ *Admin list* has been updated!
+    .error = ❌ An error occurred while updating the *admin list*.
 
 private-only =
     ✨ This command works only in *private chats*!
 
-private-only-button =
+private-only-btn =
     👉 Tap here
 
 internal-error =
@@ -51,188 +46,104 @@ internal-error =
 ### ADMIN ###
 #############
 
-admin-no-groups = 
+admin.no-groups = 
     ⚠️ You are not an *admin* of any group.
 
-only-admins-create-tags =
-    ❌ Only *admins* can *create* tags
-
-only-admins-or-creator-delete =
-    ❌ Only *admins* or the creator of this tag can *delete* it
-
-only-admins-delete =
-    ❌ Only *admins* can delete tags
-
-only-admins-or-creator-rename =
-    ❌ Only *admins* or the creator of this tag can *rename* it
-
-only-admins-rename =
-    ❌ Only *admins* can rename tags
+permissions =
+    .create-tags-admins = ❌ Only *admins* can *create* tags
+    .delete-tags-admins = ❌ Only *admins* can delete tags
+    .delete-tags-admins-or-creator = ❌ Only *admins* or the creator of this tag can *delete* it
+    .rename-tags-admins = ❌ Only *admins* can rename tags
+    .rename-tags-admins-or-creator = ❌ Only *admins* or the creator of this tag can *rename* it
 
 ####################
 ### GROUP EVENTS ###
 ####################
 
-bot-rejoined =
+bot-rejoined = 
     It's good to be back! Type /help to see the list of commands.
 
     _Remember to give me *administrator* permissions so that I can answer to #tags._
+bot-join-error = ❌ An error occurred while setting up. Try adding me again.
+bot-promoted = Now I'm fully operational!
 
-bot-join-error =
-    ❌ An error occurred while setting up. Try adding me again.
+migrate =
+    .success = ✅ Your tags have been migrated to the supergroup chat!
+    .error = ❌ An error occurred while migrating your group tags to the supergroup chat!
 
-bot-promoted =
-    Now I'm fully operational!
+    
 
-migrate-success =
-    ✅ Your tags have been migrated to the supergroup chat!
+###########
+### Tag ###
+###########
+tag =
+    .create-ok = ✅ Created tag *{ $tagName }*
+    .create-syntax = ⚠️ Syntax: /create *tagname*
 
-migrate-error =
-    ❌ An error occurred while migrating your group tags to the supergroup chat!
+    .delete-ok = ✅ Deleted tag *{ $tagName }*
+    .delete-syntax = ⚠️ Syntax: /delete *tagname*
 
+    .rename-ok = ✅ Renamed tag *{ $oldTagName }* to *{ $newTagName }*
+    .rename-syntax = ⚠️ Syntax: /rename *oldtagname* *newtagname*
 
-###################################
-### TAGS CREATE, DELETE, RENAME ###
-###################################
+    .private-message = 
+        🔔📩 You have been tagged in *{ $groupName }* 📩🔔
+        🏷️ Tag: *{ $tagName }*
+        👉 Click [here]({ $messageLink }) to see the message
+    .private-ok = ✅ Users in { $tagName } have been tagged privately. [Why?](https://t.me/tagbotchannel/7)
+    .private-error = ⚠️ These users didn't start the bot in private: { $notContacted }
 
-create-syntax-error =
-    ⚠️ Syntax: /create *tagname*
+    .validation-syntax = ⚠️ *Tags* must be between 3 and 32 characters long, and they should only contain letters, numbers, and underscores. Tags cannot start with an underscore
+    .validation-not-found = ❌ Tag *{ $tagName }* not found
+    .validation-already-exists = ❌ Tag *{ $tagName }* already exists
+    .validation-empty-one = ⚠️ The tag { $tags } is *empty*
+    .validation-empty-other = ⚠️ These tags are *empty*: { $tags }
+    .validation-non-existent-one = ❌ The tag { $tags } *does not exist*
+    .validation-non-existent-other = ❌ These tags *do not exist*: { $tags }
+    .validation-only-one-one = ⚠️ You're the *only one* in the tag { $tags }
+    .validation-only-one-other = ⚠️ You're the *only one* in these tags: { $tags }
+    .validation-flooding = 🕑 You can only mention *three tags* every *five minutes*. Slow down!
 
-delete-syntax-error =
-    ⚠️ Syntax: /delete *tagname*
-
-rename-syntax-error =
-    ⚠️ Syntax: /rename *oldtagname* *newtagname*
-
-tag-syntax-error =
-    ⚠️ *Tags* must be between 3 and 32 characters long, and they should only contain letters, numbers, and underscores.
-    Tags cannot start with an underscore
-
-tag-not-found =
-    ❌ Tag *{ $tagName }* not found
-
-tag-already-exists = 
-    ❌ Tag *{ $tagName }* already exists
-
-tag-created =
-    ✅ Created tag *{ $tagName }*
-
-tag-deleted =
-    ✅ Deleted tag *{ $tagName }*
-
-tag-renamed =
-    ✅ Renamed tag *{ $oldTagName }* to *{ $newTagName }*
 
 ######################
 ### JOIN AND LEAVE ###
 ######################
 
-# Syntax errors
-join-syntax-error =
-    ⚠️ Syntax: /join *tagname*
 
-leave-syntax-error =
-    ⚠️ Syntax: /leave *tagname*
+join =
+    .ok = @{ $username } joined tag { $tagName }. They will be notified when someone tags it.
+    .btn = Join this tag
+    .syntax = ⚠️ Syntax: /join *tagname*
+    .start-bot-msg = To join *tags*, you need to start a *private chat* with the bot.
+    .start-bot-btn = Start the bot!
+    .already-subscribed = ⚠️ You are already subscribed to *{ $tagName }*
 
-
-### Join ###
-join-private =
-    You have joined the tag *{ $tagName }*. You will be notified when someone tags it.
-
-    _Keep the bot started to get tagged privately!_
-
-join-public =
-    @{ $username } joined tag { $tagName }. They will be notified when someone tags it.
-
-join-public-inline-button =
-    Join this tag
-
-join-start-bot =
-    To join *tags*, you need to start a *private chat* with the bot
-
-join-start-bot-button =
-    Start the bot!
-
-already-subscribed-error =
-    ⚠️ You are already subscribed to *{ $tagName }*
-
-### Leave ###
-leave-tag =
-    @{ $username } left tag { $tagName }. They will no longer be notified when someone tags it.
-
-not-subscribed-error =
-    ⚠️ You are *not subscribed* to tag { $tagName }
-
-
-##################
-### USING TAGS ###
-##################
-
-private-tag =
-    🔔📩 You have been tagged in *{ $groupName }* 📩🔔
-    🏷️ Tag: *{ $tagName }*
-    👉 Click [here]({ $messageLink }) to see the message
-
-private-tag-response =
-    ✅ Users in { $tagName } have been tagged privately. [Why?](https://t.me/tagbotchannel/7)
-
-private-tag-error =
-    ⚠️ These users didn't start the bot in private: { $notContacted }
-
-empty-tags =
-    ⚠️ { $count ->
-        [one] The tag { $tags } is *empty*
-       *[other] These tags are *empty*: { $tags }
-    }
-
-non-existent-tags =
-    ❌ { $count ->
-        [one] The tag { $tags } *does not exist*
-       *[other] These tags *do not exist*: { $tags }
-    }
-
-only-one-in-tags =
-    ⚠️ { $count ->
-        [one] You're the *only one* in the tag { $tags }
-       *[other] You're the *only one* in these tags: { $tags }
-    }
-
-flooding-error =
-    🕑 You can only mention *three tags* every *five minutes*. Slow down!
+leave =
+    .ok = @{ $username } left tag { $tagName }. They will no longer be notified when someone tags it.
+    .syntax = ⚠️ Syntax: /leave *tagname*
+    .not-subscribed = ⚠️ You are *not subscribed* to tag { $tagName }
+    
 
 #################
 ### TAGS LIST ###
 #################
+list =
+    .empty = ⚠️ No *tags* found in this group
+    .full = 👇 *Here's a list of all the tags in { $groupName }:*
+    .partial = 👇 *Here's a partial list of the tags in this group:*
+    
+    .main = 🔥 *Main tags:*
+    .other = 📝 *Other tags:*
 
-list-tags-empty =
-    ⚠️ No *tags* found in this group
+    .callback-success = ✅ I've sent you a private message with all the tags!
+    .callback-error = ⚠️ I couldn't send you a private message. Please start a chat with me first
 
-list-tags-full =
-    👇 *Here's a list of all the tags in { $groupName }:*
-
-list-tags-partial =
-    👇 *Here's a partial list of the tags in this group:*
-
-list-main-tags-header =
-    🔥 *Main tags:*
-
-list-other-tags-header =
-    📝 *Other tags:*
+mytags =
+    .header = 📄 *Here's a list of the tags you're in, @{ $username }:*
+    .empty = ⚠️ You are not subscribed to any tags in this group, @{ $username }
 
 tag-entry =
-    - `{ $tagName }` _{ $count ->
-        [one] 1 sub
-       *[other] { $count } subs
-    }_
-
-list-callback-success = 
-    ✅ I've sent you a private message with all the tags!
-
-list-callback-error =
-    ⚠️ I couldn't send you a private message. Please start a chat with me first
-
-my-tags-header =
-    📄 *Here's a list of the tags you're in, @{ $username }:*
-
-no-subscription =
-    ⚠️ You are not subscribed to any tags in this group, @{ $username }
+        - `{ $tagName }` _{ $count ->
+            [one] 1 sub
+        *[other] { $count } subs
+        }_

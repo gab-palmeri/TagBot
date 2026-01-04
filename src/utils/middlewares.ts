@@ -7,7 +7,7 @@ import { MyContext } from "./customTypes";
 export async function checkIfPrivate(ctx: MyContext, next: NextFunction) {
 
 	if(!ctx.hasChatType("private")) {
-		const inlineKeyboard = new InlineKeyboard().url(ctx.t("private-only-button"), "https://t.me/grouptags_bot?start");
+		const inlineKeyboard = new InlineKeyboard().url(ctx.t("private-only-btn"), "https://t.me/grouptags_bot?start");
 		await ctx.reply(ctx.t("private-only"), { parse_mode: "Markdown", reply_markup: inlineKeyboard});
 		return;
 	}
@@ -32,17 +32,12 @@ export async function canCreate(ctx: MyContext, next: NextFunction) {
 	else {
 		const groupRepository = new GroupRepository();
 		const group = await groupRepository.getGroup(groupId);
-		
-		if(group === null) {
-			await ctx.reply(ctx.t("group-not-found"));
-			return;
-		}
 
 		if(group.canCreate == 1) {
 			await next();
 		}
 		else {
-			await ctx.reply(ctx.t("only-admins-create-tags"));
+			await ctx.reply(ctx.t("permissions.create-tags-admin"));
 		}
 	}	
 }
@@ -67,14 +62,10 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 		const groupRepository = new GroupRepository();
 
 		const group = await groupRepository.getGroup(groupId);
-		if(group === null) {
-			await ctx.reply(ctx.t("group-not-found"));
-			return;
-		}
 
 		const tagResult = await tagRepository.get(group.id, tagName);
 		if(tagResult === null) {
-			await ctx.reply(ctx.t("tag-not-found", {tagName}));
+			await ctx.reply(ctx.t("tag.validation-not-found", {tagName}));
 			return;
 		}
 		
@@ -87,10 +78,10 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 					await next();
 				} 
 				else if (group.canDelete === 2) {
-					await ctx.reply(ctx.t("only-admins-or-creator-delete"));
+					await ctx.reply(ctx.t("permissions.delete-tags-admins-or-creator"));
 				} 
 				else {
-					await ctx.reply(ctx.t("only-admins-delete"));
+					await ctx.reply(ctx.t("permissions.delete-tags-admins"));
 				}
 				break;
 
@@ -99,10 +90,10 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 					await next();
 				} 
 				else if (group.canRename === 2) {
-					await ctx.reply(ctx.t("only-admins-or-creator-rename"));
+					await ctx.reply(ctx.t("permissions.rename-tags-admins-or-creator"));
 				} 
 				else {
-					await ctx.reply(ctx.t("only-admins-rename"));
+					await ctx.reply(ctx.t("permissions.rename-tags-admins"));
 				}
 				break;
 		}

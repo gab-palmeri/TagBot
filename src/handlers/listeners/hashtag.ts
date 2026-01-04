@@ -88,11 +88,11 @@ export async function hashtagHandler(ctx: MyContext) {
     //ERROR MESSAGES PHASE
     let errorMessages = "";
     if(emptyTags.length > 0)
-        errorMessages += ctx.t("empty-tags", {tags: emptyTags.join(", "), count: emptyTags.length});
+        errorMessages += ctx.t("tag.validation-empty", {tags: emptyTags.join(", "), count: emptyTags.length});
     if(nonExistentTags.length > 0)
-        errorMessages += "\n" + ctx.t("non-existent-tags", {tags: nonExistentTags.join(", "), count: nonExistentTags.length});
+        errorMessages += "\n" + ctx.t("tag.validation-not-found", {tags: nonExistentTags.join(", "), count: nonExistentTags.length});
     if(onlyOneInTags.length > 0)
-        errorMessages += "\n" + ctx.t("only-one-in-tags", {tags: onlyOneInTags.join(", "), count: onlyOneInTags.length});
+        errorMessages += "\n" + ctx.t("tag.validation-only-one", {tags: onlyOneInTags.join(", "), count: onlyOneInTags.length});
 
 
     
@@ -107,7 +107,7 @@ export async function hashtagHandler(ctx: MyContext) {
 
     //ANTI FLOOD MESSAGE PHASE
     if(isFlooding) {
-        const antiFloodMessage = await ctx.reply(ctx.t("flooding-error"), { parse_mode: "Markdown", reply_parameters: { message_id: messageToReplyTo }});
+        const antiFloodMessage = await ctx.reply(ctx.t("tag.validation-flooding"), { parse_mode: "Markdown", reply_parameters: { message_id: messageToReplyTo }});
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);

@@ -19,10 +19,10 @@ export async function restartHandler(ctx: MyContext) {
         const group = await groupRepository.getGroup(groupId);
         await adminRepository.deleteAllAdmins(group.id);
         await adminRepository.addAdmins(group.id, adminIDs);
-        return await ctx.reply(ctx.t("restart-success"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("restart.success"), {parse_mode: "Markdown"});
     }
     catch(e) {
-        await ctx.reply(ctx.t("restart-error"), {parse_mode: "Markdown"});
+        await ctx.reply(ctx.t("restart.error"), {parse_mode: "Markdown"});
         throw e;
     }
 }

@@ -13,7 +13,7 @@ export async function listHandler(ctx: MyContext) {
     const tagsByGroupResponse = await organizeTagsList(groupId);
 
     if(tagsByGroupResponse.mainTags.length === 0) {
-        return await ctx.reply(ctx.t("list-tags-empty"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("list.empty"), {parse_mode: "Markdown"});
     }
 
     const mostActiveTags = tagsByGroupResponse.mainTags;

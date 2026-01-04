@@ -15,14 +15,14 @@ export async function migrateHandler(ctx: MyContext) {
         const group = await groupRepository.getGroup(oldGroupId);
 
         if (group === null) {
-            return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, ctx.t("migrate-error"));
+            return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, ctx.t("migrate.error"));
         }
 
         await groupRepository.migrateGroup(oldGroupId, newGroupId);
-        return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, ctx.t("migrate-success"));
+        return await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, ctx.t("migrate.success"));
     }
     catch(e) {
-        await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, ctx.t("migrate-error"));
+        await ctx.api.sendMessage(ctx.msg.migrate_to_chat_id, ctx.t("migrate.error"));
         throw e;
     }
 }

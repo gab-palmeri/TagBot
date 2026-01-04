@@ -16,7 +16,7 @@ export async function joinHandler(ctx: MyContext) {
 
     // Validate parameters
     if(tagName.length == 0) 
-        return await ctx.reply(ctx.t("join-syntax-error"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("join.syntax"), {parse_mode: "Markdown"});
 
     const joinResult = await joinTag(ctx.t, tagName, groupId, username, botUsername, userId);
 

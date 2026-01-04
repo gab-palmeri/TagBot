@@ -17,12 +17,12 @@ export async function renameHandler(ctx: MyContext) {
 
     // Validate parameters
     if (!oldTagName || !newTagName)
-        return await ctx.reply(ctx.t("rename-syntax-error"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.rename-syntax"), {parse_mode: "Markdown"});
 
 
     const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
     if(!regex.test(oldTagName) || !regex.test(newTagName)) 
-        return await ctx.reply(ctx.t("tag-syntax-error"), {parse_mode: "Markdown"}); 
+        return await ctx.reply(ctx.t("tag.validation-syntax"), {parse_mode: "Markdown"}); 
 
     // Get group
     const group = await groupRepository.getGroup(groupId);
@@ -30,18 +30,18 @@ export async function renameHandler(ctx: MyContext) {
     // Check if the tag exists
     const tag = await tagRepository.get(group.id, oldTagName);
     if(tag === null) {
-        return await ctx.reply(ctx.t("tag-not-found", {oldTagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-not-found", {oldTagName}), {parse_mode: "Markdown"});
     }
 
     // Check if the new tag name already exists
     const tagExists = await tagRepository.get(group.id, newTagName);
     if(tagExists !== null) {
-        return await ctx.reply(ctx.t("tag-already-exists", {newTagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-already-exists", {newTagName}), {parse_mode: "Markdown"});
     }
 
     // Rename the tag and send the confirmation message
     await tagRepository.rename(group.id, oldTagName, newTagName);
-    const sentMessage = await ctx.reply(ctx.t("tag-renamed", {oldTagName, newTagName}) , {parse_mode: "Markdown"});
+    const sentMessage = await ctx.reply(ctx.t("tag.rename-ok", {oldTagName, newTagName}) , {parse_mode: "Markdown"});
     
     // NOTIFY SUBSCRIBERS OF THE TAG RENAMING
     const subscribers = await tagRepository.getSubscribers(group.id, newTagName);

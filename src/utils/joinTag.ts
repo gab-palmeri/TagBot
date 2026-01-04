@@ -32,8 +32,8 @@ export async function joinTag(
 
     if(userResult === null || !userResult.hasBotStarted) {
 
-        const msg = translate("join-start-bot");
-        const inlineText = translate("join-start-bot-button");
+        const msg = translate("join.start-bot-msg");
+        const inlineText = translate("join.start-bot-btn");
 
         return { message: msg, inlineKeyboard: { text: inlineText, url: `https://t.me/${botUsername}?start=${groupId}_${tagName}` } };
     }
@@ -41,21 +41,21 @@ export async function joinTag(
     // Check if tag exists
     const tag = await tagRepository.get(group.id, tagName);
     if (tag === null) {
-        return { message: translate("tag-not-found", { tagName }) };
+        return { message: translate("tag.validation-not-found", { tagName }) };
     }
 
     // Check if already subscribed
     const isSubscribed = await subscriberRepository.isSubscribedToTag(group.id, tagName, userId);
 
     if (isSubscribed) {
-        return { message: translate("already-subscribed-error", { tagName }) };
+        return { message: translate("join.already-subscribed", { tagName }) };
     }
 
     // Join tag
     await subscriberRepository.joinTag(group.id, tagName, userId);
 
-    const msg = translate("join-public", { tagName, username });
-    const inlineText = translate("join-public-inline-button");
+    const msg = translate("join.ok", { tagName, username });
+    const inlineText = translate("join.btn");
 
     return { message: msg, inlineKeyboard: { text: inlineText, callbackData: `join-tag_${tagName}` } };
 }

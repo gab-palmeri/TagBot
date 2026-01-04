@@ -18,28 +18,28 @@ export function composeTagList(ctx: MyContext, opts: TagListOptions): string {
 
     // Header
     if (username) {
-        message += ctx.t("my-tags-header", { username }) + "\n\n";
+        message += ctx.t("mytags.header", { username }) + "\n\n";
     } else if (fullList) {
-        message += ctx.t("list-tags-full", { groupName }) + "\n\n";
+        message += ctx.t("list.full", { groupName }) + "\n\n";
     } else {
-        message += ctx.t("list-tags-partial") + "\n\n";
+        message += ctx.t("list.partial") + "\n\n";
     }
 
     // Main tags
     if (mainTags && mainTags.length) {
-        message += ctx.t("list-main-tags-header") + "\n";
+        message += ctx.t("list.main") + "\n";
         message += mainTags.map(tag => ctx.t("tag-entry", { tagName: tag.name, count: tag.subscribersNum })).join("\n");
         message += "\n\n";
     }
 
     // Other tags
     if (otherTags && otherTags.length) {
-        message += ctx.t("list-other-tags-header") + "\n";
+        message += ctx.t("list.other") + "\n";
         message += otherTags.map(tag => ctx.t("tag-entry", { tagName: tag.name, count: tag.subscribersNum })).join("\n");
         message += "\n\n";
     }
 
-    // Lista generica se non main/other
+    // Generic list
     if ((!mainTags || !mainTags.length) && (!otherTags || !otherTags.length)) {
         message += tags.map(tag => ctx.t("tag-entry", { tagName: tag.name, count: tag.subscribersNum })).join("\n");
     }

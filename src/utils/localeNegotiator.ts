@@ -9,12 +9,19 @@ export default async function localeNegotiator(ctx: MyContext) {
     if(chatType == "group" || chatType == "supergroup") {
         const groupRepository = new GroupRepository();
         const group = await groupRepository.getGroup(ctx.chat.id.toString());
-        return group.lang;   
+        if(group)
+            return group.lang;
+        else
+            return "en";
     }
 
     if(chatType == "private") {
         const userRepository = new UserRepository();
         const user = await userRepository.getUser(ctx.from.id.toString());
-        return user.lang;
+        if(user)
+            return user.lang;
+        else
+            return "en";
+    
     }    
 }

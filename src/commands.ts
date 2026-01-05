@@ -1,6 +1,6 @@
 import { CommandGroup } from "@grammyjs/commands";
-import { MyContext } from "@utils/customTypes";
-import { canCreate, checkIfPrivate, canUpdate } from "@utils/middlewares";
+import { MyContext } from "utils/customTypes";
+import { canCreate, checkIfPrivate, canUpdate } from "utils/middlewares";
 import { createHandler } from "handlers/commands/create";
 import { deleteHandler } from "handlers/commands/delete";
 import { helpCommandHandler } from "handlers/commands/help";

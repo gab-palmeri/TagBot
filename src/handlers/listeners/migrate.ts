@@ -1,5 +1,5 @@
-import { MyContext } from "@utils/customTypes";
-import GroupRepository from "@db/group/group.repository";
+import { MyContext } from "utils/customTypes";
+import GroupRepository from "db/group/group.repository";
 
 
 export async function migrateHandler(ctx: MyContext) {

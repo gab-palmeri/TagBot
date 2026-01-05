@@ -1,6 +1,6 @@
 import { IGroupRepository } from "./group.interfaces";
 import { GroupDTO } from "./group.dto";
-import { getDb } from '@db/database';
+import { getDb } from 'db/database';
 
 export default class GroupRepository implements IGroupRepository {
 

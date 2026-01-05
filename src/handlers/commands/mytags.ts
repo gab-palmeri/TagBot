@@ -1,6 +1,6 @@
-import GroupRepository from "@db/group/group.repository";
-import { composeTagList } from "@utils/composeTagsList";
-import { MyContext } from "@utils/customTypes";
+import GroupRepository from "db/group/group.repository";
+import { composeTagList } from "utils/composeTagsList";
+import { MyContext } from "utils/customTypes";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
 
 export async function mytagsHandler(ctx: MyContext) {

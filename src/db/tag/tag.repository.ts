@@ -1,7 +1,7 @@
 import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 import { ITagRepository } from "./tag.interfaces";
 
-import { getDb } from '@db/database';
+import { getDb } from 'db/database';
 import { TagDTO } from "./tag.dto";
 
 import dayjs from 'dayjs';

@@ -1,7 +1,7 @@
 import { IAdminRepository } from './admin.interfaces';
 import { AdminDTO } from './admin.dto';
 import { GroupDTO } from '../group/group.dto';
-import { getDb } from '@db/database';
+import { getDb } from 'db/database';
 
 export default class AdminRepository implements IAdminRepository {
     

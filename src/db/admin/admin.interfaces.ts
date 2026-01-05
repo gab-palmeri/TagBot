@@ -1,5 +1,5 @@
 import { AdminDTO } from "./admin.dto";
-import { GroupDTO } from "@db/group/group.dto";
+import { GroupDTO } from "db/group/group.dto";
 
 export interface IAdminRepository {
     

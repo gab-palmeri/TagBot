@@ -1,5 +1,5 @@
 import { IUserRepository } from "./user.interfaces";
-import { getDb } from '@db/database';
+import { getDb } from 'db/database';
 import { UserDTO } from "./user.dto";
 
 export default class UserRepository implements IUserRepository {

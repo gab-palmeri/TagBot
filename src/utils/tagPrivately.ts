@@ -1,4 +1,4 @@
-import { MyContext } from "@utils/customTypes";
+import { MyContext } from "utils/customTypes";
 
 import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 

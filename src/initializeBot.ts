@@ -3,39 +3,39 @@ import { sequentialize } from "@grammyjs/runner";
 import { getSessionKey } from "./utils/middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
-import { apiThrottler } from "@grammyjs/transformer-throttler";
 import { I18n } from "@grammyjs/i18n";
 
-import { Groups, LastUsedTags, MyContext } from '@utils/customTypes';
+import { Groups, LastUsedTags, MyContext } from 'utils/customTypes';
 
 import tagbotCommands from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
-import controlPanel from "@utils/menu/controlPanel";
+import controlPanel from "utils/menu/controlPanel";
 
 export default async function initializeBot() {
 	const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
 
 	//Set the basic error handler
 	bot.catch(async (err) => {
-		console.error(`Error while handling update ${err.ctx.update.update_id}:`);
 		err.error instanceof GrammyError
 			? console.error('Error in request:', err.error.description)
 			: err.error instanceof HttpError
 			? console.error('Could not contact Telegram:', err.error)
 			: console.error('Unknown error:', err.error);
 
-		const messageToReplyTo = err.ctx.msg.message_id;
-		await err.ctx.reply("⚠️ An internal error occurred. Please try again later.", { reply_to_message_id: messageToReplyTo });
+		const messageToReplyTo = err.ctx.msg?.message_id;
+		if(err.ctx.t)
+			await err.ctx.reply(err.ctx.t("internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
 	});
 
 	//Set the session middleware and initialize session data
 	bot.use(sequentialize(getSessionKey));
 	bot.use(session({
 		getSessionKey,
-		initial: (): MyContext["session"] => ({
+		initial: () => ({
 			groups: [] as Groups,
 			selectedGroup: null,
 			lastUsedTags: [] as LastUsedTags,
+			__language_code: "en"
 		}),
 	}));
 
@@ -45,25 +45,25 @@ export default async function initializeBot() {
 	//Set the menus
 	bot.use(controlPanel);
 
-	const throttler = apiThrottler();
-	bot.api.config.use(throttler);
-
 	//Set i18n
 	const i18n = new I18n<MyContext>({
 		defaultLocale: "en", 
 		directory: "src/locales",
+		useSession: true,
+		fluentBundleOptions: { useIsolating: false }
 	});
 	bot.use(i18n);
 
 	// Set commands and listeners
 	bot.use(tagbotCommands);
-	await tagbotCommands.setCommands(bot); 
 	bot.use(listenersGroup);
 	bot.use(listenersPrivate);
+	await tagbotCommands.setCommands(bot); 
 
-	// Rate limits
-	bot.filter(ctx => ctx.has("::bot_command")).use(limit({
-		timeFrame: 5000,
+	
+	//Rate limits
+	bot.use(limit({
+		timeFrame: 20000,
 		limit: 3,
 		onLimitExceeded: async (ctx: MyContext) => {
 
@@ -95,7 +95,7 @@ export default async function initializeBot() {
 			}, 3000);
 		},
 		
-		keyGenerator: (ctx) => ctx.from?.id.toString() + "-" + ctx.chat?.id.toString(),
+		keyGenerator: (ctx) => ctx.from.id.toString() + "-" + ctx.chatId.toString(),
 	}));
 
 	return bot;

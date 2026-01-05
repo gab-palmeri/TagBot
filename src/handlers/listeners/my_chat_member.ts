@@ -1,7 +1,7 @@
-import { MyContext } from "@utils/customTypes";
-import GroupRepository from "@db/group/group.repository";
-import AdminRepository from "@db/admin/admin.repository";
-import UserRepository from "@db/user/user.repository";
+import { MyContext } from "utils/customTypes";
+import GroupRepository from "db/group/group.repository";
+import AdminRepository from "db/admin/admin.repository";
+import UserRepository from "db/user/user.repository";
 
 import { NextFunction } from "grammy";
 

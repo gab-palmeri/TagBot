@@ -1,11 +1,13 @@
 import { Context, SessionFlavor } from "grammy";
-import { GroupDTO } from "@db/group/group.dto";
+import { GroupDTO } from "db/group/group.dto";
 import { I18nFlavor } from "@grammyjs/i18n";
+
 
 export type MyContext = Context & I18nFlavor & SessionFlavor<{
     groups: Groups, 
     selectedGroup: GroupDTO | null,
-    lastUsedTags: LastUsedTags
+    lastUsedTags: LastUsedTags,
+    __language_code?: string
 }>;
 
 export type Groups = GroupDTO[]

@@ -1,4 +1,4 @@
-import { MyContext } from "@utils/customTypes";
+import { MyContext } from "utils/customTypes";
 import { Composer } from "grammy";
 import { chatMemberHandler } from "handlers/listeners/chat_member";
 import { hashtagHandler } from "handlers/listeners/hashtag";

@@ -1,6 +1,6 @@
 import { TagDTO } from '../../db/tag/tag.dto';
 import { ISubscriberRepository } from './subscriber.interfaces';
-import { getDb } from '@db/database';
+import { getDb } from 'db/database';
 
 export default class SubscriberRepository implements ISubscriberRepository {
    

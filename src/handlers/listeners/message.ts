@@ -1,5 +1,5 @@
-import { MyContext } from "@utils/customTypes";
-import UserRepository from "@db/user/user.repository";
+import { MyContext } from "utils/customTypes";
+import UserRepository from "db/user/user.repository";
 
 export async function messageHandler(ctx: MyContext) {
 

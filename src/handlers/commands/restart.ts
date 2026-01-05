@@ -1,6 +1,6 @@
-import AdminRepository from "@db/admin/admin.repository";
-import GroupRepository from "@db/group/group.repository";
-import { MyContext } from "@utils/customTypes";
+import AdminRepository from "db/admin/admin.repository";
+import GroupRepository from "db/group/group.repository";
+import { MyContext } from "utils/customTypes";
 
 
 export async function restartHandler(ctx: MyContext) {

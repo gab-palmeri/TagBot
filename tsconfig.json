@@ -2,25 +2,14 @@
    "compilerOptions": {
       "target": "ESNext",
       "lib": ["ESNext"],
-
       "module": "ESNext",
       "moduleResolution": "bundler",
-
-      "outDir": "./dist",
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "sourceMap": true,
       "skipLibCheck": true,
       "resolveJsonModule": true,
       "esModuleInterop": true,
-
-      "baseUrl": "./src",
-      "paths": {
-         "@db/*": ["db/*"],
-         "@utils/*": ["utils/*"],
-         "@menu/*": ["utils/menu/*"],
-         "@messages/*": ["utils/messages/*"]
-      }
+      "allowImportingTsExtensions": true,
+      "noEmit": true,
+      "baseUrl": "./src"
    },
    "exclude": ["node_modules", "dist"]
 }

@@ -1,9 +1,10 @@
 import { Menu } from "@grammyjs/menu";
 
-import { MyContext } from '@utils/customTypes';
+import { MyContext } from 'utils/customTypes';
 
 import controlPanel from  "./controlPanel";
 import { controlPanelDescription } from "./descriptions";
+import languageMenu from "./languageMenu";
 
 //Menu that shows all the groups
 const groupsMenu = new Menu<MyContext>("groups-list");
@@ -16,9 +17,11 @@ groupsMenu.dynamic((ctx, range) => {
             }).row();
     }
 })
+.submenu("Cambia lingua (cambiare)", "language-menu")
 .text("Close", (ctx) => ctx.deleteMessage());
 
 groupsMenu.register(controlPanel);
+groupsMenu.register(languageMenu);
 
 
 export default groupsMenu;

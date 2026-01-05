@@ -1,4 +1,4 @@
-import { TagDTO } from "@db/tag/tag.dto";
+import { TagDTO } from "db/tag/tag.dto";
 import { MyContext } from "./customTypes";
 
 // Opzioni generali per la composizione

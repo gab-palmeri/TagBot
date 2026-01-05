@@ -1,6 +1,6 @@
-import { GroupDTO } from '@db/group/group.dto';
+import { GroupDTO } from 'db/group/group.dto';
 
-import AdminRepository from '@db/admin/admin.repository';
+import AdminRepository from 'db/admin/admin.repository';
 
 export default async function editGroupPermissions(groupId: string, userId: string, permissions: Partial<GroupDTO>) {
 

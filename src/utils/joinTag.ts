@@ -1,7 +1,7 @@
-import UserRepository from "@db/user/user.repository";
-import TagRepository from "@db/tag/tag.repository";
+import UserRepository from "db/user/user.repository";
+import TagRepository from "db/tag/tag.repository";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
-import GroupRepository from "@db/group/group.repository";
+import GroupRepository from "db/group/group.repository";
 
 type JoinTagResponse = {
     message: string;

@@ -1,8 +1,8 @@
-import { MyContext } from "@utils/customTypes";
-import TagRepository from "@db/tag/tag.repository";
-import GroupRepository from "@db/group/group.repository";
+import { MyContext } from "utils/customTypes";
+import TagRepository from "db/tag/tag.repository";
+import GroupRepository from "db/group/group.repository";
 
-import { tagPrivately } from "@utils/tagPrivately";
+import { tagPrivately } from "utils/tagPrivately";
 
 export async function renameHandler(ctx: MyContext) {
 

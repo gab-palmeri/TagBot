@@ -1,7 +1,7 @@
-import { MyContext } from "@utils/customTypes";
+import { MyContext } from "utils/customTypes";
 import { InlineKeyboard } from "grammy";
 
-import { joinTag } from "@utils/joinTag";
+import { joinTag } from "utils/joinTag";
 
 
 export async function joinHandler(ctx: MyContext) {

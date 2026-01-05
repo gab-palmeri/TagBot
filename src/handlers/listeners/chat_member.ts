@@ -1,9 +1,9 @@
-import { MyContext } from "@utils/customTypes";
+import { MyContext } from "utils/customTypes";
 import { NextFunction } from "grammy";
 
 import SubscriberRepository from "db/subscriber/subscriber.repository";
-import AdminRepository from "@db/admin/admin.repository";
-import GroupRepository from "@db/group/group.repository";
+import AdminRepository from "db/admin/admin.repository";
+import GroupRepository from "db/group/group.repository";
 
 
 export async function chatMemberHandler(ctx: MyContext, next: NextFunction) {

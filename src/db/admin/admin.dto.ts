@@ -1,6 +1,6 @@
 //dto class for admin
 
-import { GroupDTO } from "@db/group/group.dto";
+import { GroupDTO } from "db/group/group.dto";
 
 export class AdminDTO {
     constructor(

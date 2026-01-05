@@ -1,5 +1,5 @@
 import { Menu } from "@grammyjs/menu";
-import {MyContext} from "@utils/customTypes";
+import {MyContext} from "utils/customTypes";
 
 import { controlPanelDescription, errorDescription } from "./descriptions";
 import editGroupPermissions from "./editGroupPermissions";

@@ -1,5 +1,5 @@
-import GroupRepository from "@db/group/group.repository";
-import TagRepository from "@db/tag/tag.repository";
+import GroupRepository from "db/group/group.repository";
+import TagRepository from "db/tag/tag.repository";
 
 import { TagDTO } from "../db/tag/tag.dto";
 

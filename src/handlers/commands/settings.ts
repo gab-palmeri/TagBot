@@ -1,7 +1,7 @@
-import { MyContext } from "@utils/customTypes";
-import { groupsMenuDescription } from "@menu/descriptions";
-import AdminRepository from "@db/admin/admin.repository";
-import groupsMenu from "@menu/groupsMenu";
+import { MyContext } from "utils/customTypes";
+import { groupsMenuDescription } from "utils/menu/descriptions";
+import AdminRepository from "db/admin/admin.repository";
+import groupsMenu from "utils/menu/groupsMenu";
 
 export async function settingsHandler(ctx: MyContext) {
 

@@ -1,0 +1,11 @@
+{
+  "entry": ["src/index.ts"],
+  "format": ["esm"],
+  "target": "node18",
+  "clean": true,
+  "minify": false,
+  "sourcemap": true,
+  "splitting": false,
+  "shims": true,
+  "noExternal": ["dayjs"]
+}

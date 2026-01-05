@@ -1,7 +1,7 @@
-import { MyContext } from "@utils/customTypes";
+import { MyContext } from "utils/customTypes";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
-import TagRepository from "@db/tag/tag.repository";
-import GroupRepository from "@db/group/group.repository";
+import TagRepository from "db/tag/tag.repository";
+import GroupRepository from "db/group/group.repository";
 
 export async function leaveHandler(ctx: MyContext) {
 

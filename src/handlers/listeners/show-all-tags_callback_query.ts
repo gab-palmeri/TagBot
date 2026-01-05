@@ -1,6 +1,6 @@
-import { composeTagList } from "@utils/composeTagsList";
-import { MyContext } from "@utils/customTypes";
-import { organizeTagsList } from "@utils/organizeTagsList";
+import { composeTagList } from "utils/composeTagsList";
+import { MyContext } from "utils/customTypes";
+import { organizeTagsList } from "utils/organizeTagsList";
 
 export async function showAllTagsCallbackQueryHandler(ctx: MyContext) {
 

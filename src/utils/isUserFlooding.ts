@@ -1,4 +1,4 @@
-import { LastUsedTags } from "@utils/customTypes";
+import { LastUsedTags } from "utils/customTypes";
 
 export async function isUserFlooding(userId: string, lastUsedTags: LastUsedTags) {
     

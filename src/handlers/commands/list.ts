@@ -1,7 +1,7 @@
-import { MyContext } from "@utils/customTypes";
+import { MyContext } from "utils/customTypes";
 import { InlineKeyboard } from "grammy";
-import { organizeTagsList } from "@utils/organizeTagsList";
-import { composeTagList } from "@utils/composeTagsList";
+import { organizeTagsList } from "utils/organizeTagsList";
+import { composeTagList } from "utils/composeTagsList";
 
 
 export async function listHandler(ctx: MyContext) {

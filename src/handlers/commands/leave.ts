@@ -28,7 +28,7 @@ export async function leaveHandler(ctx: MyContext) {
     // Check if tag exists
     const tag = await tagRepository.get(group.id, tagName);
     if(tag === null) {
-        return await ctx.reply(ctx.t("tag.validation-not-found", {tagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-not-found", {tagName, count: 1}), {parse_mode: "Markdown"});
     }
 
     // Check if user is subscribed to the tag

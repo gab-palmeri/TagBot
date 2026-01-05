@@ -65,7 +65,7 @@ export async function canUpdate(ctx: MyContext, next: NextFunction) {
 
 		const tagResult = await tagRepository.get(group.id, tagName);
 		if(tagResult === null) {
-			await ctx.reply(ctx.t("tag.validation-not-found", {tagName}));
+			await ctx.reply(ctx.t("tag.validation-not-found", {tagName, count: 1}));
 			return;
 		}
 		

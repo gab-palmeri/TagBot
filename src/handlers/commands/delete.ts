@@ -25,7 +25,7 @@ export async function deleteHandler(ctx: MyContext) {
     const tag = await tagRepository.get(group.id, tagName);
 
     if (tag === null) {
-        return await ctx.reply(ctx.t("tag.validation-not-found", { tagName }), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-not-found", { tagName, count: 1}), {parse_mode: "Markdown"});
     }
 
     // Delete tag

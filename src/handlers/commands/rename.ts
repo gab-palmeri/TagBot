@@ -30,13 +30,13 @@ export async function renameHandler(ctx: MyContext) {
     // Check if the tag exists
     const tag = await tagRepository.get(group.id, oldTagName);
     if(tag === null) {
-        return await ctx.reply(ctx.t("tag.validation-not-found", {oldTagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-not-found", {tagName: oldTagName, count: 1}), {parse_mode: "Markdown"});
     }
 
     // Check if the new tag name already exists
     const tagExists = await tagRepository.get(group.id, newTagName);
     if(tagExists !== null) {
-        return await ctx.reply(ctx.t("tag.validation-already-exists", {newTagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-already-exists", {tagName: newTagName}), {parse_mode: "Markdown"});
     }
 
     // Rename the tag and send the confirmation message

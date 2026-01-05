@@ -41,7 +41,7 @@ export async function joinTag(
     // Check if tag exists
     const tag = await tagRepository.get(group.id, tagName);
     if (tag === null) {
-        return { message: translate("tag.validation-not-found", { tagName }) };
+        return { message: translate("tag.validation-not-found", { tagName, count: 1 }) };
     }
 
     // Check if already subscribed

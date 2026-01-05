@@ -88,11 +88,11 @@ export async function hashtagHandler(ctx: MyContext) {
     //ERROR MESSAGES PHASE
     let errorMessages = "";
     if(emptyTags.length > 0)
-        errorMessages += ctx.t("tag.validation-empty", {tags: emptyTags.join(", "), count: emptyTags.length});
+        errorMessages += ctx.t("tag.validation-empty", {tagName: emptyTags.join(", "), count: emptyTags.length});
     if(nonExistentTags.length > 0)
-        errorMessages += "\n" + ctx.t("tag.validation-not-found", {tags: nonExistentTags.join(", "), count: nonExistentTags.length});
+        errorMessages += "\n" + ctx.t("tag.validation-not-found", {tagName: nonExistentTags.join(", "), count: nonExistentTags.length});
     if(onlyOneInTags.length > 0)
-        errorMessages += "\n" + ctx.t("tag.validation-only-one", {tags: onlyOneInTags.join(", "), count: onlyOneInTags.length});
+        errorMessages += "\n" + ctx.t("tag.validation-only-one", {tagName: onlyOneInTags.join(", "), count: onlyOneInTags.length});
 
 
     

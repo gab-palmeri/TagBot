@@ -96,14 +96,22 @@ tag =
     .private-error = ⚠️ These users didn't start the bot in private: { $notContacted }
 
     .validation-syntax = ⚠️ *Tags* must be between 3 and 32 characters long, and they should only contain letters, numbers, and underscores. Tags cannot start with an underscore
-    .validation-not-found = ❌ Tag *{ $tagName }* not found
     .validation-already-exists = ❌ Tag *{ $tagName }* already exists
-    .validation-empty-one = ⚠️ The tag { $tags } is *empty*
-    .validation-empty-other = ⚠️ These tags are *empty*: { $tags }
-    .validation-non-existent-one = ❌ The tag { $tags } *does not exist*
-    .validation-non-existent-other = ❌ These tags *do not exist*: { $tags }
-    .validation-only-one-one = ⚠️ You're the *only one* in the tag { $tags }
-    .validation-only-one-other = ⚠️ You're the *only one* in these tags: { $tags }
+    
+    .validation-not-found = { $count ->
+        [one] ❌ Tag { $tagName } *not found*
+        *[other] ❌ These tags *do not exist*: { $tagName }
+    }
+
+    .validation-empty = { $count ->
+        [one] ⚠️ Tag { $tagName } is *empty*
+        *[other] ⚠️ These tags are *empty*: { $tagName }
+    }
+
+    .validation-only-one = { $count ->
+        [one] ⚠️ You're the *only one* in the tag { $tagName }
+        *[other] ⚠️ You're the *only one* in these tags: { $tagName }
+    }
     .validation-flooding = 🕑 You can only mention *three tags* every *five minutes*. Slow down!
 
 

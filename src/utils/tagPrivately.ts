@@ -28,7 +28,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, groupName: s
 
     //If the bot was not able to contact at least one user..
     if(notContacted.length > 0) 
-        message += ctx.t("tag.private-error", {notContacted: notContacted.join(", ")});
+        message += "\n\n" + ctx.t("tag.private-error", {notContacted: notContacted.join(", ")});
 
     return message;
 

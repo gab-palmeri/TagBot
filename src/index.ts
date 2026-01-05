@@ -1,5 +1,3 @@
-import { webhookCallback } from 'grammy';
-
 import initializeBot from "./initializeBot";
 import { run } from '@grammyjs/runner';
 
@@ -8,6 +6,8 @@ if (!process.env.BOT_TOKEN) {
 }
 
 const bot = await initializeBot();
+
+await bot.api.deleteWebhook({ drop_pending_updates: true });
 const runner = run(
 	bot,
 	500,

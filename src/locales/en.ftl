@@ -9,7 +9,7 @@ start =
 
     Type */help* to see the list of commands.
 
-    _Remember to give me_ *administrator* _permissions so I can tag people in your group._
+    _Remember to give me_ *administrator* _permissions so I can see #tags._
 
 
 help =

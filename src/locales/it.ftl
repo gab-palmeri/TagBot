@@ -187,10 +187,16 @@ settings =
         Imposta chi può rinominare i tag all’interno del gruppo.  
         Impostazione attuale: { $current }.
 
-    .language-description = 
+    .language-group-description = 
         🌐 Seleziona la lingua del bot
         
         Scegli la lingua che il bot userà per inviare i messaggi in questo gruppo.  
+        Lingua attuale: { $current }.
+    
+    .language-private-description = 
+        🌐 Seleziona la lingua del bot
+        
+        Scegli la lingua che il bot userà per inviare i messaggi in questa chat privata.  
         Lingua attuale: { $current }.
 
 
@@ -199,3 +205,10 @@ settings =
     .permissions-admins-creators = 🛠️ Creatori di tag e amministratori
     .back = 🔙 Indietro
     .close = ✖️ Chiudi
+
+#################
+### LANGUAGES ###
+#################
+language =
+    .it = Italiano
+    .en = Inglese

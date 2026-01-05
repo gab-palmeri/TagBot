@@ -29,7 +29,7 @@ export default class UserRepository implements IUserRepository {
             return null;
         }
 
-        return new UserDTO(user.userId, user.username, user.hasBotStarted);
+        return new UserDTO(user.userId, user.username, user.hasBotStarted, user.lang);
     }
 
     public async updateUserUsername(userId: string, newUsername: string) {
@@ -45,6 +45,14 @@ export default class UserRepository implements IUserRepository {
         await getDb()
             .updateTable('user')
             .set({ hasBotStarted: hasBotStarted })
+            .where('userId', '=', userId)
+            .execute();
+    }
+
+    public async setLang(userId: string, lang: string) {
+        await getDb()
+            .updateTable('user')
+            .set({ lang: lang })
             .where('userId', '=', userId)
             .execute();
     }

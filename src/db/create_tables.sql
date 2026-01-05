@@ -3,7 +3,8 @@
 CREATE TABLE "user" (
     "userId" TEXT PRIMARY KEY,
     "username" TEXT NOT NULL,
-    "hasBotStarted" BOOLEAN NOT NULL DEFAULT TRUE
+    "hasBotStarted" BOOLEAN NOT NULL DEFAULT TRUE,
+    "lang" TEXT NOT NULL DEFAULT "en"
 );
 
 -- Create the "group" table

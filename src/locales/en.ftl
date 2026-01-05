@@ -194,15 +194,28 @@ settings =
         Set who can rename tags in the group. 
         Current setting: { $current }
 
-    .language-description = 
+    .language-group-description = 
         🌐 Select bot language
         
         Pick the language the bot will use to send messages in this group. 
         Current language: { $current }
 
+    .language-private-description =
+        🌐 Select bot language
+        
+        Pick the language the bot will use to send messages in this private chat. 
+        Current language: { $current }
 
     .permissions-everyone = 🌍 Everyone
     .permissions-only-admins = 👑 Only admins
     .permissions-admins-creators = 🛠️ Tag creators & admins
     .back = 🔙 Go Back
     .close = ✖️ Close
+
+
+#################
+### LANGUAGES ###
+#################
+language =
+    .it = Italian
+    .en = English

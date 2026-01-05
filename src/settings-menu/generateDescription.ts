@@ -1,6 +1,6 @@
 import { TranslateFn } from "utils/customTypes";
 
-export default function generateDescription(translate: TranslateFn, action: "create" | "rename" | "delete" | "language", flagOrLang: number|string) {
+export default function generateDescription(translate: TranslateFn, action: "create" | "rename" | "delete" | "language-group" | "language-private", flagOrLang: number|string) {
 
     let selectedOption = "";
 

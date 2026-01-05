@@ -5,7 +5,7 @@ import { MyContext } from 'utils/customTypes';
 import createMenu from "./create";
 import deleteMenu from "./delete";
 import renameMenu from "./rename";
-import languageMenu from "./language";
+import languageMenuGroup from "./languageGroup";
 
 import generateDescription from "./generateDescription";
 import languages from "utils/supportedLanguages";
@@ -19,24 +19,25 @@ const groupPanel = new Menu<MyContext>("control-panel")
     })
     .submenu((ctx: MyContext) => ctx.t("settings.delete"), "delete-menu", async ctx => {
         const description = generateDescription(ctx.t, "delete", ctx.session.selectedGroup.canDelete);
-        console.log("test");
         await ctx.editMessageText(description, {parse_mode:"Markdown"});
     }).row()
     .submenu((ctx: MyContext) => ctx.t("settings.rename"), "rename-menu", async ctx => {
         const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
         await ctx.editMessageText(description, {parse_mode:"Markdown"});
     }).row()
-    .submenu((ctx: MyContext) => ctx.t("settings.language"), "language-menu", async ctx => {
+    .submenu((ctx: MyContext) => ctx.t("settings.language"), "language-menu-group", async ctx => {
         const langEntry = languages.find(l => l.code === ctx.session.selectedGroup.lang);
-        const langName = langEntry ? `${langEntry.emoji} ${langEntry.name}` : "Unknown";
-        const description = generateDescription(ctx.t, "language", langName);
+        const langName = ctx.t(`language.${langEntry.code}`);
+        const langNameAndEmoji = `${langEntry.emoji} ${langName}`;
+
+        const description = generateDescription(ctx.t, "language-group", langNameAndEmoji);
         await ctx.editMessageText(description, {parse_mode:"Markdown"});
     })
-    .back((ctx: MyContext) => ctx.t("settings.back"), ctx => ctx.editMessageText(ctx.t("settings.create-description"), {parse_mode:"Markdown"})).row();
+    .back((ctx: MyContext) => ctx.t("settings.back"), ctx => ctx.editMessageText(ctx.t("settings.main"), {parse_mode:"Markdown"})).row();
 
 groupPanel.register(createMenu);
 groupPanel.register(deleteMenu);
 groupPanel.register(renameMenu);
-groupPanel.register(languageMenu);
+groupPanel.register(languageMenuGroup);
 
 export default groupPanel;

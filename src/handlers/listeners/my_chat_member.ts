@@ -36,7 +36,7 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
 
             if (group !== null) {
                 await adminRepository.addAdmins(group.id, admins);
-                await groupRepository.setGroupActive(groupId, true); //TODO: Modificare a group_id?
+                await groupRepository.setGroupActive(groupId, true);
                 await ctx.reply(ctx.t("bot-rejoined"), { parse_mode: "Markdown" });
             }
             else {

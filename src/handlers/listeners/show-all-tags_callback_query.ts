@@ -37,20 +37,20 @@ export async function showAllTagsCallbackQueryHandler(ctx: MyContext) {
         const nextTags = tagsResult.secondaryTags;
 
         // Create the message to send
-        const message = composeTagList(ctx, { tags: mostActiveTags, otherTags: nextTags, groupName, fullList: true });
+        const message = composeTagList(ctx, { mainTags: mostActiveTags, otherTags: nextTags, groupName, fullList: true });
 
 
         // Send the message in private
         try {
             await ctx.api.sendMessage(userId, message, { parse_mode: "Markdown" });
             await ctx.answerCallbackQuery({
-                text: ctx.t("list-callback-success"),
+                text: ctx.t("list.callback-success"),
                 show_alert: true
             });
         } catch (e) {
             // If the bot can't send a message to the user (e.g., because the user hasn't started a chat with the bot)
             await ctx.answerCallbackQuery({
-                text: ctx.t("list-callback-error"),
+                text: ctx.t("list.callback-error"),
                 show_alert: true
             });
         }

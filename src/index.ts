@@ -1,7 +1,5 @@
-import * as dotenv from 'dotenv';
 import express from 'express';
 import { webhookCallback } from 'grammy';
-dotenv.config();
 
 import initializeBot from "./initializeBot";
 import { run } from '@grammyjs/runner';

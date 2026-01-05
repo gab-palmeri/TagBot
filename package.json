@@ -21,7 +21,6 @@
       "@grammyjs/ratelimiter": "^1.2.1",
       "@grammyjs/runner": "^1.0.4",
       "dayjs": "^1.11.9",
-      "dotenv": "^16.0.2",
       "express": "^4.21.2",
       "grammy": "^1.24.1",
       "kysely": "^0.28.8",
@@ -30,8 +29,8 @@
    },
    "scripts": {
       "build": "tsup",
-      "start": "tsx watch src/index.ts",
-      "start-prod": "node dist/index.js",
-      "test": "kysely-codegen"
+      "start": "tsx --watch --env-file=.env src/index.ts",
+      "start-prod": "node --env-file=.env dist/index.js",
+      "test": "node --env-file=.env ./node_modules/.bin/kysely-codegen"
    }
 }

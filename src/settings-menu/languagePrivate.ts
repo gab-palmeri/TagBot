@@ -13,13 +13,15 @@ const languageMenuPrivate = new Menu<MyContext>("language-menu-private")
 
         for (const l of languages) {
 
-            const langName = ctx.t(`language.${l.code}`);
+            let langName = ctx.t(`language.${l.code}`);
 
             range.text(`${l.emoji} ${langName}`, async (ctx) => {
                 if(user.lang !== l.code) {
                     await userRepository.setLang(user.userId, l.code);
                     user.lang = l.code;
                     await ctx.i18n.renegotiateLocale();
+                    langName = ctx.t(`language.${l.code}`);
+
                     const description = generateDescription(ctx.t, "language-private", `${l.emoji} ${langName}`);
                     await ctx.editMessageText(description, {parse_mode:"Markdown"});
                 }

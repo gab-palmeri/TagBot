@@ -42,9 +42,6 @@ export default async function initializeBot() {
 	//Set the auto-retry middleware
 	bot.api.config.use(autoRetry());
 
-	//Set the menus
-	bot.use(controlPanel);
-
 	//Set i18n
 	const i18n = new I18n<MyContext>({
 		defaultLocale: "en", 
@@ -53,6 +50,9 @@ export default async function initializeBot() {
 		fluentBundleOptions: { useIsolating: false }
 	});
 	bot.use(i18n);
+
+	//Set the menus
+	bot.use(controlPanel);
 
 	// Set commands and listeners
 	bot.use(tagbotCommands);

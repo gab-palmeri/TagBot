@@ -15,7 +15,8 @@ CREATE TABLE "group" (
     "canCreate" INTEGER NOT NULL DEFAULT 0,
     "canDelete" INTEGER NOT NULL DEFAULT 0,
     "canRename" INTEGER NOT NULL DEFAULT 0,
-    "isActive" BOOLEAN NOT NULL DEFAULT TRUE
+    "isActive" BOOLEAN NOT NULL DEFAULT TRUE,
+    "lang" TEXT NOT NULL DEFAULT "en"
 );
 
 -- Create the "tag" table

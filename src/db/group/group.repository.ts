@@ -31,6 +31,7 @@ export default class GroupRepository implements IGroupRepository {
             canDelete: group.canDelete,
             canRename: group.canRename,
             isActive: group.isActive,
+            lang: group.lang
         };
         return groupDTO;
     }
@@ -49,6 +50,16 @@ export default class GroupRepository implements IGroupRepository {
                 isActive: isActive,
             }))
             .where('groupId', '=', groupId)
+            .execute();
+    }
+
+    public async setLang(groupID: string, lang: string) {
+        await getDb()
+            .updateTable('group')
+            .set(() => ({
+                lang: lang,
+            }))
+            .where('groupId', '=', groupID)
             .execute();
     }
 }

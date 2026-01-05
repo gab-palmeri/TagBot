@@ -9,7 +9,9 @@ import { Groups, LastUsedTags, MyContext } from 'utils/customTypes';
 
 import tagbotCommands from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
-import controlPanel from "utils/menu/controlPanel";
+import localeNegotiator from "utils/localeNegotiator";
+
+import settingsPanel from "settings-menu/settingsPanel";
 
 export default async function initializeBot() {
 	const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
@@ -23,7 +25,7 @@ export default async function initializeBot() {
 			: console.error('Unknown error:', err.error);
 
 		const messageToReplyTo = err.ctx.msg?.message_id;
-		if(err.ctx.t)
+		if(err.ctx.t && err.ctx.t instanceof Function)
 			await err.ctx.reply(err.ctx.t("internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
 	});
 
@@ -34,8 +36,7 @@ export default async function initializeBot() {
 		initial: () => ({
 			groups: [] as Groups,
 			selectedGroup: null,
-			lastUsedTags: [] as LastUsedTags,
-			__language_code: "en"
+			lastUsedTags: [] as LastUsedTags
 		}),
 	}));
 
@@ -46,13 +47,13 @@ export default async function initializeBot() {
 	const i18n = new I18n<MyContext>({
 		defaultLocale: "en", 
 		directory: "src/locales",
-		useSession: true,
-		fluentBundleOptions: { useIsolating: false }
+		fluentBundleOptions: { useIsolating: false },
+		localeNegotiator: localeNegotiator
 	});
 	bot.use(i18n);
 
 	//Set the menus
-	bot.use(controlPanel);
+	bot.use(settingsPanel);
 
 	// Set commands and listeners
 	bot.use(tagbotCommands);

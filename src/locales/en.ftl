@@ -48,8 +48,9 @@ internal-error =
 ### ADMIN ###
 #############
 
-admin.no-groups = 
-    ⚠️ You are not an *admin* of any group.
+admin =
+    .no-groups = 
+        ⚠️ You are not an *admin* of any group.
 
 permissions =
     .create-tags-admins = ❌ Only *admins* can *create* tags
@@ -157,3 +158,51 @@ tag-entry =
             [one] 1 sub
         *[other] { $count } subs
         }_
+
+
+
+
+################
+### SETTINGS ###
+################
+settings =
+    .main = 
+        {"*🌟 TagBot Control Panel 🌟*"}
+        
+        👉🏻  _*Select the group* you want to manage and customize its settings._
+    .group-panel = 🔑 *Group:* { $groupName }
+    .create = ✏️ Create Tags
+    .delete = 💣 Delete Tags
+    .rename = ✍️ Rename Tags
+    .language = 🌐 Language
+
+    .create-description = 
+        ✏️ *Who can create tags?*
+        
+        Decide who in this group has permission to create new tags. 
+        Current setting: { $current }.
+
+    .delete-description = 
+        💣 *Who can delete tags?*
+        
+        Choose who is allowed to delete existing tags in this group. 
+        Current setting: { $current }
+
+    .rename-description = 
+        ✍️ *Who can rename tags?*
+        
+        Set who can rename tags in the group. 
+        Current setting: { $current }
+
+    .language-description = 
+        🌐 Select bot language
+        
+        Pick the language the bot will use to send messages in this group. 
+        Current language: { $current }
+
+
+    .permissions-everyone = 🌍 Everyone
+    .permissions-only-admins = 👑 Only admins
+    .permissions-admins-creators = 🛠️ Tag creators & admins
+    .back = 🔙 Go Back
+    .close = ✖️ Close

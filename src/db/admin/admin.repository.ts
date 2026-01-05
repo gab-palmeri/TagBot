@@ -20,7 +20,8 @@ export default class AdminRepository implements IAdminRepository {
             a.canCreate,
             a.canDelete,
             a.canRename,
-            a.isActive
+            a.isActive,
+            a.lang
         ));
         
         return new AdminDTO(userId, groups);

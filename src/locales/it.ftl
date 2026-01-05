@@ -154,3 +154,48 @@ tag-entry =
             [one] 1 iscritto
         *[other] { $count } iscritti
         }_
+
+################
+### SETTINGS ###
+################
+settings =
+    .main = 
+        {"*🌟 Pannello di Controllo TagBot 🌟*"}
+        
+        👉🏻  _*Seleziona il gruppo* che vuoi gestire e personalizza le sue impostazioni._
+    .group-panel = 🔑 *Gruppo:* { $groupName }
+    .create = ✏️ Crea Tag
+    .delete = 💣 Elimina Tag
+    .rename = ✍️ Rinomina Tag
+    .language = 🌐 Lingua
+
+    .create-description = 
+        ✏️ *Chi può creare i tag?*
+        
+        Decidi chi, in questo gruppo, ha il permesso di creare nuovi tag.  
+        Impostazione attuale: { $current }.
+
+    .delete-description = 
+        💣 *Chi può eliminare i tag?*
+        
+        Scegli chi è autorizzato a eliminare i tag esistenti in questo gruppo.  
+        Impostazione attuale: { $current }.
+
+    .rename-description = 
+        ✍️ *Chi può rinominare i tag?*
+        
+        Imposta chi può rinominare i tag all’interno del gruppo.  
+        Impostazione attuale: { $current }.
+
+    .language-description = 
+        🌐 Seleziona la lingua del bot
+        
+        Scegli la lingua che il bot userà per inviare i messaggi in questo gruppo.  
+        Lingua attuale: { $current }.
+
+
+    .permissions-everyone = 🌍 Tutti
+    .permissions-only-admins = 👑 Solo amministratori
+    .permissions-admins-creators = 🛠️ Creatori di tag e amministratori
+    .back = 🔙 Indietro
+    .close = ✖️ Chiudi

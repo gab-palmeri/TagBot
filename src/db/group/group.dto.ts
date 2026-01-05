@@ -7,7 +7,8 @@ export class GroupDTO {
         public canCreate: number = 0,
         public canDelete: number = 0,
         public canRename: number = 0,
-        public isActive: boolean = true
+        public isActive: boolean = true,
+        public lang: string = "en"
     ) {
         this.id = id;
         this.groupId = groupId;
@@ -16,5 +17,6 @@ export class GroupDTO {
         this.canDelete = canDelete;
         this.canRename = canRename;
         this.isActive = isActive;
+        this.lang = lang;
     }
 }

@@ -41,6 +41,7 @@ export interface GroupTable {
     canDelete: number;
     canRename: number;
     isActive: boolean;
+    lang: string;
 }
 
 export interface AdminTable {

@@ -2,13 +2,12 @@ import UserRepository from "db/user/user.repository";
 import TagRepository from "db/tag/tag.repository";
 import SubscriberRepository from "db/subscriber/subscriber.repository";
 import GroupRepository from "db/group/group.repository";
+import { TranslateFn } from "./customTypes";
 
 type JoinTagResponse = {
     message: string;
     inlineKeyboard?: { text: string; url?: string; callbackData?: string };
 };
-
-type TranslateFn = (key: string, params?: Record<string, any>) => string;
 
 export async function joinTag(
     translate: TranslateFn,

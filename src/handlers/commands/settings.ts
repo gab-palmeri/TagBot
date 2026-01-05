@@ -1,7 +1,7 @@
 import { MyContext } from "utils/customTypes";
-import { groupsMenuDescription } from "utils/menu/descriptions";
 import AdminRepository from "db/admin/admin.repository";
-import groupsMenu from "utils/menu/groupsMenu";
+import groupsMenu from "settings-menu/settingsPanel";
+
 
 export async function settingsHandler(ctx: MyContext) {
 
@@ -17,5 +17,5 @@ export async function settingsHandler(ctx: MyContext) {
     }
     // Set session data and menu
     ctx.session.groups = adminResult.groups;
-    return await ctx.reply(groupsMenuDescription, { parse_mode: "HTML", reply_markup: groupsMenu }); 
+    return await ctx.reply(ctx.t("settings.main"), { parse_mode: "Markdown", reply_markup: groupsMenu }); 
 }

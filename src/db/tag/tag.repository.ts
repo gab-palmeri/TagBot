@@ -1,4 +1,3 @@
-import { SubscriberDTO } from "db/subscriber/subscriber.dto";
 import { ITagRepository } from "./tag.interfaces";
 
 import { getDb } from 'db/database';
@@ -6,6 +5,7 @@ import { TagDTO } from "./tag.dto";
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { UserDTO } from "db/user/user.dto";
 dayjs.extend(utc);
 
 export default class TagRepository implements ITagRepository {
@@ -70,22 +70,27 @@ export default class TagRepository implements ITagRepository {
 
     public async getSubscribers(group_id: number, tagName: string) {
         const subscribersTags = await getDb()
-            .selectFrom('subscriber')
-            .innerJoin('tag', 'subscriber.tagId', 'tag.id')
+            .selectFrom('tag')
+            .innerJoin('subscriber', 'tag.id', 'subscriber.tagId')
             .innerJoin('user', 'subscriber.userId', 'user.userId')
             .where('tag.name', '=', tagName)
             .where('tag.group_id', '=', group_id)
             .where('subscriber.isActive', '=', true)
             .select([
-                'subscriber.userId as userId',
-                'user.username as username'
+                'user.userId',
+                'user.username',
+                'user.hasBotStarted',
+                'user.lang'
             ])
             .execute();
 
+
         const subscribers = subscribersTags.map(st => { 
-            return new SubscriberDTO(
+            return new UserDTO(
                 st.userId,
-                st.username
+                st.username,
+                st.hasBotStarted,
+                st.lang
             );
         });
 

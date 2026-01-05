@@ -14,6 +14,7 @@ export default class AdminRepository implements IAdminRepository {
             .execute();
 
         const groups = admin.map(a => new GroupDTO(
+            a.id,
             a.groupId,
             a.groupName,
             a.canCreate,

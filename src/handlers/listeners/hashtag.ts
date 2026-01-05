@@ -40,17 +40,17 @@ export async function hashtagHandler(ctx: MyContext) {
             continue;
         }
         
-        const tagSubResult = await tagRepository.getSubscribers(group.id, tagName);
+        const tagSubscribers = await tagRepository.getSubscribers(group.id, tagName);
 
 
         // Check if the tag is empty
-        if(tagSubResult.length == 0) {
+        if(tagSubscribers.length == 0) {
             emptyTags.push(tagName);
             continue;
         }
 
         //Remove the current user from the subscribers list
-        const subscribersWithoutMe = tagSubResult.filter(subscriber => subscriber.userId !== ctx.from.id.toString());    
+        const subscribersWithoutMe = tagSubscribers.filter(subscriber => subscriber.userId !== ctx.from.id.toString());  
         //Check if the tag has only one subscriber (the current user)
         if(subscribersWithoutMe.length == 0) {
             onlyOneInTags.push(tagName);

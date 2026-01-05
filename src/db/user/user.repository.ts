@@ -32,27 +32,10 @@ export default class UserRepository implements IUserRepository {
         return new UserDTO(user.userId, user.username, user.hasBotStarted, user.lang);
     }
 
-    public async updateUserUsername(userId: string, newUsername: string) {
+    public async update(userId: string, data: Partial<Pick<UserDTO, "username" | "hasBotStarted" | "lang">>): Promise<void> {
         await getDb()
             .updateTable('user')
-            .set({ username: newUsername })
-            .where('userId', '=', userId)
-            .execute();
-    }
-
-    public async setBotStarted(userId: string, hasBotStarted: boolean) {
-
-        await getDb()
-            .updateTable('user')
-            .set({ hasBotStarted: hasBotStarted })
-            .where('userId', '=', userId)
-            .execute();
-    }
-
-    public async setLang(userId: string, lang: string) {
-        await getDb()
-            .updateTable('user')
-            .set({ lang: lang })
+            .set(data)
             .where('userId', '=', userId)
             .execute();
     }

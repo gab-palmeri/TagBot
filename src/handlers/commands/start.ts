@@ -12,7 +12,7 @@ export async function startCommandHandler(ctx: MyContext) {
             await userRepository.saveUser(userId, ctx.chat.username || "");
         }
         else if(!user.hasBotStarted) {
-            await userRepository.setBotStarted(userId, true);
+            await userRepository.update(userId, {hasBotStarted: true});
         }
     }
 

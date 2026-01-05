@@ -1,11 +1,13 @@
 import { UserDTO } from "./user.dto";
 
+type EditableUserFields = Partial<
+  Pick<UserDTO, "username" | "hasBotStarted" | "lang">
+>;
+
 export interface IUserRepository {
-  saveUser(userId: string, username: string)
-  deleteUser(userId: string)
+  saveUser(userId: string, username: string): Promise<void>;
+  deleteUser(userId: string): Promise<void>;
   getUser(userId: string): Promise<UserDTO>;
-  updateUserUsername(userId: string, username: string)
-  setBotStarted(userId: string, hasBotStarted: boolean)
-  setLang(userId: string, lang: string);
+  update(userId: string, data: EditableUserFields): Promise<void>;
   getAllActiveUsers(): Promise<UserDTO[]>;
 }

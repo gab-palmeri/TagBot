@@ -80,13 +80,13 @@ export async function myPrivateChatMemberHandler(ctx: MyContext, next: NextFunct
 
     // Handle user bot_started flag
     if(newStatus !== "member") {
-        await userRepository.setBotStarted(userId, false);
+        await userRepository.update(userId, {hasBotStarted: false});
     }
     else {
         const user = await userRepository.getUser(userId);
 
         if(user !== null) {
-            await userRepository.setBotStarted(userId, true);
+            await userRepository.update(userId, {hasBotStarted: true});
         }
         else {
             await userRepository.saveUser(userId.toString(), ctx.chat.username || "");

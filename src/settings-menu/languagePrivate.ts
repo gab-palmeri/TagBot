@@ -17,7 +17,7 @@ const languageMenuPrivate = new Menu<MyContext>("language-menu-private")
 
             range.text(`${l.emoji} ${langName}`, async (ctx) => {
                 if(user.lang !== l.code) {
-                    await userRepository.setLang(user.userId, l.code);
+                    await userRepository.update(user.userId, {lang: l.code});
                     user.lang = l.code;
                     await ctx.i18n.renegotiateLocale();
                     langName = ctx.t(`language.${l.code}`);

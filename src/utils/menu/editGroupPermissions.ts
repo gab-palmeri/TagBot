@@ -17,6 +17,6 @@ export default async function editGroupPermissions(groupId: string, userId: stri
     }
 
         //If found, proceed to edit permissions
-    await adminRepository.editGroupPermissions(groupId, permissions);
+    await adminRepository.editGroupPermissions(group.id, permissions);
     return true;
 }

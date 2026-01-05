@@ -21,7 +21,7 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
         if (joinResult.inlineKeyboard.callbackData) kb.text(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.callbackData);
         await ctx.reply(joinResult.message, { reply_markup: kb, parse_mode: "Markdown" });
     } else {
-        await ctx.reply(joinResult.message);
+        await ctx.reply(joinResult.message, { parse_mode: "Markdown" });
     }
 
     return await ctx.answerCallbackQuery("Done!");

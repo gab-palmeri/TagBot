@@ -7,4 +7,5 @@ export interface IGroupRepository {
   migrateGroup(oldGroupID: string, newGroupID: string);
   setGroupActive(groupID: string, isActive: boolean);
   setLang(groupID: string, lang: string);
+  getAllActiveGroups(): Promise<GroupDTO[]>;
 }

@@ -12,6 +12,7 @@ import { renameHandler } from "handlers/commands/rename";
 import { restartHandler } from "handlers/commands/restart";
 import { settingsHandler } from "handlers/commands/settings";
 import { startCommandHandler } from "handlers/commands/start";
+import { broadcastHandler } from "handlers/commands/broadcast";
 
 const tagbotCommands = new CommandGroup<MyContext>();
 
@@ -29,5 +30,8 @@ tagbotCommands.command("delete", "Delete a tag").addToScope({ type: "all_group_c
 tagbotCommands.command("rename", "Rename a tag").addToScope({ type: "all_group_chats" }, [canUpdate, renameHandler]);
 tagbotCommands.command("list", "List all tags").addToScope({ type: "all_group_chats" }, listHandler);
 
+const devCommands = new CommandGroup<MyContext>();
+devCommands.command("broadcast", "Broadcast a message to all groups and users", broadcastHandler);
 
-export default tagbotCommands;
+
+export { tagbotCommands, devCommands };

@@ -7,4 +7,5 @@ export interface IUserRepository {
   updateUserUsername(userId: string, username: string)
   setBotStarted(userId: string, hasBotStarted: boolean)
   setLang(userId: string, lang: string);
+  getAllActiveUsers(): Promise<UserDTO[]>;
 }

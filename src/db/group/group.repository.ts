@@ -62,4 +62,15 @@ export default class GroupRepository implements IGroupRepository {
             .where('groupId', '=', groupID)
             .execute();
     }
+
+    public async getAllActiveGroups() {
+        const groups = await getDb()
+            .selectFrom('group')
+            .selectAll()
+            .where('isActive', '=', true)
+            .execute();
+        return groups.map(group => new GroupDTO(
+            group.id, group.groupId, group.groupName, group.canCreate, group.canDelete, group.canRename, group.isActive, group.lang
+        ));
+    }
 }

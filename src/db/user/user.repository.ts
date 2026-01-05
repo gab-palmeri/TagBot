@@ -56,4 +56,13 @@ export default class UserRepository implements IUserRepository {
             .where('userId', '=', userId)
             .execute();
     }
+
+    public async getAllActiveUsers() {
+        const users = await getDb()
+            .selectFrom('user')
+            .selectAll()
+            .where('hasBotStarted', '=', true)
+            .execute();
+        return users.map(user => new UserDTO(user.userId, user.username, user.hasBotStarted, user.lang));
+    }
 }

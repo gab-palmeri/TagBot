@@ -7,7 +7,7 @@ import i18n from "utils/i18n";
 
 import { Groups, LastUsedTags, MyContext } from 'utils/customTypes';
 
-import tagbotCommands from "commands";
+import { tagbotCommands, devCommands } from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
 
 import settingsPanel from "settings-menu/settingsPanel";
@@ -82,6 +82,7 @@ export default async function initializeBot() {
 	bot.use(rateLimits);
 	bot.use(settingsPanel);
 	bot.use(tagbotCommands);
+	bot.filter((ctx) => ctx.from?.id.toString() == process.env.OWNER_TELEGRAM_ID).use(devCommands);
 	bot.use(listenersGroup);
 	bot.use(listenersPrivate);
 	await tagbotCommands.setCommands(bot); 

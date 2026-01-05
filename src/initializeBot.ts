@@ -25,6 +25,7 @@ export default async function initializeBot() {
 	});
 
 	const errorHandler = async (err) => {
+
 		err.error instanceof GrammyError
 			? console.error('Error in request:', err.error.description)
 			: err.error instanceof HttpError
@@ -32,8 +33,8 @@ export default async function initializeBot() {
 			: console.error('Unknown error:', err.error);
 
 		const messageToReplyTo = err.ctx.msg?.message_id;
-		if(err.ctx.t && err.ctx.t instanceof Function)
-			await err.ctx.reply(err.ctx.t("internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
+		console.log(await err.ctx.i18n.getLocale());
+		await err.ctx.reply(i18n.t(await err.ctx.i18n.getLocale(), "internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
 	};
 
 	const rateLimits = limit({

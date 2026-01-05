@@ -36,7 +36,7 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
 
             if (group !== null) {
                 await adminRepository.addAdmins(group.id, admins);
-                await groupRepository.setGroupActive(groupId, true);
+                await groupRepository.update(groupId, {isActive: true});
                 await ctx.reply(ctx.t("bot-rejoined"), { parse_mode: "Markdown" });
             }
             else {
@@ -63,7 +63,7 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
     // BOT KICKED / LEFT
     if (newStatus === "left" || newStatus === "kicked") {
         await adminRepository.deleteAllAdmins(group.id);
-        await groupRepository.setGroupActive(groupId, false);
+        await groupRepository.update(groupId, {isActive: false});
         return;
     }
 }

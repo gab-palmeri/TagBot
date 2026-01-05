@@ -43,26 +43,6 @@ export default class GroupRepository implements IGroupRepository {
             .executeTakeFirst();
     }
 
-    public async setGroupActive(groupId: string, isActive: boolean) {
-        await getDb()
-            .updateTable('group')
-            .set(() => ({
-                isActive: isActive,
-            }))
-            .where('groupId', '=', groupId)
-            .execute();
-    }
-
-    public async setLang(groupID: string, lang: string) {
-        await getDb()
-            .updateTable('group')
-            .set(() => ({
-                lang: lang,
-            }))
-            .where('groupId', '=', groupID)
-            .execute();
-    }
-
     public async getAllActiveGroups() {
         const groups = await getDb()
             .selectFrom('group')
@@ -72,5 +52,13 @@ export default class GroupRepository implements IGroupRepository {
         return groups.map(group => new GroupDTO(
             group.id, group.groupId, group.groupName, group.canCreate, group.canDelete, group.canRename, group.isActive, group.lang
         ));
+    }
+
+    public async update(groupID: string, fields: Partial<Pick<GroupDTO, "groupName" | "isActive" | "lang">>) {
+        await getDb()
+            .updateTable('group')
+            .set(fields)
+            .where('groupId', '=', groupID)
+            .execute();
     }
 }

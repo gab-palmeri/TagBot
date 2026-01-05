@@ -17,7 +17,7 @@ const languageMenuGroup = new Menu<MyContext>("language-menu-group")
 
             range.text(`${l.emoji} ${langName}`, async (ctx) => {
                 if(group.lang !== l.code) {
-                    await groupRepository.setLang(group.groupId, l.code);
+                    await groupRepository.update(group.groupId, {lang: l.code});
                     group.lang = l.code;
                     const description = generateDescription(ctx.t, "language-group", `${l.emoji} ${langName}`);
                     await ctx.editMessageText(description, {parse_mode:"Markdown"});

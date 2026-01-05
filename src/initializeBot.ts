@@ -3,21 +3,28 @@ import { sequentialize } from "@grammyjs/runner";
 import { getSessionKey } from "./utils/middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
-import { I18n } from "@grammyjs/i18n";
+import i18n from "utils/i18n";
 
 import { Groups, LastUsedTags, MyContext } from 'utils/customTypes';
 
 import tagbotCommands from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
-import localeNegotiator from "utils/localeNegotiator";
 
 import settingsPanel from "settings-menu/settingsPanel";
 
 export default async function initializeBot() {
 	const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
 
-	//Set the basic error handler
-	bot.catch(async (err) => {
+	const sessionConfig = session({
+		getSessionKey,
+		initial: () => ({
+			groups: [] as Groups,
+			selectedGroup: null,
+			lastUsedTags: [] as LastUsedTags
+		}),
+	});
+
+	const errorHandler = async (err) => {
 		err.error instanceof GrammyError
 			? console.error('Error in request:', err.error.description)
 			: err.error instanceof HttpError
@@ -27,44 +34,10 @@ export default async function initializeBot() {
 		const messageToReplyTo = err.ctx.msg?.message_id;
 		if(err.ctx.t && err.ctx.t instanceof Function)
 			await err.ctx.reply(err.ctx.t("internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
-	});
+	};
 
-	//Set the session middleware and initialize session data
-	bot.use(sequentialize(getSessionKey));
-	bot.use(session({
-		getSessionKey,
-		initial: () => ({
-			groups: [] as Groups,
-			selectedGroup: null,
-			lastUsedTags: [] as LastUsedTags
-		}),
-	}));
-
-	//Set the auto-retry middleware
-	bot.api.config.use(autoRetry());
-
-	//Set i18n
-	const i18n = new I18n<MyContext>({
-		defaultLocale: "en", 
-		directory: "src/locales",
-		fluentBundleOptions: { useIsolating: false },
-		localeNegotiator: localeNegotiator
-	});
-	bot.use(i18n);
-
-	//Set the menus
-	bot.use(settingsPanel);
-
-	// Set commands and listeners
-	bot.use(tagbotCommands);
-	bot.use(listenersGroup);
-	bot.use(listenersPrivate);
-	await tagbotCommands.setCommands(bot); 
-
-	
-	//Rate limits
-	bot.use(limit({
-		timeFrame: 20000,
+	const rateLimits = limit({
+		timeFrame: 5000,
 		limit: 3,
 		onLimitExceeded: async (ctx: MyContext) => {
 
@@ -97,7 +70,20 @@ export default async function initializeBot() {
 		},
 		
 		keyGenerator: (ctx) => ctx.from.id.toString() + "-" + ctx.chatId.toString(),
-	}));
+	});
 
+
+	//Set the basic error handler
+	bot.catch(errorHandler);
+	bot.api.config.use(autoRetry());
+	bot.use(sequentialize(getSessionKey));
+	bot.use(sessionConfig);
+	bot.use(i18n);
+	bot.use(rateLimits);
+	bot.use(settingsPanel);
+	bot.use(tagbotCommands);
+	bot.use(listenersGroup);
+	bot.use(listenersPrivate);
+	await tagbotCommands.setCommands(bot); 
 	return bot;
 }

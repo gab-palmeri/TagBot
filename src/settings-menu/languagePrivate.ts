@@ -23,14 +23,14 @@ const languageMenuPrivate = new Menu<MyContext>("language-menu-private")
                     langName = ctx.t(`language.${l.code}`);
 
                     const description = generateDescription(ctx.t, "language-private", `${l.emoji} ${langName}`);
-                    await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                    await ctx.editMessageText(description, {parse_mode: "HTML"});
                 }
             });
         }
         range.row();
     })
     .back((ctx: MyContext) => ctx.t("settings.back"), async ctx => {
-        await ctx.editMessageText(ctx.t("settings.main"), {parse_mode:"Markdown"});
+        await ctx.editMessageText(ctx.t("settings.main"), {parse_mode: "HTML"});
     });
 
 export default languageMenuPrivate;

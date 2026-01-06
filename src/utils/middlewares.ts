@@ -8,7 +8,7 @@ export async function checkIfPrivate(ctx: MyContext, next: NextFunction) {
 
 	if(!ctx.hasChatType("private")) {
 		const inlineKeyboard = new InlineKeyboard().url(ctx.t("private-only-btn"), "https://t.me/grouptags_bot?start");
-		await ctx.reply(ctx.t("private-only"), { parse_mode: "Markdown", reply_markup: inlineKeyboard});
+		await ctx.reply(ctx.t("private-only"), { parse_mode: "HTML", reply_markup: inlineKeyboard});
 		return;
 	}
 	await next();

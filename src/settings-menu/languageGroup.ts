@@ -20,7 +20,7 @@ const languageMenuGroup = new Menu<MyContext>("language-menu-group")
                     await groupRepository.update(group.groupId, {lang: l.code});
                     group.lang = l.code;
                     const description = generateDescription(ctx.t, "language-group", `${l.emoji} ${langName}`);
-                    await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                    await ctx.editMessageText(description, {parse_mode: "HTML"});
                 }
             });
         }
@@ -28,7 +28,7 @@ const languageMenuGroup = new Menu<MyContext>("language-menu-group")
     })
     .back((ctx: MyContext) => ctx.t("settings.back"), async ctx => {
         const message = ctx.t("settings.group-panel", {groupName: ctx.session.selectedGroup.groupName });
-        await ctx.editMessageText(message, {parse_mode:"Markdown"});
+        await ctx.editMessageText(message, {parse_mode: "HTML"});
     });
 
 export default languageMenuGroup;

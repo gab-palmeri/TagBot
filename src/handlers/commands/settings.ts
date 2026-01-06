@@ -13,9 +13,9 @@ export async function settingsHandler(ctx: MyContext) {
     // Invoke repository
     const adminResult = await adminRepository.getWithGroups(userId);
     if(adminResult.groups.length === 0) {
-        return await ctx.reply(ctx.t("admin.no-groups"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("admin.no-groups"), {parse_mode: "HTML"});
     }
     // Set session data and menu
     ctx.session.groups = adminResult.groups;
-    return await ctx.reply(ctx.t("settings.main"), { parse_mode: "Markdown", reply_markup: groupsMenu }); 
+    return await ctx.reply(ctx.t("settings.main"), { parse_mode: "HTML", reply_markup: groupsMenu }); 
 }

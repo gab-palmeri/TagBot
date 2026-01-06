@@ -18,9 +18,9 @@ export async function createHandler(ctx: MyContext) {
     // Validate parameters
     const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
     if(tagName.length == 0)
-        return await ctx.reply(ctx.t("tag.create-syntax"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.create-syntax"), {parse_mode: "HTML"});
     if(!regex.test(tagName)) 
-        return await ctx.reply(ctx.t("tag.validation-syntax"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-syntax"), {parse_mode: "HTML"});
 
     // Get group
     const group = await groupRepository.getGroup(groupId);
@@ -29,10 +29,10 @@ export async function createHandler(ctx: MyContext) {
     // Check if tag already exist
     const tag = await tagRepository.get(group.id, tagName);
     if(tag !== null) {
-        return await ctx.reply(ctx.t("tag.validation-already-exists", {tagName}), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("tag.validation-already-exists", {tagName}), {parse_mode: "HTML"});
     }
 
     // Invoke repository
     await tagRepository.create(group.id, tagName, userId);
-    return await ctx.reply(ctx.t("tag.create-ok", {tagName}), {parse_mode: "Markdown"});
+    return await ctx.reply(ctx.t("tag.create-ok", {tagName}), {parse_mode: "HTML"});
 }

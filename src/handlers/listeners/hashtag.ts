@@ -73,13 +73,13 @@ export async function hashtagHandler(ctx: MyContext) {
             const message = await tagPrivately(ctx, tagName, groupName, subscribersWithoutMe, messageToReplyTo);
             await ctx.reply(message, { 
                 reply_parameters: { message_id: messageToReplyTo },
-                parse_mode: "Markdown",
+                parse_mode: "HTML",
                 link_preview_options: { is_disabled: true }
             });
         }
         else {
             const message = subscribersWithoutMe.map(s => `[@${s.username}](tg://user?id=${s.userId})`).join(" ");
-            await ctx.reply(message, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "Markdown" }); 
+            await ctx.reply(message, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "HTML" }); 
         }
 
         await tagRepository.updateLastTagged(group.id, tagName);        
@@ -98,7 +98,7 @@ export async function hashtagHandler(ctx: MyContext) {
     
     //This message will be deleted shortly after
     if(errorMessages.length > 0) {
-        const errorMessage = await ctx.reply(errorMessages, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "Markdown"});
+        const errorMessage = await ctx.reply(errorMessages, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "HTML"});
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
@@ -107,7 +107,7 @@ export async function hashtagHandler(ctx: MyContext) {
 
     //ANTI FLOOD MESSAGE PHASE
     if(isFlooding) {
-        const antiFloodMessage = await ctx.reply(ctx.t("tag.validation-flooding"), { parse_mode: "Markdown", reply_parameters: { message_id: messageToReplyTo }});
+        const antiFloodMessage = await ctx.reply(ctx.t("tag.validation-flooding"), { parse_mode: "HTML", reply_parameters: { message_id: messageToReplyTo }});
 
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);

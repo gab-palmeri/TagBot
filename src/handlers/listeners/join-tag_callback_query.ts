@@ -17,7 +17,7 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
   switch (joinResult) {
     case "START_BOT": {
         
-      const msg = ctx.t("join.start-bot-msg");
+      const msg = ctx.t("join.start-bot-msg-callback");
 
       await ctx.answerCallbackQuery({
         text: msg,
@@ -36,7 +36,7 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
     }
 
     case "ALREADY_SUBSCRIBED": {
-        const msg = ctx.t("join.already-subscribed", { tagName });
+        const msg = ctx.t("join.already-subscribed-callback", { tagName });
         await ctx.answerCallbackQuery({
           text: msg,
           show_alert: true,
@@ -44,7 +44,7 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
         break;
     }
     case "TAG_NOT_FOUND": {
-        const msg = ctx.t("tag.validation-not-found", { tagName, count: 1 });
+        const msg = ctx.t("tag.validation-not-found-callback", { tagName, count: 1 });
         await ctx.answerCallbackQuery({
           text: msg,
           show_alert: true,

@@ -37,13 +37,13 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
             if (group !== null) {
                 await adminRepository.addAdmins(group.id, admins);
                 await groupRepository.update(groupId, {isActive: true});
-                await ctx.reply(ctx.t("bot-rejoined"), { parse_mode: "Markdown" });
+                await ctx.reply(ctx.t("bot-rejoined"), { parse_mode: "HTML" });
             }
             else {
                 await groupRepository.createGroup(groupId, groupName);
                 const newGroup = await groupRepository.getGroup(groupId);
                 await adminRepository.addAdmins(newGroup.id, admins);
-                return await ctx.reply(ctx.t("start"), { parse_mode: "Markdown", link_preview_options: { is_disabled: true } });
+                return await ctx.reply(ctx.t("start"), { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
                 
             }
         }
@@ -56,7 +56,7 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
 
     // BOT PROMOTED
     if (oldStatus === "member" && newStatus === "administrator") {
-        await ctx.reply(ctx.t("bot-promoted"), { parse_mode: "Markdown" });
+        await ctx.reply(ctx.t("bot-promoted"), { parse_mode: "HTML" });
         return;
     }
 

@@ -28,7 +28,7 @@ export async function broadcastHandler(ctx: MyContext) {
 
         for (const chatId of allChatIds) {
             try {
-                await ctx.api.sendMessage(chatId, message, { parse_mode: "Markdown", link_preview_options: { is_disabled: true }});
+                await ctx.api.sendMessage(chatId, message, { parse_mode: "HTML", link_preview_options: { is_disabled: true }});
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 successCount++;
             } catch (error) {

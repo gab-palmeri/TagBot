@@ -16,7 +16,7 @@ export async function joinHandler(ctx: MyContext) {
 
     // Validate parameters
     if(tagName.length == 0) 
-        return await ctx.reply(ctx.t("join.syntax"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("join.syntax"), {parse_mode: "HTML"});
 
     const joinResult = await joinTag(tagName, groupId, userId);
 
@@ -29,17 +29,17 @@ export async function joinHandler(ctx: MyContext) {
                 ctx.t("join.start-bot-btn"),
                 startUrl
             );
-            return ctx.reply(msg, { reply_markup: kb, parse_mode: "Markdown"});
+            return ctx.reply(msg, { reply_markup: kb, parse_mode: "HTML"});
         }
 
         case "TAG_NOT_FOUND": {
             const msg = ctx.t("tag.validation-not-found", { tagName, count: 1 });
-            return ctx.reply(msg, {parse_mode: "Markdown"});
+            return ctx.reply(msg, {parse_mode: "HTML"});
         }
 
         case "ALREADY_SUBSCRIBED": {
             const msg = ctx.t("join.already-subscribed", { tagName });
-            return ctx.reply(msg, {parse_mode: "Markdown"});
+            return ctx.reply(msg, {parse_mode: "HTML"});
         }
 
         case "JOINED": {
@@ -48,7 +48,7 @@ export async function joinHandler(ctx: MyContext) {
                 ctx.t("join.btn"),
                 `join-tag_${tagName}`
             );
-            return ctx.reply(msg, { reply_markup: kb, parse_mode: "Markdown"});
+            return ctx.reply(msg, { reply_markup: kb, parse_mode: "HTML"});
         }
     }
 }

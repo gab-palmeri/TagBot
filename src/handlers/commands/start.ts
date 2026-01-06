@@ -16,6 +16,6 @@ export async function startCommandHandler(ctx: MyContext) {
         }
     }
 
-    return ctx.reply(ctx.t("start"), { parse_mode: "Markdown", link_preview_options: { is_disabled: true }});
+    return ctx.reply(ctx.t("start"), { parse_mode: "HTML", link_preview_options: { is_disabled: true }});
    
 }

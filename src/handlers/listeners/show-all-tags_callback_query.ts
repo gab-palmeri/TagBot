@@ -42,7 +42,7 @@ export async function showAllTagsCallbackQueryHandler(ctx: MyContext) {
 
         // Send the message in private
         try {
-            await ctx.api.sendMessage(userId, message, { parse_mode: "Markdown" });
+            await ctx.api.sendMessage(userId, message, { parse_mode: "HTML" });
             await ctx.answerCallbackQuery({
                 text: ctx.t("list.callback-success"),
                 show_alert: true

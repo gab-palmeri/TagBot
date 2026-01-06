@@ -15,15 +15,15 @@ import languages from "utils/supportedLanguages";
 const groupPanel = new Menu<MyContext>("control-panel")
     .submenu((ctx: MyContext) => ctx.t("settings.create"), "create-menu", async ctx => {
         const description = generateDescription(ctx.t, "create", ctx.session.selectedGroup.canCreate);
-        await ctx.editMessageText(description, {parse_mode:"Markdown"});
+        await ctx.editMessageText(description, {parse_mode: "HTML"});
     })
     .submenu((ctx: MyContext) => ctx.t("settings.delete"), "delete-menu", async ctx => {
         const description = generateDescription(ctx.t, "delete", ctx.session.selectedGroup.canDelete);
-        await ctx.editMessageText(description, {parse_mode:"Markdown"});
+        await ctx.editMessageText(description, {parse_mode: "HTML"});
     }).row()
     .submenu((ctx: MyContext) => ctx.t("settings.rename"), "rename-menu", async ctx => {
         const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-        await ctx.editMessageText(description, {parse_mode:"Markdown"});
+        await ctx.editMessageText(description, {parse_mode: "HTML"});
     }).row()
     .submenu((ctx: MyContext) => ctx.t("settings.language"), "language-menu-group", async ctx => {
         const langEntry = languages.find(l => l.code === ctx.session.selectedGroup.lang);
@@ -31,9 +31,9 @@ const groupPanel = new Menu<MyContext>("control-panel")
         const langNameAndEmoji = `${langEntry.emoji} ${langName}`;
 
         const description = generateDescription(ctx.t, "language-group", langNameAndEmoji);
-        await ctx.editMessageText(description, {parse_mode:"Markdown"});
+        await ctx.editMessageText(description, {parse_mode: "HTML"});
     })
-    .back((ctx: MyContext) => ctx.t("settings.back"), ctx => ctx.editMessageText(ctx.t("settings.main"), {parse_mode:"Markdown"})).row();
+    .back((ctx: MyContext) => ctx.t("settings.back"), ctx => ctx.editMessageText(ctx.t("settings.main"), {parse_mode: "HTML"})).row();
 
 groupPanel.register(createMenu);
 groupPanel.register(deleteMenu);

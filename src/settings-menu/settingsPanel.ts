@@ -16,7 +16,7 @@ const settingsPanel = new Menu<MyContext>("groups-list")
             range.submenu(group.groupName, "control-panel", async ctx => {
                     ctx.session.selectedGroup = group;
                     const description = ctx.t("settings.group-panel", {groupName: ctx.session.selectedGroup.groupName });
-                    await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                    await ctx.editMessageText(description, {parse_mode: "HTML"});
                 }).row();
         }
     })
@@ -29,7 +29,7 @@ const settingsPanel = new Menu<MyContext>("groups-list")
         const langNameAndEmoji = `${langEntry.emoji} ${langName}`;
 
         const description = generateDescription(ctx.t, "language-private", langNameAndEmoji);
-        await ctx.editMessageText(description, {parse_mode:"Markdown"});
+        await ctx.editMessageText(description, {parse_mode: "HTML"});
     })
     .text((ctx: MyContext) => ctx.t("settings.close"), (ctx) => ctx.deleteMessage());
 

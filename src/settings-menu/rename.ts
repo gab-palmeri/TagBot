@@ -13,7 +13,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
             if(result) {
                 ctx.session.selectedGroup.canRename = 0;
                 const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-                await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                await ctx.editMessageText(description, {parse_mode: "HTML"});
             }
             else {
                 return ctx.reply(ctx.t("internal-error"));
@@ -29,7 +29,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
             if(result) {
                 ctx.session.selectedGroup.canRename = 1;
                 const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-                await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                await ctx.editMessageText(description, {parse_mode: "HTML"});
             }
             else {
                 return ctx.reply(ctx.t("internal-error"));
@@ -45,7 +45,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
             if(result) {
                 ctx.session.selectedGroup.canRename = 2;
                 const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-                await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                await ctx.editMessageText(description, {parse_mode: "HTML"});
             }
             else {
                 return ctx.reply(ctx.t("internal-error"));
@@ -55,7 +55,7 @@ const renameMenu = new Menu<MyContext>("rename-menu")
 
     .back((ctx: MyContext) => ctx.t("settings.back"), async ctx => {
         const message = ctx.t("settings.group-panel", {groupName: ctx.session.selectedGroup.groupName });
-        await ctx.editMessageText(message, {parse_mode:"Markdown"});
+        await ctx.editMessageText(message, {parse_mode: "HTML"});
     });
 
 export default renameMenu;

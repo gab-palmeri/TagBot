@@ -13,7 +13,7 @@ export async function listHandler(ctx: MyContext) {
     const tagsByGroupResponse = await organizeTagsList(groupId);
 
     if(tagsByGroupResponse.mainTags.length === 0) {
-        return await ctx.reply(ctx.t("list.empty"), {parse_mode: "Markdown"});
+        return await ctx.reply(ctx.t("list.empty"), {parse_mode: "HTML"});
     }
 
     const mostActiveTags = tagsByGroupResponse.mainTags;
@@ -25,5 +25,5 @@ export async function listHandler(ctx: MyContext) {
 
 
     const inlineKeyboard = new InlineKeyboard().text("See all tags", `show-all-tags`);
-    await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "Markdown" });
+    await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
 }

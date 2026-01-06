@@ -13,7 +13,7 @@ export async function tagPrivately(ctx: MyContext, tagName: string, groupName: s
     for(const subscriber of subscribers) {
         try {
             const toSendMessage = i18n.t(subscriber.lang, "tag.private-message", {tagName, groupName, messageLink});
-            await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "Markdown" });
+            await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "HTML" });
         } catch(e) {
             notContacted.push((await ctx.getChatMember(parseInt(subscriber.userId))).user.first_name);
         }

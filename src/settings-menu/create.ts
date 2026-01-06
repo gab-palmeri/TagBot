@@ -13,7 +13,7 @@ const createMenu = new Menu<MyContext>("create-menu")
             if(result) {
                 ctx.session.selectedGroup.canCreate = 0;
                 const description = generateDescription(ctx.t, "create", ctx.session.selectedGroup.canCreate);
-                await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                await ctx.editMessageText(description, {parse_mode: "HTML"});
             }
             else {
                 return ctx.reply(ctx.t("internal-error"));
@@ -30,7 +30,7 @@ const createMenu = new Menu<MyContext>("create-menu")
             if(result) {
                 ctx.session.selectedGroup.canCreate = 1;
                 const description = generateDescription(ctx.t, "create", ctx.session.selectedGroup.canCreate);
-                await ctx.editMessageText(description, {parse_mode:"Markdown"});
+                await ctx.editMessageText(description, {parse_mode: "HTML"});
             }
             else {
                 return ctx.reply(ctx.t("internal-error"));
@@ -39,7 +39,7 @@ const createMenu = new Menu<MyContext>("create-menu")
     }).row()
     .back((ctx: MyContext) => ctx.t("settings.back"), async ctx => {
         const message = ctx.t("settings.group-panel", {groupName: ctx.session.selectedGroup.groupName });
-        await ctx.editMessageText(message, {parse_mode:"Markdown"});
+        await ctx.editMessageText(message, {parse_mode: "HTML"});
     });
 
 export default createMenu;

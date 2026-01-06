@@ -155,6 +155,8 @@ list =
     .callback-success = ✅ Ti ho inviato un messaggio privato con tutti i tag!
     .callback-error = ⚠️ Non sono riuscito a inviarti un messaggio privato. Avvia prima una chat con me
 
+    .see-all-tags = 👉 Vedi tutti i tag
+
 mytags =
     .header = 📄 <b>Ecco la lista dei tag a cui sei iscritto, @{ $username }:</b>
     .empty = ⚠️ Non sei iscritto a nessun tag in questo gruppo, @{ $username }

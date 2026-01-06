@@ -24,6 +24,6 @@ export async function listHandler(ctx: MyContext) {
 
 
 
-    const inlineKeyboard = new InlineKeyboard().text("See all tags", `show-all-tags`);
+    const inlineKeyboard = new InlineKeyboard().text(ctx.t("list.see-all-tags"), `show-all-tags`);
     await ctx.reply(message, { reply_markup: inlineKeyboard, parse_mode: "HTML" });
 }

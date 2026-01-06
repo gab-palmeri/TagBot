@@ -158,6 +158,8 @@ list =
     .callback-success = ✅ I've sent you a private message with all the tags!
     .callback-error = ⚠️ I couldn't send you a private message. Please start a chat with me first
 
+    .see-all-tags = 👉 See all tags
+
 mytags =
     .header = 📄 <b>Here's a list of the tags you're in, @{ $username }:</b>
     .empty = ⚠️ You are not subscribed to any tags in this group, @{ $username }

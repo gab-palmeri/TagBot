@@ -58,7 +58,7 @@ export async function renameHandler(ctx: MyContext) {
             });
         }
         else {
-            const message = subscribersWithoutMe.map(s => `[@${s.username}](tg://user?id=${s.userId})`).join(" ");
+            const message = subscribersWithoutMe.map(s => `<a href="tg://user?id=${s.userId}">@${s.username}</a>`).join(" ");
             await ctx.reply(message, { reply_parameters: { message_id: sentMessage.message_id }, parse_mode: "HTML" });
         }
     }

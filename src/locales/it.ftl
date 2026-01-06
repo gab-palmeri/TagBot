@@ -19,6 +19,7 @@ help =
     /create tagname → <i>Crea un nuovo tag</i>
     /delete tagname → <i>Elimina un tag</i>
     /rename oldtagname newtagname → <i>Rinomina un tag</i>
+    /restart → <i>Riavvia il bot</i>
     /settings → <i>Accedi alle impostazioni di tagbot</i>
 
     👤 <b>Comandi per utenti:</b>
@@ -50,6 +51,9 @@ internal-error =
 
 admin.no-groups = 
     ⚠️ Non sei <b>amministratore</b> di alcun gruppo.
+
+    🛠️ <i>Non vedi un gruppo di cui sei admin? 
+    Invia /restart nel gruppo e riprova</i>
 
 permissions =
     .create-tags-admins = ❌ Solo gli <b>amministratori</b> possono <b>creare</b> tag
@@ -167,8 +171,10 @@ tag-entry =
 settings =
     .main = 
         {"<b>🌟 Pannello di Controllo TagBot 🌟</b>"}
-        
         👉🏻  <i><b>Seleziona il gruppo</b> che vuoi gestire e personalizza le sue impostazioni.</i>
+
+        🛠️ <i>Non vedi un gruppo di cui sei admin?
+        Invia /restart nel gruppo e riprova</i>
     .group-panel = 🔑 <b>Gruppo:</b> { $groupName }
     .create = ✏️ Crea Tag
     .delete = 💣 Elimina Tag

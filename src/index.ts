@@ -20,5 +20,3 @@ process.once("SIGINT", stopRunner);
 process.once("SIGTERM", stopRunner);
 
 console.log("Bot started in long polling mode");
-
-await initializeBot();

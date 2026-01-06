@@ -79,7 +79,7 @@ export async function hashtagHandler(ctx: MyContext) {
         }
         else {
             const message = subscribersWithoutMe.map(s => `<a href="tg://user?id=${s.userId}">@${s.username}</a>`).join(" ");
-            await ctx.reply(message, { reply_parameters: { message_id: null }, parse_mode: "HTML" }); 
+            await ctx.reply(message, { reply_parameters: { message_id: messageToReplyTo }, parse_mode: "HTML" }); 
         }
 
         await tagRepository.updateLastTagged(group.id, tagName);        

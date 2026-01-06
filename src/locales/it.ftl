@@ -200,13 +200,13 @@ settings =
         Impostazione attuale: { $current }.
 
     .language-group-description = 
-        🌐 Seleziona la lingua del bot
+        🌐 <b>Seleziona la lingua del bot</b>
         
         Scegli la lingua che il bot userà per inviare i messaggi in questo gruppo.  
         Lingua attuale: { $current }.
     
     .language-private-description = 
-        🌐 Seleziona la lingua del bot
+        🌐 <b>Seleziona la lingua del bot</b>
         
         Scegli la lingua che il bot userà per inviare i messaggi in questa chat privata.  
         Lingua attuale: { $current }.

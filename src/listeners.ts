@@ -3,7 +3,7 @@ import { Composer } from "grammy";
 import { chatMemberHandler } from "handlers/listeners/chat_member";
 import { hashtagHandler } from "handlers/listeners/hashtag";
 import { joinTagCallbackQueryHandler } from "handlers/listeners/join-tag_callback_query";
-import { messageHandler } from "handlers/listeners/message";
+import { newChatTitleHandler } from "handlers/listeners/new_chat_title";
 import { migrateHandler } from "handlers/listeners/migrate";
 import { myGroupChatMemberHandler, myPrivateChatMemberHandler } from "handlers/listeners/my_chat_member";
 import { showAllTagsCallbackQueryHandler } from "handlers/listeners/show-all-tags_callback_query";
@@ -17,8 +17,8 @@ const listenersPrivate = listeners.chatType("private");
 //hashtag
 listenersGroup.on("::hashtag", hashtagHandler);
 
-// check if an user has updated their username
-listenersGroup.on("message", messageHandler);
+// check if a group has changed name
+listenersGroup.on(":new_chat_title", newChatTitleHandler);
 
 // callback queries
 listenersGroup.callbackQuery(/^join-tag_/, joinTagCallbackQueryHandler);

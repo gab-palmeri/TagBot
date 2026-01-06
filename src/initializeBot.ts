@@ -11,6 +11,7 @@ import { tagbotCommands, devCommands } from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
 
 import settingsPanel from "settings-menu/settingsPanel";
+import UserRepository from "db/user/user.repository";
 
 export default async function initializeBot() {
 	const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
@@ -35,6 +36,16 @@ export default async function initializeBot() {
 		const messageToReplyTo = err.ctx.msg?.message_id;
 		console.log(await err.ctx.i18n.getLocale());
 		await err.ctx.reply(i18n.t(await err.ctx.i18n.getLocale(), "internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
+	};
+
+	const usernameSynchronizer = async (ctx, next) => {
+		const userRepository = new UserRepository();
+		const user = await userRepository.getUser(ctx.from.id.toString());
+
+		if(user != null && user.username !== ctx.from.username) {
+			await userRepository.update(ctx.from.id.toString(), {username: ctx.from.username || ""});
+		}
+		await next();
 	};
 
 	const rateLimits = limit({
@@ -74,8 +85,9 @@ export default async function initializeBot() {
 	});
 
 
-	//Set the basic error handler
+	
 	bot.catch(errorHandler);
+	bot.use(usernameSynchronizer);
 	bot.api.config.use(autoRetry());
 	bot.use(sequentialize(getSessionKey));
 	bot.use(sessionConfig);

@@ -18,16 +18,37 @@ export async function joinHandler(ctx: MyContext) {
     if(tagName.length == 0) 
         return await ctx.reply(ctx.t("join.syntax"), {parse_mode: "Markdown"});
 
-    const joinResult = await joinTag(ctx.t, tagName, groupId, username, botUsername, userId);
+    const joinResult = await joinTag(tagName, groupId, userId);
 
-    if (joinResult.inlineKeyboard) {
-        const kb = new InlineKeyboard();
-        if (joinResult.inlineKeyboard.url) 
-            kb.url(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.url);
-        if (joinResult.inlineKeyboard.callbackData) 
-            kb.text(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.callbackData);
-        await ctx.reply(joinResult.message, { reply_markup: kb, parse_mode: "Markdown" });
-    } else {
-        await ctx.reply(joinResult.message, { parse_mode: "Markdown" });
+    switch (joinResult) {
+        case "START_BOT": {
+            const msg = ctx.t("join.start-bot-msg");
+            const startUrl = `https://t.me/${botUsername}?start=${groupId}_${tagName}`;
+
+            const kb = new InlineKeyboard().url(
+                ctx.t("join.start-bot-btn"),
+                startUrl
+            );
+            return ctx.reply(msg, { reply_markup: kb, parse_mode: "Markdown"});
+        }
+
+        case "TAG_NOT_FOUND": {
+            const msg = ctx.t("tag.validation-not-found", { tagName, count: 1 });
+            return ctx.reply(msg, {parse_mode: "Markdown"});
+        }
+
+        case "ALREADY_SUBSCRIBED": {
+            const msg = ctx.t("join.already-subscribed", { tagName });
+            return ctx.reply(msg, {parse_mode: "Markdown"});
+        }
+
+        case "JOINED": {
+            const msg = ctx.t("join.ok", { tagName, username });
+            const kb = new InlineKeyboard().text(
+                ctx.t("join.btn"),
+                `join-tag_${tagName}`
+            );
+            return ctx.reply(msg, { reply_markup: kb, parse_mode: "Markdown"});
+        }
     }
 }

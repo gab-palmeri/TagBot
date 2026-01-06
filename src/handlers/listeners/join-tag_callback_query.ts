@@ -1,28 +1,58 @@
 import { MyContext } from "utils/customTypes";
-
 import { InlineKeyboard } from "grammy";
-
 import { joinTag } from "utils/joinTag";
 
-
 export async function joinTagCallbackQueryHandler(ctx: MyContext) {
-    
-    const tagName = ctx.callbackQuery.data.split("_")[1];
-    const groupId = ctx.callbackQuery.message.chat.id.toString();
-    const username = ctx.callbackQuery.from.username;
-    const botUsername = ctx.me.username;
-    const userId = ctx.callbackQuery.from.id.toString();
-    
-    const joinResult = await joinTag(ctx.t, tagName, groupId, username, botUsername, userId);
+  const data = ctx.callbackQuery.data;
+  const tagName = data.split("_")[1];
 
-    if (joinResult.inlineKeyboard) {
-        const kb = new InlineKeyboard();
-        if (joinResult.inlineKeyboard.url) kb.url(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.url);
-        if (joinResult.inlineKeyboard.callbackData) kb.text(joinResult.inlineKeyboard.text, joinResult.inlineKeyboard.callbackData);
-        await ctx.reply(joinResult.message, { reply_markup: kb, parse_mode: "Markdown" });
-    } else {
-        await ctx.reply(joinResult.message, { parse_mode: "Markdown" });
+  const groupId = ctx.callbackQuery.message.chat.id.toString();
+  const userId = ctx.callbackQuery.from.id.toString();
+  const username = ctx.callbackQuery.from.username ?? ctx.callbackQuery.from.first_name;
+  const botUsername = ctx.me.username;
+
+  const joinResult = await joinTag(
+    tagName,
+    groupId,
+    userId
+  );
+
+  switch (joinResult) {
+    case "START_BOT": {
+        
+      const msg = ctx.t("join.start-bot-msg") + " www.google.com";
+
+      await ctx.answerCallbackQuery({
+        text: msg,
+        show_alert: true,
+      });
+      break;
     }
 
-    return await ctx.answerCallbackQuery("Done!");
+    case "JOINED": {
+        const msg = ctx.t("join.ok-callback", { tagName });
+        await ctx.answerCallbackQuery({
+          text: msg,
+          show_alert: true,
+        });  
+        break;
+    }
+
+    case "ALREADY_SUBSCRIBED": {
+        const msg = ctx.t("join.already-subscribed", { tagName });
+        await ctx.answerCallbackQuery({
+          text: msg,
+          show_alert: true,
+        });
+        break;
+    }
+    case "TAG_NOT_FOUND": {
+        const msg = ctx.t("tag.validation-not-found", { tagName, count: 1 });
+        await ctx.answerCallbackQuery({
+          text: msg,
+          show_alert: true,
+        });
+        break;
+    }
+  }
 }

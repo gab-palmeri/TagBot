@@ -1,5 +1,4 @@
 import { MyContext } from "utils/customTypes";
-import { InlineKeyboard } from "grammy";
 import { joinTag } from "utils/joinTag";
 
 export async function joinTagCallbackQueryHandler(ctx: MyContext) {
@@ -8,8 +7,6 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
 
   const groupId = ctx.callbackQuery.message.chat.id.toString();
   const userId = ctx.callbackQuery.from.id.toString();
-  const username = ctx.callbackQuery.from.username ?? ctx.callbackQuery.from.first_name;
-  const botUsername = ctx.me.username;
 
   const joinResult = await joinTag(
     tagName,
@@ -20,11 +17,11 @@ export async function joinTagCallbackQueryHandler(ctx: MyContext) {
   switch (joinResult) {
     case "START_BOT": {
         
-      const msg = ctx.t("join.start-bot-msg") + " www.google.com";
+      const msg = ctx.t("join.start-bot-msg");
 
       await ctx.answerCallbackQuery({
         text: msg,
-        show_alert: true,
+        show_alert: true
       });
       break;
     }

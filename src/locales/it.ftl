@@ -119,6 +119,7 @@ tag =
 
 join =
     .ok = @{ $username } si è iscritto al tag { $tagName }. Riceverà notifiche quando qualcuno lo menziona.
+    .ok-callback = ✅ Ti sei iscritto al tag { $tagName }. Riceverai notifiche quando qualcuno lo menziona.
     .btn = Iscriviti a questo tag
     .syntax = ⚠️ Sintassi: /join *tagname*
     .start-bot-msg = Per iscriverti ai *tag*, devi avviare una *chat privata* con il bot.
@@ -126,7 +127,7 @@ join =
     .already-subscribed = ⚠️ Sei già iscritto a *{ $tagName }*
 
 leave =
-    .ok = @{ $username } ha lasciato il tag { $tagName }. Non riceverà più notifiche quando qualcuno lo menziona.
+    .ok = @{ $username } ha lasciato il tag *{ $tagName }*. Non riceverà più notifiche quando qualcuno lo menziona.
     .syntax = ⚠️ Sintassi: /leave *tagname*
     .not-subscribed = ⚠️ Non sei *iscritto* al tag { $tagName }
     

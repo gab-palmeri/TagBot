@@ -1,7 +1,7 @@
 import { Menu, MenuRange } from "@grammyjs/menu";
 import { MyContext } from "utils/customTypes";
 
-import editGroupPermissions from "./editGroupPermissions";
+import editGroupPermissions from "../utils/editGroupPermissions";
 import generateDescription from "./generateDescription";
 
 const renameMenu = new Menu<MyContext>("rename-menu")

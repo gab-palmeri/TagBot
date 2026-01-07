@@ -1,7 +1,7 @@
 import { Menu } from "@grammyjs/menu";
 import {MyContext} from "utils/customTypes";
 
-import editGroupPermissions from "./editGroupPermissions";
+import editGroupPermissions from "../utils/editGroupPermissions";
 import generateDescription from "./generateDescription";
 
 const createMenu = new Menu<MyContext>("create-menu")

@@ -44,6 +44,9 @@ export default class AdminRepository implements IAdminRepository {
         await getDb()
             .insertInto('admin')
             .values(inserts)
+            .onConflict((oc) =>
+                oc.columns(['group_id', 'userId']).doNothing()
+            )
             .execute();
     }
 

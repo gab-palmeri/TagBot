@@ -5,11 +5,17 @@ import { getDb } from 'db/database';
 export default class GroupRepository implements IGroupRepository {
 
     public async createGroup(groupId: string, groupName: string) {
+
+        console.log(`CREATING GROUP WITH ID ${groupId} AND NAME ${groupName}`);
+
         await getDb().insertInto('group')
             .values({
                 groupId: groupId,
                 groupName: groupName,
             })
+            .onConflict((oc) =>
+                oc.column('groupId').doNothing()
+            )
             .execute();
     }
 
@@ -18,6 +24,9 @@ export default class GroupRepository implements IGroupRepository {
             .selectAll()
             .where('groupId', '=', groupID)
             .executeTakeFirst();
+
+        console.log("ECCO IL GRUPPO");
+        console.log(group);
 
         if (!group) {
             return null;

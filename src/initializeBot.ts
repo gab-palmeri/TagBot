@@ -20,7 +20,8 @@ export default async function initializeBot() {
 		getSessionKey,
 		initial: () => ({
 			groups: [] as Groups,
-			selectedGroup: null
+			selectedGroup: null,
+			botJoinedMessageId: null,
 		}),
 	});
 

@@ -15,14 +15,14 @@ export async function migrateHandler(ctx: MyContext) {
         const group = await groupRepository.getGroup(oldGroupId);
 
         if (group === null) {
-            return await ctx.reply(ctx.t("migrate.error"));
+            return await ctx.reply(ctx.t("migrate.error"), {parse_mode: "HTML"});
         }
 
         await groupRepository.migrateGroup(oldGroupId, newGroupId);
-        return await ctx.reply(ctx.t("migrate.success"));
+        await ctx.api.editMessageText(ctx.chatId, ctx.session.botJoinedMessageId, ctx.t("migrate.success"), {parse_mode: "HTML"});
     }
     catch(e) {
-        await ctx.reply(ctx.t("migrate.error"));
+        await ctx.reply(ctx.t("migrate.error"), {parse_mode: "HTML"});
         throw e;
     }
 }

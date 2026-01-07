@@ -43,8 +43,8 @@ export async function myGroupChatMemberHandler(ctx: MyContext, next: NextFunctio
                 await groupRepository.createGroup(groupId, groupName);
                 const newGroup = await groupRepository.getGroup(groupId);
                 await adminRepository.addAdmins(newGroup.id, admins);
-                return await ctx.reply(ctx.t("start"), { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
-                
+                const msg = await ctx.reply(ctx.t("start"), { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+                ctx.session.botJoinedMessageId = msg.message_id;
             }
         }
         catch(e) {

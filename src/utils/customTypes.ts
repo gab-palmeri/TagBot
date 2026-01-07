@@ -6,6 +6,7 @@ import { I18nFlavor } from "@grammyjs/i18n";
 export type MyContext = Context & I18nFlavor & SessionFlavor<{
     groups: Groups, 
     selectedGroup: GroupDTO | null,
+    botJoinedMessageId: number;
 }>;
 
 export type Groups = GroupDTO[]

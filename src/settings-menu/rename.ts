@@ -1,61 +1,45 @@
-import { Menu } from "@grammyjs/menu";
-import {MyContext} from "utils/customTypes";
+import { Menu, MenuRange } from "@grammyjs/menu";
+import { MyContext } from "utils/customTypes";
 
 import editGroupPermissions from "./editGroupPermissions";
 import generateDescription from "./generateDescription";
 
 const renameMenu = new Menu<MyContext>("rename-menu")
-    .text(ctx => ctx.t("settings.permissions-only-admins"), async (ctx) => {
-        const userId = ctx.chatId.toString();
+    .dynamic((ctx, range: MenuRange<MyContext>) => {
+        const permissions = [
+            { key: "only-admins", value: 0 },
+            { key: "everyone", value: 1 },
+            { key: "admins-creators", value: 2 },
+        ];
 
-        if(ctx.session.selectedGroup.canRename !== 0) {
-            const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 0});
-            if(result) {
-                ctx.session.selectedGroup.canRename = 0;
-                const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-                await ctx.editMessageText(description, {parse_mode: "HTML"});
-            }
-            else {
-                return ctx.reply(ctx.t("internal-error"));
-            }
-        }
-    })
-    .text(ctx => ctx.t("settings.permissions-everyone"), async (ctx) => {
+        for (const [i, p] of permissions.entries()) {
+            const label = ctx.t(`settings.permissions-${p.key}`);
 
-        const userId = ctx.chatId.toString();
+            range.text(label, async (ctx) => {
+                const userId = ctx.chatId.toString();
+                const newValue = p.value;
 
-        if(ctx.session.selectedGroup.canRename !== 1) {
-            const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 1});
-            if(result) {
-                ctx.session.selectedGroup.canRename = 1;
-                const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-                await ctx.editMessageText(description, {parse_mode: "HTML"});
-            }
-            else {
-                return ctx.reply(ctx.t("internal-error"));
-            }
-        }
-    }).row()
-    .text(ctx => ctx.t("settings.permissions-admins-creators"), async (ctx) => {
+                if (ctx.session.selectedGroup.canRename !== newValue) {
+                    const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, { canRename: newValue });
 
-        const userId = ctx.chatId.toString();
+                    if (result) {
+                        ctx.session.selectedGroup.canRename = newValue;
+                        const description = generateDescription(ctx.t, "rename", newValue);
+                        await ctx.editMessageText(description, { parse_mode: "HTML" });
+                    } else {
+                        return ctx.reply(ctx.t("internal-error"));
+                    }
+                }
+            });
 
-        if(ctx.session.selectedGroup.canRename !== 2) {
-            const result = await editGroupPermissions(ctx.session.selectedGroup.groupId, userId, {canRename: 2});
-            if(result) {
-                ctx.session.selectedGroup.canRename = 2;
-                const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-                await ctx.editMessageText(description, {parse_mode: "HTML"});
-            }
-            else {
-                return ctx.reply(ctx.t("internal-error"));
+            if (i == 1) {
+                range.row();
             }
         }
     }).row()
-
-    .back((ctx: MyContext) => ctx.t("settings.back"), async ctx => {
-        const message = ctx.t("settings.group-panel", {groupName: ctx.session.selectedGroup.groupName });
-        await ctx.editMessageText(message, {parse_mode: "HTML"});
+    .back((ctx: MyContext) => ctx.t("settings.back"), async (ctx) => {
+        const message = ctx.t("settings.group-panel", { groupName: ctx.session.selectedGroup.groupName });
+        await ctx.editMessageText(message, { parse_mode: "HTML" });
     });
 
 export default renameMenu;

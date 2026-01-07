@@ -32,9 +32,13 @@ export default async function initializeBot() {
 			? console.error('Could not contact Telegram:', err.error)
 			: console.error('Unknown error:', err.error);
 
-		const messageToReplyTo = err.ctx.msg?.message_id;
-		console.log(await err.ctx.i18n.getLocale());
-		await err.ctx.reply(i18n.t(await err.ctx.i18n.getLocale(), "internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
+		try {
+			const messageToReplyTo = err.ctx.msg?.message_id;
+			await err.ctx.reply(i18n.t(await err.ctx.i18n.getLocale(), "internal-error"), { reply_parameters: { message_id: messageToReplyTo }});
+		}
+		catch(e) {
+			console.log(e);
+		}
 	};
 
 	const usernameSynchronizer = async (ctx, next) => {

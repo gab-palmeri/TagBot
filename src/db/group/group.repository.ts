@@ -41,6 +41,14 @@ export default class GroupRepository implements IGroupRepository {
     }
     
     public async migrateGroup(oldGroupId: string, newGroupId: string) {
+
+        //get the group with the new ID and delete it
+        await getDb().deleteFrom('group')
+            .where('groupId', '=', newGroupId)
+            .executeTakeFirst();
+
+
+        //update the group with the old ID and add it
         await getDb().updateTable('group')
             .set({ groupId: newGroupId })
             .where('groupId', '=', oldGroupId)

@@ -27,14 +27,16 @@ listenersGroup.callbackQuery(/^show-all-tags/, showAllTagsCallbackQueryHandler);
 // deactivate or activate subscriber when left, and check admin changes
 listenersGroup.on("chat_member", chatMemberHandler);
 
+// chat migration
+listenersGroup.on(":migrate_from_chat_id", migrateHandler);
+
 // handle bot add, promotion, kicked
 listenersGroup.on("my_chat_member", myGroupChatMemberHandler);
 
 // check if an user enters or leaves the bot in private
 listenersPrivate.on("my_chat_member", myPrivateChatMemberHandler);
 
-// chat migration
-listenersGroup.on(":migrate_to_chat_id", migrateHandler);
+
 
 
 

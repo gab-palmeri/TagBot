@@ -76,8 +76,8 @@ bot-join-error = ❌ Si è verificato un errore durante la configurazione. Prova
 bot-promoted = Ora sono pienamente operativo!
 
 migrate =
-    .success = ✅ I tuoi tag sono stati migrati nella chat del supergruppo!
-    .error = ❌ Si è verificato un errore durante la migrazione dei tag del gruppo al supergruppo!
+    .success = ✅ I tuoi <b>tag</b> sono stati migrati nella chat del <i>supergruppo</i>!
+    .error = ❌ Si è <b>verificato un errore</b> durante la migrazione dei tag del gruppo al <i>supergruppo</i>!
 
 ###########
 ### Tag ###

@@ -74,11 +74,11 @@ bot-rejoined =
 
     <i>Remember to give me <b>administrator</b> permissions so that I can answer to #tags.</i>
 bot-join-error = ❌ An error occurred while setting up. Try adding me again.
-bot-promoted = Now I'm fully operational!
+bot-promoted = ✅ Now I'm <b>fully operational</b>!
 
 migrate =
-    .success = ✅ Your tags have been migrated to the supergroup chat!
-    .error = ❌ An error occurred while migrating your group tags to the supergroup chat!
+    .success = ✅ Your <b>tags</b> have been migrated to the <i>supergroup chat</i>!
+    .error = ❌ An <b>error occurred</b> while migrating your group tags to the <i>supergroup chat</i>!
 
     
 

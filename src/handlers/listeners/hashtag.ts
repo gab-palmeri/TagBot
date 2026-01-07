@@ -2,7 +2,6 @@ import { MyContext } from "utils/customTypes";
 import TagRepository from "db/tag/tag.repository";
 import GroupRepository from "db/group/group.repository";
 
-import { isUserFlooding } from "utils/isUserFlooding";
 import { tagPrivately } from "utils/tagPrivately";
 
 export async function hashtagHandler(ctx: MyContext) {
@@ -24,7 +23,6 @@ export async function hashtagHandler(ctx: MyContext) {
     const emptyTags = [];
     const nonExistentTags = [];
     const onlyOneInTags = [];
-    let isFlooding = false;
 
     // Get group
     const group = await groupRepository.getGroup(groupId);
@@ -55,14 +53,6 @@ export async function hashtagHandler(ctx: MyContext) {
         if(subscribersWithoutMe.length == 0) {
             onlyOneInTags.push(tagName);
             continue;
-        }
-
-        //BEFORE TAGGING --> ANTI FLOOD PROCEDURE
-        const userId = ctx.update.message.from.id.toString();
-        const iuf = await isUserFlooding(userId, ctx.session.lastUsedTags);
-        if(iuf) {
-            isFlooding = true;
-            break;
         }
 
         //If the tag has more than 10 subscribers, tag them in private. Else tag them in the group
@@ -103,14 +93,5 @@ export async function hashtagHandler(ctx: MyContext) {
         setTimeout(async () => {
             await ctx.api.deleteMessage(ctx.chat.id, errorMessage.message_id);
         }, 5000);
-    }
-
-    //ANTI FLOOD MESSAGE PHASE
-    if(isFlooding) {
-        const antiFloodMessage = await ctx.reply(ctx.t("tag.validation-flooding"), { parse_mode: "HTML", reply_parameters: { message_id: messageToReplyTo }});
-
-        setTimeout(async () => {
-            await ctx.api.deleteMessage(ctx.chat.id, antiFloodMessage.message_id);
-        }, 8000);
     }
 }

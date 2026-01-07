@@ -49,39 +49,23 @@ export default async function initializeBot() {
 	};
 
 	const rateLimits = limit({
-		timeFrame: 5000,
+		timeFrame: 3000,
 		limit: 3,
+		alwaysReply: true,
 		onLimitExceeded: async (ctx: MyContext) => {
 
-			if(ctx.chat == undefined || !ctx.msg || !ctx.from) return;
-
-			try {
-				await ctx.deleteMessage();
-			} catch(e) {
-				let groupInfo: string | number;
-				if(ctx.chat.type !== "private")
-					groupInfo = `${ctx.chat.title} (${ctx.chat?.id})`;
-				else 
-					groupInfo = ctx.chat.id;
-
-				console.log(`[R] Could not delete the message "${ctx.msg.text}" from the group ${groupInfo} because the bot is not an admin`);
-			}
-
-			const issuerUsername = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
-			const msg = await ctx.reply("🕑 " + issuerUsername + ", wait some time before sending another command.");
-			const chatId = ctx.chat.id.toString();
-
-			const receivedMsg = ctx.msg.text;
-			setTimeout(async (groupInfo) => {
-				try {
-					await ctx.api.deleteMessage(chatId, msg.message_id);
-				} catch(e) {
-					console.log(`[R] Could not delete the message "${receivedMsg}" from the group ${groupInfo}`);
-				}
-			}, 3000);
+			const username = ctx.from.username ? `@${ctx.from.username}` : ctx.from.first_name;
+			return await ctx.reply(ctx.t("flooding", { username }), {parse_mode: "HTML"});
 		},
 		
-		keyGenerator: (ctx) => ctx.from.id.toString() + "-" + ctx.chatId.toString(),
+		keyGenerator: (ctx) => {
+			if(ctx.callbackQuery?.data != null) {
+				return null;
+			}
+			else {
+				return ctx.from.id.toString() + "-" + ctx.chatId.toString();
+			}
+		},
 	});
 
 

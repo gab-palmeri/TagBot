@@ -42,6 +42,8 @@ private-only =
 private-only-btn =
     👉 Tocca qui
 
+flooding = 🕑 <b>Rallenta</b>, { $username }!
+
 internal-error =
     ⚠️ Si è verificato un errore interno. Riprova più tardi.
 

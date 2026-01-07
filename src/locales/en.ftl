@@ -42,6 +42,8 @@ private-only =
 private-only-btn =
     👉 Tap here
 
+flooding = 🕑 <b>Slow down</b>, { $username }!
+
 internal-error =
     ⚠️ An internal error occurred. Please try again later.
 

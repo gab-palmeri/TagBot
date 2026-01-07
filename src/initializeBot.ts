@@ -5,7 +5,7 @@ import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
 import i18n from "utils/i18n";
 
-import { Groups, LastUsedTags, MyContext } from 'utils/customTypes';
+import { Groups, MyContext } from 'utils/customTypes';
 
 import { tagbotCommands, devCommands } from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
@@ -20,8 +20,7 @@ export default async function initializeBot() {
 		getSessionKey,
 		initial: () => ({
 			groups: [] as Groups,
-			selectedGroup: null,
-			lastUsedTags: [] as LastUsedTags
+			selectedGroup: null
 		}),
 	});
 

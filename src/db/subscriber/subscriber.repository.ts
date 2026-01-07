@@ -67,6 +67,9 @@ export default class SubscriberRepository implements ISubscriberRepository {
             .where('group_id', '=', group_id)
             .execute();
 
+        if(groupTags.length == 0)
+            return;
+
         await getDb()
             .updateTable('subscriber')
             .set({ isActive: isActive })

@@ -186,6 +186,7 @@ settings-main =
 
         🛠️ <i>Can't see a group you're an admin of?
         Send /restart there and retry</i>
+    .permissions = 🛡️ Permissions 🛡️
 
 settings-group =
     .header = 👉🏻 <b>Group:</b> { $groupName }

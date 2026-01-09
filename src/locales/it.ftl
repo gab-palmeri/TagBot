@@ -180,6 +180,8 @@ settings-main =
         🛠️ <i>Non vedi un gruppo di cui sei admin?
         Invia /restart lì e riprova</i>
 
+    .permissions = 🛡️ Permessi 🛡️
+
 settings-group =
     .header = 👉🏻 <b>Gruppo:</b> { $groupName }
     .description =

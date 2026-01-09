@@ -22,7 +22,7 @@ const groupPanel = new ManagedMenu<MyContext>(
 
 
 groupPanel
-    .text("🛡️ Permissions 🛡️").row()
+    .text(ctx => ctx.t("settings-main.permissions")).row()
     .submenu(
         (ctx) => ctx.t("settings-create.btn"), 
         "create-menu"

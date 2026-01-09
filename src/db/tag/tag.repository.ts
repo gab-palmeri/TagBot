@@ -29,6 +29,30 @@ export default class TagRepository implements ITagRepository {
             .where('tag.group_id', '=', group_id)
             .execute();
     }
+
+    public async deleteEmpty(group_id: number) {
+        await getDb()
+            .deleteFrom('tag')
+            .where('tag.group_id', '=', group_id)
+            .where('tag.id', 'in', (eb) => 
+                eb.selectFrom('tag as t')
+                .leftJoin('subscriber', 't.id', 'subscriber.tagId')
+                .select('t.id')
+                .where('t.group_id', '=', group_id)
+                .groupBy('t.id')
+                // Filtriamo quelli che hanno 0 iscritti
+                .having(getDb().fn.count('subscriber.userId'), '=', 0)
+            )
+            .execute();
+    }
+
+    public async deleteInactive(group_id: number, months: number) {
+        await getDb()
+            .deleteFrom('tag')
+            .where('tag.group_id', '=', group_id)
+            .where('tag.lastTagged', '<', dayjs.utc().subtract(months, 'month').format())
+            .execute();
+    }
     
     public async rename(group_id: number, oldTagName: string, newTagName: string) {
         await getDb().updateTable('tag')

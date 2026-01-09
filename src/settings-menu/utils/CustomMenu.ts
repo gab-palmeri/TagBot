@@ -83,8 +83,12 @@ export class ManagedMenu<C extends MyContext = MyContext> extends Menu<C> {
         });
     }
 
-    override back(text: any): this {
+    override back(text: any, ...middleware: unknown[]): this {
         return super.back(text, async (ctx, next) => {
+            for (const m of middleware) 
+                if (typeof m === "function") 
+                    await m(ctx);
+
             if (this.managedParent) {
                 await this.managedParent.renderTitle(ctx);
             }

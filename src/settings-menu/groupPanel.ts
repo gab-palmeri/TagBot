@@ -1,43 +1,58 @@
-import { Menu } from "@grammyjs/menu";
-
 import { MyContext } from 'utils/customTypes';
+import { ManagedMenu } from "./utils/CustomMenu";
 
-import createMenu from "./create";
-import deleteMenu from "./delete";
-import renameMenu from "./rename";
-import languageMenuGroup from "./languageGroup";
+import createMenu from "./permissions/create";
+import deleteMenu from "./permissions/delete";
+import renameMenu from "./permissions/rename";
+import languageMenuGroup from "./language/languageGroup";
+import manageTags from "./unusedTags/unusedTags";
 
-import generateDescription from "./generateDescription";
-import languages from "utils/supportedLanguages";
+// Group control panel
+const groupPanel = new ManagedMenu<MyContext>(
+    "group-panel",
+    ctx => {
+        const group = ctx.session.selectedGroup;
+        const header = ctx.t("settings-main.header");
+        const groupHeader = ctx.t("settings-group.header", {groupName: group.groupName});
+        const description = ctx.t("settings-group.description");
+        const message = `${header}\n\n${groupHeader}\n\n${description}`;
+        return message;
+    }
+);
 
 
-//Control Panel Menu for a single group
-const groupPanel = new Menu<MyContext>("control-panel")
-    .submenu((ctx: MyContext) => ctx.t("settings.create"), "create-menu", async ctx => {
-        const description = generateDescription(ctx.t, "create", ctx.session.selectedGroup.canCreate);
-        await ctx.editMessageText(description, {parse_mode: "HTML"});
-    })
-    .submenu((ctx: MyContext) => ctx.t("settings.delete"), "delete-menu", async ctx => {
-        const description = generateDescription(ctx.t, "delete", ctx.session.selectedGroup.canDelete);
-        await ctx.editMessageText(description, {parse_mode: "HTML"});
-    }).row()
-    .submenu((ctx: MyContext) => ctx.t("settings.rename"), "rename-menu", async ctx => {
-        const description = generateDescription(ctx.t, "rename", ctx.session.selectedGroup.canRename);
-        await ctx.editMessageText(description, {parse_mode: "HTML"});
-    }).row()
-    .submenu((ctx: MyContext) => ctx.t("settings.language"), "language-menu-group", async ctx => {
-        const langEntry = languages.find(l => l.code === ctx.session.selectedGroup.lang);
-        const langName = ctx.t(`language.${langEntry.code}`);
-        const langNameAndEmoji = `${langEntry.emoji} ${langName}`;
+groupPanel
+    .text("🛡️ Permissions 🛡️").row()
+    .submenu(
+        (ctx) => ctx.t("settings-create.btn"), 
+        "create-menu"
+    )
+    .submenu(
+        (ctx) => ctx.t("settings-delete.btn"), 
+        "delete-menu"
+    )
+    .submenu(
+        (ctx) => ctx.t("settings-rename.btn"), 
+        "rename-menu"
+    )
+    .row()
+    .submenu(
+        (ctx) => ctx.t("settings-language.btn"), 
+        "language-menu-group"
+    )
+    .submenu(
+        (ctx) => ctx.t("settings-manage-tags.btn"), 
+        "manage-tags"
+    )
+    .row()
+    .back((ctx) => ctx.t("settings-misc.back"));
 
-        const description = generateDescription(ctx.t, "language-group", langNameAndEmoji);
-        await ctx.editMessageText(description, {parse_mode: "HTML"});
-    })
-    .back((ctx: MyContext) => ctx.t("settings.back"), ctx => ctx.editMessageText(ctx.t("settings.main"), {parse_mode: "HTML"})).row();
-
-groupPanel.register(createMenu);
-groupPanel.register(deleteMenu);
-groupPanel.register(renameMenu);
-groupPanel.register(languageMenuGroup);
+groupPanel.register([
+    createMenu,
+    deleteMenu,
+    renameMenu,
+    manageTags,
+    languageMenuGroup
+]);
 
 export default groupPanel;

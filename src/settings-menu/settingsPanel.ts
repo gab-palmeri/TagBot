@@ -1,40 +1,38 @@
-import { Menu } from "@grammyjs/menu";
-
 import { MyContext } from 'utils/customTypes';
+import { ManagedMenu } from "./utils/CustomMenu";
 
-import groupPanel from  "./groupPanel";
-import languageMenuPrivate from "./languagePrivate";
+import groupPanel from "./groupPanel";
+import languageMenuPrivate from "./language/languagePrivate";
 
-import languages from "utils/supportedLanguages";
-import generateDescription from "./generateDescription";
-import UserRepository from "db/user/user.repository";
+import AdminRepository from "db/admin/admin.repository";
 
-//Menu that shows all the groups
-const settingsPanel = new Menu<MyContext>("groups-list")
-    .dynamic((ctx, range) => {
-        for (const group of ctx.session.groups) {
-            range.submenu(group.groupName, "control-panel", async ctx => {
-                    ctx.session.selectedGroup = group;
-                    const description = ctx.t("settings.group-panel", {groupName: ctx.session.selectedGroup.groupName });
-                    await ctx.editMessageText(description, {parse_mode: "HTML"});
-                }).row();
+// Main settings panel
+const settingsPanel = new ManagedMenu<MyContext>(
+    "groups-list",
+    (ctx) => `${ctx.t("settings-main.header")}\n\n${ctx.t("settings-main.description")}`
+);
+
+settingsPanel
+    .dynamic(async (ctx, range) => {
+        const adminRepository = new AdminRepository();
+        const userId = ctx.from.id.toString();
+        const admin = await adminRepository.getWithGroups(userId);
+
+        for (const group of admin.groups) {
+            range.submenu(group.groupName, "group-panel", async (ctx) => {
+                ctx.session.selectedGroup = group;
+            }).row();
         }
     })
-    .submenu((ctx: MyContext) => ctx.t("settings.language"), "language-menu-private", async ctx => {
-        const userRepository = new UserRepository();
-        const user = await userRepository.getUser(ctx.from.id.toString());
+    .submenu(
+        (ctx) => ctx.t("settings-language.btn"), 
+        "language-menu-private"
+    )
+    .text(
+        (ctx) => ctx.t("settings-misc.close"), 
+        (ctx) => ctx.deleteMessage()
+    );
 
-        const langEntry = languages.find(l => l.code === user.lang);
-        const langName = ctx.t(`language.${langEntry.code}`);
-        const langNameAndEmoji = `${langEntry.emoji} ${langName}`;
-
-        const description = generateDescription(ctx.t, "language-private", langNameAndEmoji);
-        await ctx.editMessageText(description, {parse_mode: "HTML"});
-    })
-    .text((ctx: MyContext) => ctx.t("settings.close"), (ctx) => ctx.deleteMessage());
-
-settingsPanel.register(groupPanel);
-settingsPanel.register(languageMenuPrivate);
-
+settingsPanel.register([groupPanel, languageMenuPrivate]);
 
 export default settingsPanel;

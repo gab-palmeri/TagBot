@@ -172,55 +172,86 @@ tag-entry =
 ################
 ### SETTINGS ###
 ################
-settings =
-    .main = 
-        {"<b>🌟 Pannello di Controllo TagBot 🌟</b>"}
-        👉🏻  <i><b>Seleziona il gruppo</b> che vuoi gestire e personalizza le sue impostazioni.</i>
+settings-main =
+    .header = <b>🌟 Pannello di Controllo TagBot 🌟</b>
+    .description = 
+        👉🏻 <i>Seleziona il gruppo che vuoi gestire.</i>
 
         🛠️ <i>Non vedi un gruppo di cui sei admin?
-        Invia /restart nel gruppo e riprova</i>
-    .group-panel = 🔑 <b>Gruppo:</b> { $groupName }
-    .create = ✏️ Crea Tag
-    .delete = 💣 Elimina Tag
-    .rename = ✍️ Rinomina Tag
-    .language = 🌐 Lingua
+        Invia /restart lì e riprova</i>
 
-    .create-description = 
-        ✏️ <b>Chi può creare i tag?</b>
-        
-        Decidi chi, in questo gruppo, ha il permesso di creare nuovi tag.  
-        Impostazione attuale: { $current }.
+settings-group =
+    .header = 👉🏻 <b>Gruppo:</b> { $groupName }
+    .description =
+        ⚙️ <i>Gestisci chi può usare i comandi del bot, imposta la lingua del bot e cancella i tag inutilizzati</i>.
 
-    .delete-description = 
-        💣 <b>Chi può eliminare i tag?</b>
-        
-        Scegli chi è autorizzato a eliminare i tag esistenti in questo gruppo.  
-        Impostazione attuale: { $current }.
+settings-create = 
+    .header = ✏️ <b>Chi può creare tag?</b>
+    .description = <i>Decidi chi in questo gruppo ha il permesso di creare nuovi tag.</i>
+    .btn = ✏️ /create
 
-    .rename-description = 
-        ✍️ <b>Chi può rinominare i tag?</b>
-        
-        Imposta chi può rinominare i tag all’interno del gruppo.  
-        Impostazione attuale: { $current }.
+settings-delete = 
+    .header = 💣 <b>Chi può cancellare tag?</b>
+    .description = <i>Scegli chi può cancellare i tag esistenti in questo gruppo.</i>
+    .btn = 💣 /delete
 
-    .language-group-description = 
-        🌐 <b>Seleziona la lingua del bot</b>
-        
-        Scegli la lingua che il bot userà per inviare i messaggi in questo gruppo.  
-        Lingua attuale: { $current }.
+settings-rename = 
+    .header = ✍️ <b>Chi può rinominare tag?</b>
+    .description = <i>Imposta chi può rinominare i tag nel gruppo.</i>
+    .btn = ✍️ /rename
+
+settings-current = <u>Impostazione corrente:</u> { $current }
+
+settings-permissions =
+    .everyone = 🌍 Tutti
+    .only-admins = 👑 Solo admin
+    .admins-creators = 🔧 Creatori di tag & admin
+
+settings-language =
+    .header = 🌐 <b>Seleziona la lingua del bot</b>
+    .description-group = <i>Scegli la lingua che il bot userà per inviare messaggi in questo gruppo.</i> 
+    .description-private = <i>Scegli la lingua che il bot userà per inviare messaggi in questa chat privata.</i>
+    .current = <u>Lingua corrente:</u> { $current }
+    .btn = 🌐 Lingua
+
+settings-manage-tags =
+    .header = 🗑️ <i>Seleziona quali tag visualizzare.</i>
+    .btn = 🗑️ Tag inutilizzati
+
+
+settings-del-empty =
+    .header = 🫙 <b>Elimina tag vuoti</b>
+    .description = 
+        <i>Questi sono tag senza iscritti.</i>
+        <i>Puoi eliminarli uno alla volta o tutti insieme.</i>
     
-    .language-private-description = 
-        🌐 <b>Seleziona la lingua del bot</b>
-        
-        Scegli la lingua che il bot userà per inviare i messaggi in questa chat privata.  
-        Lingua attuale: { $current }.
+        <i>👇 Tocca un tag o Elimina tutto per iniziare.</i>
+
+    .all = 🗑️ Elimina tutti
+    .btn = 🫙 Tag vuoti
+    .none = ⚠️ Nessun tag vuoto trovato
 
 
-    .permissions-everyone = 🌍 Tutti
-    .permissions-only-admins = 👑 Solo amministratori
-    .permissions-admins-creators = 🛠️ Creatori di tag e amministratori
-    .back = 🔙 Indietro
+settings-del-inactive =
+    .header = ⏳ <b>Elimina tag inattivi</b>
+    .description =
+        <i>Questi sono tag che non vengono usati da un po’ di tempo.</i>
+        <i>Puoi eliminarli uno alla volta o in base al periodo di inattività:</i>
+
+        🕒 <b>3m</b>: inattivi da 3+ mesi
+        🕒 <b>6m</b>: inattivi da 6+ mesi
+        🕒 <b>12m</b>: inattivi da 1+ anno
+
+    .btn = 📜 Tag inattivi
+    .none = ⚠️ Nessun tag inattivo trovato
+
+
+settings-misc =
+    .confirm = ⚠️ Sicuro?
+    .cancel = ⬅️ Annulla
+    .back = ⬅️ Indietro
     .close = ✖️ Chiudi
+
 
 #################
 ### LANGUAGES ###

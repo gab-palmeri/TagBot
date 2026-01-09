@@ -16,6 +16,6 @@ export async function settingsHandler(ctx: MyContext) {
         return await ctx.reply(ctx.t("admin.no-groups"), {parse_mode: "HTML"});
     }
     // Set session data and menu
-    ctx.session.groups = adminResult.groups;
-    return await ctx.reply(ctx.t("settings.main"), { parse_mode: "HTML", reply_markup: groupsMenu }); 
+    const message = ctx.t("settings-main.header") + "\n\n" + ctx.t("settings-main.description");
+    return await ctx.reply(message, { parse_mode: "HTML", reply_markup: groupsMenu }); 
 }

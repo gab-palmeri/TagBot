@@ -151,7 +151,7 @@ leave =
 #################
 list =
     .empty = ⚠️ No <b>tags</b> found in this group
-    .full = 👇 <b>Here's a list of all the tags in { $groupName }:</b>
+    .full = 👇 <b>Here's a list of all the tags in { $g roupName }:</b>
     .partial = 👇 <b>Here's a partial list of the tags in this group:</b>
     
     .main = 🔥 <b>Main tags:</b>
@@ -178,55 +178,88 @@ tag-entry =
 ################
 ### SETTINGS ###
 ################
-settings =
-    .main = 
-        {"<b>🌟 TagBot Control Panel 🌟</b>"}
-        👉🏻 <i>Select the group you want to manage and customize its settings.</i>
+
+settings-main =
+    .header = <b>🌟 TagBot Control Panel 🌟</b>
+    .description = 
+        👉🏻 <i>Select the group you want to manage.</i>
 
         🛠️ <i>Can't see a group you're an admin of?
         Send /restart there and retry</i>
-    .group-panel = 🔑 <b>Group:</b> { $groupName }
-    .create = ✏️ Create Tags
-    .delete = 💣 Delete Tags
-    .rename = ✍️ Rename Tags
-    .language = 🌐 Language
 
-    .create-description = 
-        ✏️ <b>Who can create tags?</b>
-        
-        Decide who in this group has permission to create new tags. 
-        Current setting: { $current }.
+settings-group =
+    .header = 👉🏻 <b>Group:</b> { $groupName }
+    .description =
+        ⚙️ <i>Manage who can use bot commands, set the bot's language and delete unused tags</i>.
 
-    .delete-description = 
-        💣 <b>Who can delete tags?</b>
-        
-        Choose who is allowed to delete existing tags in this group. 
-        Current setting: { $current }
+settings-create = 
+    .header = ✏️ <b>Who can create tags?</b>
+    .description = <i>Decide who in this group has permission to create new tags.</i>
+    .btn = ✏️ /create
 
-    .rename-description = 
-        ✍️ <b>Who can rename tags?</b>
-        
-        Set who can rename tags in the group. 
-        Current setting: { $current }
+settings-delete = 
+    .header = 💣 <b>Who can delete tags?</b>
+    .description = <i>Choose who is allowed to delete existing tags in this group.</i>
+    .btn = 💣 /delete
 
-    .language-group-description = 
-        🌐 <b>Select bot language</b>
-        
-        Pick the language the bot will use to send messages in this group. 
-        Current language: { $current }
+settings-rename = 
+    .header = ✍️ <b>Who can rename tags?</b>
+    .description = <i>Set who can rename tags in the group.</i>
+    .btn = ✍️ /rename
 
-    .language-private-description =
-        🌐 <b>Select bot language</b>
-        
-        Pick the language the bot will use to send messages in this private chat. 
-        Current language: { $current }
 
-    .permissions-everyone = 🌍 Everyone
-    .permissions-only-admins = 👑 Only admins
-    .permissions-admins-creators = 🛠️ Tag creators & admins
-    .back = 🔙 Go Back
+settings-current = <u>Current setting:</u> { $current }
+
+settings-permissions =
+    .everyone = 🌍 Everyone
+    .only-admins = 👑 Only admins
+    .admins-creators = 🔧 Tag creators & admins
+
+settings-language =
+    .header = 🌐 <b>Select bot language</b>
+    .description-group = <i>Pick the language the bot will use to send messages in this group.</i> 
+    .description-private = <i>Pick the language the bot will use to send messages in this private chat.</i>
+    .current = <u>Current language:</u> { $current }
+    .btn = 🌐 Language
+
+
+settings-manage-tags =
+    .header = 🗑️ <i>Select which tags to see.</i>
+    .btn = 🗑️ Unused Tags
+
+
+settings-del-empty =
+    .header = 🫙 <b>Delete empty tags</b>
+    .description = 
+        <i>These are tags with no subscribers.</i>
+        <i>You can delete them one by one or all at once.</i>
+    
+        <i>👇 Tap a tag or Delete All to begin.</i>
+
+    .all = 🗑️ Delete All
+    .btn = 🫙 Empty tags
+    .none = ⚠️ No empty tags found
+
+
+settings-del-inactive =
+    .header = ⏳ <b>Delete inactive tags</b>
+    .description =
+        <i>These are tags that have been inactive for a while.</i>
+        <i>You can delete them one by one or by inactivity threshold:</i>
+
+        🕒 <b>3m</b>: inactive for 3+ months
+        🕒 <b>6m</b>: inactive for 6+ months
+        🕒 <b>12m</b>: inactive for 1+ year
+
+    .btn = 📜 Inactive Tags
+    .none = ⚠️ No inactive tags found
+
+
+settings-misc =
+    .confirm = ⚠️ Sure?
+    .cancel = ⬅️ Cancel
+    .back = ⬅️ Back
     .close = ✖️ Close
-
 
 #################
 ### LANGUAGES ###

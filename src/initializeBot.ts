@@ -22,6 +22,7 @@ export default async function initializeBot() {
 			groups: [] as Groups,
 			selectedGroup: null,
 			botJoinedMessageId: null,
+			confirmMap: {}
 		}),
 	});
 

@@ -1,7 +1,7 @@
 import { MyContext } from 'utils/customTypes';
 import { ManagedMenu } from "../utils/CustomMenu";
 
-import languages from "../../utils/supportedLanguages";
+import languages from "./supportedLanguages";
 import UserRepository from "db/user/user.repository";
 
 const languageMenuPrivate = new ManagedMenu<MyContext>(
@@ -27,7 +27,7 @@ languageMenuPrivate.dynamic(async (ctx, range) => {
     const userRepository = new UserRepository();
     const user = await userRepository.getUser(ctx.from.id.toString());
 
-    for (const l of languages) {
+    languages.forEach((l,i) => {
         const langLabel = `${l.emoji} ${ctx.t(`language.${l.code}`)}`;
 
         range.text(langLabel, async (ctx) => {
@@ -40,8 +40,14 @@ languageMenuPrivate.dynamic(async (ctx, range) => {
                 await languageMenuPrivate.renderTitle(ctx); 
             }
         });
+        if (i % 2 !== 0) range.row();
+    });
+
+    if (languages.length % 2 !== 0) {
+        range.text(" ").row();
     }
-    range.row();
-}).back((ctx) => ctx.t("settings-misc.back"));
+})
+.row()
+.back((ctx) => ctx.t("settings-misc.back"));
 
 export default languageMenuPrivate;

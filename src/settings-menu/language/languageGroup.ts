@@ -1,7 +1,7 @@
 import { MyContext } from 'utils/customTypes';
 import { ManagedMenu } from "../utils/CustomMenu";
 
-import languages from "../../utils/supportedLanguages";
+import languages from "./supportedLanguages";
 import GroupRepository from "db/group/group.repository";
 
 const languageMenuGroup = new ManagedMenu<MyContext>(
@@ -22,13 +22,12 @@ const languageMenuGroup = new ManagedMenu<MyContext>(
         return `${main}\n\n${group}\n\n${header}\n\n${description}\n${currentSetting}`;
 
     }
-);
-
-languageMenuGroup.dynamic((ctx, range) => {
+)
+.dynamic((ctx, range) => {
     const groupRepository = new GroupRepository();
     const group = ctx.session.selectedGroup;
 
-    for (const l of languages) {
+    languages.forEach((l,i) => {
         const langLabel = `${l.emoji} ${ctx.t(`language.${l.code}`)}`;
 
         range.text(langLabel, async (ctx) => {
@@ -39,8 +38,14 @@ languageMenuGroup.dynamic((ctx, range) => {
                 await languageMenuGroup.renderTitle(ctx);
             }
         });
-    }
-    range.row();
-}).back((ctx) => ctx.t("settings-misc.back"));
+        if (i % 2 !== 0) range.row();
+    });
+    
+    if(languages.length % 2 !== 0)
+        range.text(" ").row();
+
+})
+.row()
+.back((ctx) => ctx.t("settings-misc.back"));
 
 export default languageMenuGroup;

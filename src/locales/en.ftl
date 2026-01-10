@@ -268,3 +268,6 @@ settings-misc =
 language =
     .it = Italian
     .en = English
+    .ru = Russian
+    .fr = French
+    .es = Spanish

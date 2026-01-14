@@ -3,9 +3,10 @@ import { sequentialize } from "@grammyjs/runner";
 import { getSessionKey } from "./utils/middlewares";
 import { limit } from "@grammyjs/ratelimiter";
 import { autoRetry } from "@grammyjs/auto-retry";
-import i18n from "utils/i18n";
+import { I18n } from "@grammyjs/i18n";
 
 import { Groups, MyContext } from 'utils/customTypes';
+import localeNegotiator from "utils/localeNegotiator";
 
 import { tagbotCommands, devCommands } from "commands";
 import { listenersGroup, listenersPrivate} from "listeners";
@@ -24,6 +25,13 @@ export default async function initializeBot() {
 			botJoinedMessageId: null,
 			confirmMap: {}
 		}),
+	});
+
+	const i18n = new I18n<MyContext>({
+		defaultLocale: "en", 
+		directory: "src/locales",
+		fluentBundleOptions: { useIsolating: false },
+		localeNegotiator: localeNegotiator
 	});
 
 	const errorHandler = async (err) => {

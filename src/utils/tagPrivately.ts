@@ -1,28 +1,28 @@
 import { MyContext } from "utils/customTypes";
 import { UserDTO } from "db/user/user.dto";
 
-import i18n from "./i18n";
-
 //This function sends a private message to each user subscribed to the tag
-export async function tagPrivately(ctx: MyContext, tagName: string, groupName: string, subscribers: UserDTO[], messageToReplyTo: number) {
+export async function tagPrivately(ctx: MyContext, tagName: string, groupName: string, users: UserDTO[], messageToReplyTo: number) {
     const messageLink = "https://t.me/c/" + ctx.msg.chat.id.toString().slice(4) + "/" + messageToReplyTo;
     const notContacted = [];
 
     
 
-    for(const subscriber of subscribers) {
+    for(const subscriber of users) {
         try {
-            const toSendMessage = i18n.t(subscriber.lang, "tag.private-message", {tagName, groupName, messageLink});
+            ctx.i18n.useLocale(subscriber.lang);
+            const toSendMessage = ctx.t("tag.private-message", {tagName, groupName, messageLink});
             await ctx.api.sendMessage(subscriber.userId, toSendMessage, { parse_mode: "HTML" });
         } catch(e) {
             notContacted.push((await ctx.getChatMember(parseInt(subscriber.userId))).user.first_name);
         }
     }
 
+    await ctx.i18n.renegotiateLocale();
     let message = "";
 
     //if at least one user was privately tagged successfully..
-    if(subscribers.length > notContacted.length)
+    if(users.length > notContacted.length)
         message += ctx.t("tag.private-ok", {tagName});
 
 

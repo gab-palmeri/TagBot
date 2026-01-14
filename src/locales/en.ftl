@@ -151,7 +151,7 @@ leave =
 #################
 list =
     .empty = ⚠️ No <b>tags</b> found in this group
-    .full = 👇 <b>Here's a list of all the tags in { $g roupName }:</b>
+    .full = 👇 <b>Here's a list of all the tags in { $groupName }:</b>
     .partial = 👇 <b>Here's a partial list of the tags in this group:</b>
     
     .main = 🔥 <b>Main tags:</b>

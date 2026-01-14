@@ -162,10 +162,11 @@ mytags =
     .empty = ⚠️ Vous n’êtes abonné à aucun tag dans ce groupe, @{ $username }
 
 tag-entry =
-        - <code>{ $tagName }</code> <i>{ $count ->
-            [one] 1 abonné
-        *[other] { $count } abonnés
-        }</i>
+    - <code>{ $tagName }</code> <i>{ $count ->
+        [0] 0 abonné
+        [one] 1 abonné
+       *[other] { $count } abonnés
+    }</i>
 
 ################
 ### SETTINGS ###

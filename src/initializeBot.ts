@@ -80,8 +80,6 @@ export default async function initializeBot() {
 			}
 		},
 	});
-
-
 	
 	bot.catch(errorHandler);
 	bot.use(usernameSynchronizer);
@@ -89,7 +87,7 @@ export default async function initializeBot() {
 	bot.use(sequentialize(getSessionKey));
 	bot.use(sessionConfig);
 	bot.use(i18n);
-	bot.use(rateLimits);
+	bot.filter((ctx) => ctx.has("msg::bot_command") || ctx.has("::hashtag")).use(rateLimits);
 	bot.use(settingsPanel);
 	bot.use(tagbotCommands);
 	bot.filter((ctx) => ctx.from?.id.toString() == process.env.OWNER_TELEGRAM_ID).use(devCommands);

@@ -16,7 +16,7 @@ export async function createHandler(ctx: MyContext) {
     const userId = ctx.from.id.toString();
 
     // Validate parameters
-    const regex = /^(?=[^A-Za-z]*[A-Za-z])[#]{0,1}[a-zA-Z0-9][a-zA-Z0-9_]{2,31}$/;
+    const regex = /^(?=[^\p{L}]*\p{L})#?\p{L}[\p{L}\p{N}_]{2,31}$/u;
     if(tagName.length == 0)
         return await ctx.reply(ctx.t("tag.create-syntax"), {parse_mode: "HTML"});
     if(!regex.test(tagName)) 

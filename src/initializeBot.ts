@@ -9,7 +9,7 @@ import { Groups, MyContext } from 'utils/customTypes';
 import localeNegotiator from "utils/localeNegotiator";
 
 import { tagbotCommands, devCommands } from "commands";
-import { listenersGroup, listenersPrivate} from "listeners";
+import listeners from "listeners";
 
 import settingsPanel from "settings-menu/settingsPanel";
 import UserRepository from "db/user/user.repository";
@@ -91,8 +91,7 @@ export default async function initializeBot() {
 	bot.use(settingsPanel);
 	bot.use(tagbotCommands);
 	bot.filter((ctx) => ctx.from?.id.toString() == process.env.OWNER_TELEGRAM_ID).use(devCommands);
-	bot.use(listenersGroup);
-	bot.use(listenersPrivate);
+	bot.use(listeners);
 	await tagbotCommands.setCommands(bot); 
 	return bot;
 }

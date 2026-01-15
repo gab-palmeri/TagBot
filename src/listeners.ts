@@ -8,37 +8,18 @@ import { migrateHandler } from "handlers/listeners/migrate";
 import { myGroupChatMemberHandler, myPrivateChatMemberHandler } from "handlers/listeners/my_chat_member";
 import { showAllTagsCallbackQueryHandler } from "handlers/listeners/show-all-tags_callback_query";
 
-
 const listeners = new Composer<MyContext>();
 
-const listenersGroup = listeners.chatType("group");
-const listenersPrivate = listeners.chatType("private");
+listeners.chatType(["group", "supergroup"])
+.on("::hashtag", hashtagHandler) //hashtag
+.on(":new_chat_title", newChatTitleHandler) // check if a group has changed name
+.callbackQuery(/^join-tag_/, joinTagCallbackQueryHandler) // join tag callback query
+.callbackQuery(/^show-all-tags/, showAllTagsCallbackQueryHandler) // show full tag list callback queries
+.on("chat_member", chatMemberHandler) // deactivate or activate subscriber when left + check admin changes
+.on(":migrate_from_chat_id", migrateHandler) // chat migration
+.on("my_chat_member", myGroupChatMemberHandler); // handle bot add, promotion, kicked
 
-//hashtag
-listenersGroup.on("::hashtag", hashtagHandler);
+listeners.chatType("private")
+.on("my_chat_member", myPrivateChatMemberHandler); // check if an user enters or leaves the bot in private
 
-// check if a group has changed name
-listenersGroup.on(":new_chat_title", newChatTitleHandler);
-
-// callback queries
-listenersGroup.callbackQuery(/^join-tag_/, joinTagCallbackQueryHandler);
-listenersGroup.callbackQuery(/^show-all-tags/, showAllTagsCallbackQueryHandler);
-
-// deactivate or activate subscriber when left, and check admin changes
-listenersGroup.on("chat_member", chatMemberHandler);
-
-// chat migration
-listenersGroup.on(":migrate_from_chat_id", migrateHandler);
-
-// handle bot add, promotion, kicked
-listenersGroup.on("my_chat_member", myGroupChatMemberHandler);
-
-// check if an user enters or leaves the bot in private
-listenersPrivate.on("my_chat_member", myPrivateChatMemberHandler);
-
-
-
-
-
-// export the two vars
-export { listenersGroup, listenersPrivate };
+export default listeners;

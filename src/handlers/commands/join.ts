@@ -46,7 +46,7 @@ export async function joinHandler(ctx: MyContext) {
             const msg = ctx.t("join.ok", { tagName, username });
             const kb = new InlineKeyboard().text(
                 ctx.t("join.btn"),
-                `join-tag_${tagName}`
+                `join-tag-${tagName}`
             );
             return ctx.reply(msg, { reply_markup: kb, parse_mode: "HTML"});
         }

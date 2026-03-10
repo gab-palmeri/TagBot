@@ -3,7 +3,7 @@ import { joinTag } from "utils/joinTag";
 
 export async function joinTagCallbackQueryHandler(ctx: MyContext) {
   const data = ctx.callbackQuery.data;
-  const tagName = data.split("_")[1];
+  const tagName = data.replace("join-tag-", "");
 
   const groupId = ctx.callbackQuery.message.chat.id.toString();
   const userId = ctx.callbackQuery.from.id.toString();

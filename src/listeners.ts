@@ -11,13 +11,15 @@ import { showAllTagsCallbackQueryHandler } from "handlers/listeners/show-all-tag
 const listeners = new Composer<MyContext>();
 
 listeners.chatType(["group", "supergroup"])
-.callbackQuery(/^join-tag-/, joinTagCallbackQueryHandler) // join tag callback query
-.callbackQuery(/^show-all-tags/, showAllTagsCallbackQueryHandler) // show full tag list callback queries
 .on("::hashtag", hashtagHandler) //hashtag
 .on(":new_chat_title", newChatTitleHandler) // check if a group has changed name
 .on("chat_member", chatMemberHandler) // deactivate or activate subscriber when left + check admin changes
 .on(":migrate_from_chat_id", migrateHandler) // chat migration
 .on("my_chat_member", myGroupChatMemberHandler); // handle bot add, promotion, kicked
+
+listeners.chatType(["group", "supergroup"])
+.callbackQuery(/^join-tag-/, joinTagCallbackQueryHandler) // join tag callback query
+.callbackQuery(/^show-all-tags/, showAllTagsCallbackQueryHandler) // show full tag list callback queries
 
 listeners.chatType("private")
 .on("my_chat_member", myPrivateChatMemberHandler); // check if an user enters or leaves the bot in private
